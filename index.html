@@ -3,223 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projeto X — Plataforma de Streaming Premium</title>
+<title>Projeto X — Streaming Premium</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
 /* ═══════════════════════════════════════════════════════
-   RESET & TOKENS
+   TOKENS
 ═══════════════════════════════════════════════════════ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --red:        #ff1b2d;
-  --red-mid:    #c2001a;
-  --red-deep:   #7a0009;
-  --red-glow:   rgba(255,27,45,0.35);
-  --red-soft:   rgba(255,27,45,0.12);
-  --red-line:   rgba(255,27,45,0.22);
-  --white-5:    rgba(255,255,255,0.05);
-  --white-8:    rgba(255,255,255,0.08);
-  --white-12:   rgba(255,255,255,0.12);
-  --white-30:   rgba(255,255,255,0.30);
-  --white-60:   rgba(255,255,255,0.60);
-  --muted:      rgba(200,200,200,0.50);
-  --body-text:  rgba(220,220,220,0.78);
-  --nav-h:      64px;
-  --radius-lg:  20px;
-  --radius-md:  14px;
-  --radius-sm:  10px;
+  --r:          #e8182a;
+  --r-glow:     rgba(232,24,42,0.22);
+  --r-border:   rgba(232,24,42,0.18);
+  --r-soft:     rgba(232,24,42,0.07);
+  --w8:         rgba(255,255,255,0.08);
+  --w12:        rgba(255,255,255,0.12);
+  --w30:        rgba(255,255,255,0.30);
+  --w55:        rgba(255,255,255,0.55);
+  --w75:        rgba(255,255,255,0.75);
+  --muted:      rgba(200,196,196,0.46);
+  --surface:    rgba(10,4,4,0.88);
+  --nav-h:      60px;
+  --max:        1060px;
+  --ease:       cubic-bezier(0.16,1,0.3,1);
 }
 
-html { scroll-behavior: smooth; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
 
 body {
-  background: #050505;
+  background: #060404;
   color: #fff;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ═══════════════════════════════════════════════════════
-   AMBIENT BACKGROUND
+   ATMOSPHERIC LAYER
 ═══════════════════════════════════════════════════════ */
-.ambient {
+.atmos {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  overflow: hidden;
 }
 
-.ambient-blob {
+/* grain */
+.atmos::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity: 0.55;
+}
+
+.atmos-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.18;
-  animation: driftBlob 18s ease-in-out infinite alternate;
+  filter: blur(100px);
 }
 
-.amb-1 {
-  width: 700px; height: 700px;
-  background: radial-gradient(circle, #ff1b2d 0%, transparent 70%);
-  top: -200px; left: 50%; transform: translateX(-50%);
-  animation-delay: 0s;
+.orb-1 {
+  width: 800px; height: 500px;
+  background: radial-gradient(ellipse, rgba(180,10,22,0.14) 0%, transparent 70%);
+  top: -100px; left: 50%; transform: translateX(-50%);
 }
-.amb-2 {
+
+.orb-2 {
   width: 400px; height: 400px;
-  background: radial-gradient(circle, #8b0000 0%, transparent 70%);
-  bottom: 20%; left: -100px;
-  animation-delay: -6s;
-  opacity: 0.12;
-}
-.amb-3 {
-  width: 350px; height: 350px;
-  background: radial-gradient(circle, #ff1b2d 0%, transparent 70%);
-  bottom: 30%; right: -80px;
-  animation-delay: -12s;
-  opacity: 0.10;
+  background: radial-gradient(circle, rgba(130,0,10,0.08) 0%, transparent 70%);
+  bottom: 15%; right: -80px;
 }
 
-@keyframes driftBlob {
-  0%   { transform: translateX(-50%) scale(1); }
-  100% { transform: translateX(-50%) scale(1.15) translateY(30px); }
-}
-
-/* noise overlay */
-.ambient::after {
+/* scanline suggestion */
+.atmos::after {
   content: '';
   position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity: 0.4;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.012) 3px,
+    rgba(0,0,0,0.012) 4px
+  );
+  pointer-events: none;
 }
 
 /* ═══════════════════════════════════════════════════════
-   TOP NAV
+   NAV
 ═══════════════════════════════════════════════════════ */
 nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   height: var(--nav-h);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 clamp(16px, 5vw, 48px);
-  background: rgba(5,5,5,0.75);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border-bottom: 1px solid var(--red-line);
+  padding: 0 clamp(18px, 5vw, 52px);
+  background: rgba(6,4,4,0.72);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border-bottom: 1px solid rgba(255,255,255,0.055);
 }
 
-.nav-logo {
-  display: flex; align-items: center; gap: 10px;
+.nav-brand {
+  display: flex; align-items: center; gap: 11px;
   text-decoration: none;
-  flex-shrink: 0;
 }
 
-.nav-logo-icon {
-  width: 34px; height: 34px;
-  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
-  border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px; color: #fff;
-  box-shadow: 0 0 16px rgba(255,27,45,0.50);
+.nav-mark {
+  width: 28px; height: 28px;
+  background: var(--r);
+  border-radius: 7px;
+  display: grid; place-items: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px; font-weight: 500;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(232,24,42,0.5);
   flex-shrink: 0;
+  letter-spacing: -0.5px;
 }
 
-.nav-logo-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 6px; color: #fff;
+.nav-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 5px; text-transform: uppercase;
+  color: var(--w75);
 }
 
 .nav-links {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 2px;
   list-style: none;
 }
 
 .nav-links a {
   display: block;
-  padding: 7px 14px;
-  font-size: 12px; font-weight: 600; letter-spacing: 2px;
+  padding: 6px 13px;
+  font-size: 11px; font-weight: 500; letter-spacing: 1.8px;
   text-transform: uppercase; text-decoration: none;
-  color: var(--white-60);
-  border-radius: 8px;
+  color: var(--w30);
+  border-radius: 6px;
   transition: color 0.2s, background 0.2s;
 }
 
-.nav-links a:hover {
-  color: #fff;
-  background: var(--white-8);
+.nav-links a:hover { color: var(--w75); background: var(--w8); }
+.nav-links .n-cta a {
+  color: rgba(232,24,42,0.75);
+  background: var(--r-soft);
+  border: 1px solid var(--r-border);
+}
+.nav-links .n-cta a:hover {
+  color: rgba(255,90,100,0.9);
+  background: rgba(232,24,42,0.11);
 }
 
-.nav-links .nav-cta a {
-  color: var(--red);
-  background: var(--red-soft);
-  border: 1px solid var(--red-line);
-}
-
-.nav-links .nav-cta a:hover {
-  background: rgba(255,27,45,0.18);
-  color: #ff5060;
-}
-
-.nav-toggle {
+.nav-ham {
   display: none;
-  flex-direction: column; gap: 5px;
-  cursor: pointer; padding: 6px;
+  flex-direction: column; gap: 4.5px;
+  cursor: pointer; padding: 8px;
 }
-
-.nav-toggle span {
-  display: block; width: 22px; height: 1.5px;
-  background: var(--white-60);
-  transition: all 0.25s;
+.nav-ham span {
+  display: block; width: 20px; height: 1px;
+  background: var(--w55);
+  transition: all 0.2s;
 }
 
 /* ═══════════════════════════════════════════════════════
-   MOBILE NAV DRAWER
+   MOBILE DRAWER
 ═══════════════════════════════════════════════════════ */
-.nav-drawer {
+.drawer {
   display: none;
-  position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 99;
-  background: rgba(5,5,5,0.97);
-  backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--red-line);
-  padding: 16px 20px 24px;
-  flex-direction: column; gap: 4px;
-  animation: drawerIn 0.2s ease;
+  position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 190;
+  background: rgba(6,4,4,0.97);
+  backdrop-filter: blur(30px);
+  border-bottom: 1px solid var(--r-border);
+  padding: 12px 16px 20px;
+  flex-direction: column; gap: 2px;
+  animation: drawerIn 0.18s var(--ease);
 }
-
-.nav-drawer.open { display: flex; }
+.drawer.open { display: flex; }
 
 @keyframes drawerIn {
-  from { opacity: 0; transform: translateY(-10px); }
+  from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.nav-drawer a {
-  display: block; padding: 12px 16px;
-  font-size: 13px; font-weight: 600; letter-spacing: 2px;
+.drawer a {
+  display: block; padding: 11px 14px;
+  font-size: 11px; font-weight: 500; letter-spacing: 2.5px;
   text-transform: uppercase; text-decoration: none;
-  color: var(--white-60);
-  border-radius: 10px;
+  color: var(--w30); border-radius: 8px;
   transition: color 0.2s, background 0.2s;
 }
-
-.nav-drawer a:hover { color: #fff; background: var(--white-8); }
-.nav-drawer a.drawer-cta {
-  color: var(--red);
-  background: var(--red-soft);
-  border: 1px solid var(--red-line);
-  text-align: center; margin-top: 8px;
+.drawer a:hover { color: var(--w75); background: var(--w8); }
+.drawer .d-cta {
+  margin-top: 6px;
+  color: rgba(232,24,42,0.80);
+  background: var(--r-soft);
+  border: 1px solid var(--r-border);
+  text-align: center;
 }
 
 /* ═══════════════════════════════════════════════════════
-   SECTIONS — BASE
+   LAYOUT
 ═══════════════════════════════════════════════════════ */
-section {
-  position: relative; z-index: 10;
-}
+section { position: relative; z-index: 10; }
 
-.container {
-  width: 100%; max-width: 1100px;
+.wrap {
+  width: 100%; max-width: var(--max);
   margin: 0 auto;
-  padding: 0 clamp(16px, 5vw, 48px);
+  padding: 0 clamp(18px, 5vw, 52px);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -229,126 +216,125 @@ section {
   min-height: 100vh;
   display: flex; align-items: center;
   padding-top: var(--nav-h);
-  overflow: hidden;
 }
 
-.hero-inner {
+.hero-wrap {
   display: flex; flex-direction: column; align-items: center;
   text-align: center;
-  padding: 80px 0 90px;
-  gap: 0;
+  padding: 100px 0 110px;
 }
 
-.hero-tag {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 5px 16px;
-  background: var(--red-soft);
-  border: 1px solid var(--red-line);
+/* live pill */
+.live-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 14px 5px 10px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(232,24,42,0.20);
   border-radius: 999px;
-  font-size: 10px; font-weight: 700; letter-spacing: 3px;
-  text-transform: uppercase; color: rgba(255,80,90,0.90);
-  margin-bottom: 32px;
-  animation: fadeUp 0.7s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+  font-size: 9.5px; font-weight: 500; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(232,24,42,0.65);
+  margin-bottom: 52px;
+  animation: heroIn 0.8s 0.05s var(--ease) both;
 }
 
-.hero-tag-dot {
+.live-dot {
   width: 5px; height: 5px;
-  background: var(--red); border-radius: 50%;
-  box-shadow: 0 0 8px var(--red);
-  animation: pulse 2s infinite;
+  background: var(--r);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--r);
+  animation: blink 2.5s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--red); }
-  50%       { opacity: 0.4; box-shadow: none; }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
 }
 
-.hero-logo {
-  display: flex; align-items: center; justify-content: center; gap: 18px;
-  margin-bottom: 28px;
-  animation: fadeUp 0.7s 0.18s cubic-bezier(0.16,1,0.3,1) both;
+/* logotype */
+.hero-logotype {
+  margin-bottom: 36px;
+  animation: heroIn 0.8s 0.12s var(--ease) both;
 }
 
-.hero-logo-icon {
-  width: 72px; height: 72px;
-  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
-  border-radius: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 38px; color: #fff;
-  box-shadow: 0 0 40px rgba(255,27,45,0.55), 0 20px 50px rgba(0,0,0,0.60);
+.hero-logo-x {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(100px, 22vw, 168px);
+  font-weight: 300;
+  line-height: 0.85;
+  letter-spacing: -6px;
+  background: linear-gradient(160deg, #fff 10%, rgba(255,200,200,0.6) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
   position: relative;
 }
 
-.hero-logo-icon::after {
-  content: '';
-  position: absolute; inset: -1px;
-  border-radius: 21px;
-  background: linear-gradient(135deg, rgba(255,100,100,0.3), transparent 60%);
+.hero-logo-x::after {
+  content: 'X';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 60% 40%, rgba(232,24,42,0.18) 0%, transparent 60%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
   pointer-events: none;
 }
 
-.hero-wordmark {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(52px, 14vw, 90px);
-  letter-spacing: 12px;
-  background: linear-gradient(135deg, #fff 20%, rgba(255,180,180,0.85) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
+.hero-sub-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 400;
+  letter-spacing: 8px; text-transform: uppercase;
+  color: var(--w30);
+  margin-top: 4px;
 }
 
-.hero-headline {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(36px, 9vw, 68px);
-  letter-spacing: 1px;
-  line-height: 1.05;
-  margin-bottom: 10px;
-  animation: fadeUp 0.7s 0.26s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-.hero-headline em {
-  font-style: normal;
-  background: linear-gradient(90deg, var(--red) 0%, #ff6070 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero-sub {
-  font-size: clamp(15px, 2.5vw, 18px);
+/* headline */
+.hero-h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 5.5vw, 42px);
   font-weight: 300;
-  color: var(--muted);
-  max-width: 480px;
-  line-height: 1.7;
-  margin-bottom: 14px;
-  animation: fadeUp 0.7s 0.32s cubic-bezier(0.16,1,0.3,1) both;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+  color: var(--w75);
+  max-width: 520px;
+  margin-bottom: 16px;
+  animation: heroIn 0.8s 0.20s var(--ease) both;
 }
 
+.hero-h1 em {
+  font-style: italic;
+  color: #fff;
+}
+
+/* compat line */
 .hero-compat {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 7px 18px;
-  background: var(--white-5);
-  border: 1px solid var(--white-12);
-  border-radius: 999px;
-  font-size: 12px; font-weight: 500; letter-spacing: 1px;
-  color: var(--white-60);
-  margin-bottom: 42px;
-  animation: fadeUp 0.7s 0.38s cubic-bezier(0.16,1,0.3,1) both;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 7px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  font-size: 11px; font-weight: 400; letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 48px;
+  animation: heroIn 0.8s 0.26s var(--ease) both;
 }
 
-.hero-compat svg { opacity: 0.5; }
-
-.hero-compat strong {
-  color: rgba(255,255,255,0.85); font-weight: 600;
+.compat-sep {
+  width: 1px; height: 12px;
+  background: rgba(255,255,255,0.12);
 }
 
-.hero-btns {
-  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-  animation: fadeUp 0.7s 0.44s cubic-bezier(0.16,1,0.3,1) both;
+.compat-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px; letter-spacing: 1px;
+  color: var(--w55);
 }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(22px); }
+/* cta buttons */
+.hero-actions {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  animation: heroIn 0.8s 0.32s var(--ease) both;
+}
+
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -356,497 +342,494 @@ section {
    BUTTON SYSTEM
 ═══════════════════════════════════════════════════════ */
 .btn {
-  display: inline-flex; align-items: center; gap: 9px;
-  padding: 16px 30px;
-  border-radius: var(--radius-md);
-  font-family: 'Outfit', sans-serif;
-  font-size: 14px; font-weight: 700; letter-spacing: 1.5px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
   text-transform: uppercase; text-decoration: none;
   position: relative; overflow: hidden;
-  transition: transform 0.18s ease, box-shadow 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.16s ease, box-shadow 0.18s ease, background 0.18s;
   cursor: pointer; border: none;
+  white-space: nowrap;
 }
 
-.btn::before {
-  content: '';
-  position: absolute; top: 0; left: -120%;
-  width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
-  transform: skewX(-18deg);
-  transition: left 0.5s ease;
-}
-
-.btn:hover::before { left: 160%; }
-.btn:hover { transform: translateY(-3px); }
+.btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 
-.btn-red {
-  background: linear-gradient(135deg, #e8182a 0%, #8b0011 100%);
+.btn-primary {
+  background: var(--r);
   color: #fff;
-  border: 1px solid rgba(255,60,70,0.20);
-  box-shadow: 0 0 28px rgba(255,27,45,0.28), 0 8px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10);
+  box-shadow: 0 0 26px rgba(232,24,42,0.30), 0 6px 24px rgba(0,0,0,0.55);
+}
+.btn-primary:hover {
+  background: #f02235;
+  box-shadow: 0 0 44px rgba(232,24,42,0.45), 0 10px 32px rgba(0,0,0,0.60);
 }
 
-.btn-red:hover {
-  box-shadow: 0 0 48px rgba(255,27,45,0.42), 0 14px 40px rgba(0,0,0,0.60), inset 0 1px 0 rgba(255,255,255,0.14);
+.btn-ghost {
+  background: transparent;
+  color: var(--w55);
+  border: 1px solid rgba(255,255,255,0.10);
 }
+.btn-ghost:hover { color: var(--w75); background: var(--w8); border-color: rgba(255,255,255,0.15); }
 
-.btn-outline {
-  background: var(--white-5);
-  color: var(--white-60);
-  border: 1px solid var(--white-12);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.30);
-}
-
-.btn-outline:hover {
-  color: #fff;
-  background: var(--white-8);
-  border-color: rgba(255,255,255,0.20);
-}
-
-.btn-sm {
-  padding: 12px 22px;
-  font-size: 12px;
-}
-
-.btn-icon-wrap {
-  display: flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px;
-  flex-shrink: 0;
-}
+.btn-sm { padding: 10px 20px; font-size: 11px; }
 
 /* ═══════════════════════════════════════════════════════
-   SECTION HEADER
+   SECTION HEAD
 ═══════════════════════════════════════════════════════ */
-.sec-header {
+.s-head {
   text-align: center;
-  margin-bottom: 56px;
+  margin-bottom: 60px;
 }
 
-.sec-eyebrow {
+.s-eye {
   display: inline-block;
-  font-size: 10px; font-weight: 700; letter-spacing: 4px;
-  text-transform: uppercase; color: rgba(255,27,45,0.70);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(232,24,42,0.55);
+  margin-bottom: 16px;
+}
+
+.s-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(34px, 6vw, 52px);
+  font-weight: 300;
+  letter-spacing: 0.5px; line-height: 1;
+  color: var(--w75);
   margin-bottom: 14px;
 }
 
-.sec-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(36px, 7vw, 56px);
-  letter-spacing: 1px; line-height: 1;
-  background: linear-gradient(135deg, #fff 20%, rgba(255,180,180,0.80) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 12px;
-}
-
-.sec-desc {
-  font-size: 15px; font-weight: 300;
+.s-sub {
+  font-size: 14px; font-weight: 300;
   color: var(--muted);
-  max-width: 420px; margin: 0 auto;
-  line-height: 1.7;
+  max-width: 380px; margin: 0 auto;
+  line-height: 1.75;
 }
 
 /* ═══════════════════════════════════════════════════════
-   SECTION: RECURSOS
+   THIN RULE
 ═══════════════════════════════════════════════════════ */
-#recursos {
-  padding: 100px 0;
+.rule {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.055) 30%, rgba(255,255,255,0.055) 70%, transparent 100%);
+  position: relative; z-index: 10;
 }
 
-.features-grid {
+/* ═══════════════════════════════════════════════════════
+   SECTION: FEATURES
+═══════════════════════════════════════════════════════ */
+#recursos { padding: 110px 0; }
+
+.feat-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 1px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
 }
 
-.feat-card {
-  background: rgba(10,2,2,0.85);
-  border: 1px solid var(--red-line);
-  border-radius: var(--radius-lg);
-  padding: 28px 26px;
-  position: relative; overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+.feat-cell {
+  background: var(--surface);
+  padding: 34px 30px;
+  display: flex; flex-direction: column; gap: 14px;
+  position: relative;
+  transition: background 0.2s;
 }
 
-.feat-card::before {
+.feat-cell:hover { background: rgba(14,5,5,0.95); }
+
+/* top-line accent on hover */
+.feat-cell::before {
   content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,27,45,0.35), transparent);
-  opacity: 0; transition: opacity 0.25s;
+  position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--r), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.feat-cell:hover::before { opacity: 0.35; }
+
+/* wide cell */
+.feat-cell.span2 {
+  grid-column: span 2;
+  flex-direction: row; gap: 28px; align-items: flex-start;
 }
 
-.feat-card:hover {
-  border-color: rgba(255,27,45,0.40);
-  box-shadow: 0 0 40px rgba(255,27,45,0.08), 0 20px 50px rgba(0,0,0,0.50);
-  transform: translateY(-4px);
+.feat-glyph {
+  font-size: 20px; line-height: 1;
+  opacity: 0.75;
+  flex-shrink: 0;
 }
 
-.feat-card:hover::before { opacity: 1; }
-
-.feat-icon {
-  width: 46px; height: 46px;
-  background: var(--red-soft);
-  border: 1px solid var(--red-line);
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  margin-bottom: 18px;
+.feat-label {
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.82);
+  letter-spacing: 0.1px;
+  margin-bottom: 5px;
 }
 
-.feat-name {
-  font-size: 16px; font-weight: 700;
-  color: #e8e8e8;
-  margin-bottom: 8px;
-  letter-spacing: 0.2px;
-}
-
-.feat-desc {
-  font-size: 13.5px; font-weight: 400;
+.feat-text {
+  font-size: 13px; font-weight: 300;
   color: var(--muted);
   line-height: 1.65;
 }
 
-/* wide card */
-.feat-card.wide {
-  grid-column: span 2;
-  display: flex; align-items: flex-start; gap: 24px;
-}
-
-.feat-card.wide .feat-icon { flex-shrink: 0; }
-
-/* ═══════════════════════════════════════════════════════
-   SECTION: PLATAFORMAS
-═══════════════════════════════════════════════════════ */
-#android, #tv { scroll-margin-top: var(--nav-h); }
-
-#plataformas {
-  padding: 100px 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(255,27,45,0.03) 50%, transparent 100%);
-}
-
-.platforms-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.platform-card {
-  background: rgba(8,2,2,0.90);
-  border: 1px solid var(--red-line);
-  border-radius: 22px;
-  padding: 36px 32px;
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column;
-}
-
-.platform-card::after {
-  content: '';
-  position: absolute; bottom: -60px; right: -60px;
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,27,45,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.platform-tag {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 9px; font-weight: 700; letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 24px;
+/* small tag inside feat */
+.feat-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase;
+  background: var(--r-soft);
+  border: 1px solid var(--r-border);
+  color: rgba(232,24,42,0.65);
+  margin-bottom: 2px;
   align-self: flex-start;
 }
 
-.tag-available {
-  background: rgba(0,200,80,0.09);
-  border: 1px solid rgba(0,200,80,0.22);
-  color: rgba(60,220,100,0.85);
-}
-
-.tag-dev {
-  background: rgba(255,160,0,0.08);
-  border: 1px solid rgba(255,160,0,0.22);
-  color: rgba(255,180,50,0.85);
-}
-
-.tag-dot-green { width: 5px; height: 5px; background: #00c850; border-radius: 50%; box-shadow: 0 0 6px #00c850; }
-.tag-dot-orange { width: 5px; height: 5px; background: #ffa000; border-radius: 50%; animation: pulse 2s infinite; }
-
-.platform-icon {
-  font-size: 44px; line-height: 1;
-  margin-bottom: 20px;
-}
-
-.platform-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 34px; letter-spacing: 3px;
-  color: #fff; margin-bottom: 8px;
-}
-
-.platform-desc {
-  font-size: 14px; font-weight: 300;
-  color: var(--muted); line-height: 1.7;
-  margin-bottom: 28px;
-  flex: 1;
-}
-
-.platform-specs {
-  display: flex; flex-direction: column; gap: 8px;
-  margin-bottom: 30px;
-  padding: 16px;
-  background: var(--white-5);
-  border: 1px solid var(--white-8);
-  border-radius: var(--radius-md);
-}
-
-.spec-row {
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: 12.5px;
-}
-
-.spec-label { color: var(--muted); font-weight: 400; }
-.spec-value { color: rgba(255,255,255,0.80); font-weight: 600; }
-
 /* ═══════════════════════════════════════════════════════
-   SECTION: INSTALAÇÃO
+   SECTION: PLATFORMS
 ═══════════════════════════════════════════════════════ */
-#download {
-  padding: 100px 0;
+#plataformas {
+  padding: 110px 0;
   scroll-margin-top: var(--nav-h);
 }
 
-.install-wrap {
+.plat-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
+}
+
+.plat-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 40px 36px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+
+/* subtle corner glow */
+.plat-card::after {
+  content: '';
+  position: absolute; bottom: -40px; right: -40px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,24,42,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.plat-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 32px;
+  align-self: flex-start;
+}
+
+.st-live {
+  background: rgba(0,210,80,0.07);
+  border: 1px solid rgba(0,210,80,0.20);
+  color: rgba(50,220,100,0.80);
+}
+.st-dev {
+  background: rgba(220,140,0,0.07);
+  border: 1px solid rgba(220,140,0,0.20);
+  color: rgba(230,165,40,0.80);
+}
+
+.st-dot-g { width: 4px; height: 4px; background: #00d250; border-radius: 50%; box-shadow: 0 0 6px #00d250; }
+.st-dot-o { width: 4px; height: 4px; background: #dca000; border-radius: 50%; animation: blink 2s infinite; }
+
+.plat-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 300;
+  letter-spacing: 1px; line-height: 1;
+  color: #fff; margin-bottom: 12px;
+}
+
+.plat-desc {
+  font-size: 14px; font-weight: 300;
+  color: var(--muted); line-height: 1.75;
+  margin-bottom: 36px;
+  flex: 1;
+}
+
+.plat-specs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.spec {
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+.spec:nth-child(even) { border-right: none; }
+.spec:nth-last-child(-n+2) { border-bottom: none; }
+
+.spec-k {
+  font-size: 9.5px; font-weight: 400; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 4px;
+}
+.spec-v {
+  font-size: 12.5px; font-weight: 500;
+  color: var(--w75);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION: DOWNLOAD
+═══════════════════════════════════════════════════════ */
+#download {
+  padding: 110px 0;
+  scroll-margin-top: var(--nav-h);
+}
+
+.dl-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
   align-items: start;
 }
 
-.install-info {
+/* steps panel */
+.steps-panel {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
   padding: 40px 36px;
-  background: rgba(8,2,2,0.90);
-  border: 1px solid var(--red-line);
-  border-radius: 22px;
   position: relative; overflow: hidden;
 }
 
-.install-info::before {
+.steps-panel::before {
   content: '';
-  position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,27,45,0.45), transparent);
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 60%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,24,42,0.30), transparent);
 }
 
-.install-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px; letter-spacing: 2px;
-  color: #fff; margin-bottom: 6px;
+.steps-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 300;
+  color: var(--w75); margin-bottom: 6px;
+}
+.steps-note {
+  font-size: 12.5px; color: var(--muted); margin-bottom: 36px;
+  font-weight: 300;
 }
 
-.install-subtitle {
-  font-size: 13px; color: var(--muted); margin-bottom: 28px;
-}
-
-.steps {
+.steps-list {
   display: flex; flex-direction: column; gap: 0;
 }
 
-.step {
-  display: flex; gap: 18px;
-  padding: 16px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  position: relative;
+.step-item {
+  display: flex; gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.045);
+}
+.step-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.step-n {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 400; letter-spacing: 1px;
+  color: rgba(232,24,42,0.45);
+  padding-top: 2px;
+  flex-shrink: 0;
+  width: 24px;
 }
 
-.step:last-child { border-bottom: none; }
-
-.step-num {
-  width: 32px; height: 32px; flex-shrink: 0;
-  border-radius: 9px;
-  background: var(--red-soft);
-  border: 1px solid var(--red-line);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px; color: rgba(255,60,70,0.85);
-  font-weight: 700;
+.step-ttl {
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.82); margin-bottom: 4px;
 }
-
-.step-body {}
-.step-name {
-  font-size: 14px; font-weight: 700;
-  color: rgba(255,255,255,0.90); margin-bottom: 3px;
-}
-
-.step-desc {
+.step-body {
   font-size: 12.5px; font-weight: 300;
-  color: var(--muted); line-height: 1.55;
+  color: var(--muted); line-height: 1.6;
 }
 
-/* download box */
-.download-box {
-  display: flex; flex-direction: column; gap: 12px;
+/* download panel */
+.dl-panel {
+  display: flex; flex-direction: column; gap: 10px;
 }
 
 .dl-card {
-  background: rgba(8,2,2,0.90);
-  border: 1px solid var(--red-line);
-  border-radius: 22px;
-  padding: 30px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 32px;
   position: relative; overflow: hidden;
 }
 
-.dl-card-header {
+.dl-head {
   display: flex; align-items: center; gap: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
-.dl-card-icon {
-  width: 48px; height: 48px;
-  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
-  border-radius: 13px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 0 22px rgba(255,27,45,0.40);
+.dl-mark {
+  width: 44px; height: 44px;
+  border-radius: 11px;
+  display: grid; place-items: center;
+  font-size: 19px;
   flex-shrink: 0;
 }
 
-.dl-card-meta {}
-.dl-card-name {
-  font-size: 16px; font-weight: 700; color: #e8e8e8; margin-bottom: 2px;
+.dl-mark-red {
+  background: var(--r);
+  box-shadow: 0 0 22px rgba(232,24,42,0.38);
 }
 
-.dl-card-version {
-  font-size: 11px; color: var(--muted); letter-spacing: 1px;
+.dl-mark-dim {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
-.dl-info-row {
-  display: flex; gap: 8px; margin-bottom: 20px;
+.dl-name {
+  font-size: 15px; font-weight: 600;
+  color: rgba(255,255,255,0.85); margin-bottom: 3px;
+}
+.dl-ver {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted);
 }
 
-.dl-chip {
-  padding: 5px 12px;
-  background: var(--white-5);
-  border: 1px solid var(--white-8);
-  border-radius: 999px;
-  font-size: 10.5px; font-weight: 600; letter-spacing: 1px;
-  color: var(--white-60);
+.dl-chips {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
 }
 
-.dl-chip.green {
-  background: rgba(0,200,80,0.07);
-  border-color: rgba(0,200,80,0.18);
-  color: rgba(60,220,100,0.85);
+.chip {
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--w30);
+}
+
+.chip-green {
+  background: rgba(0,210,80,0.06);
+  border-color: rgba(0,210,80,0.16);
+  color: rgba(50,220,100,0.70);
 }
 
 /* ═══════════════════════════════════════════════════════
    SECTION: STATUS
 ═══════════════════════════════════════════════════════ */
-#status-sec {
-  padding: 80px 0 100px;
-}
+#status-sec { padding: 90px 0 110px; }
 
 .status-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 1px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
 }
 
-.status-card {
-  background: rgba(8,2,2,0.90);
-  border: 1px solid var(--red-line);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  display: flex; flex-direction: column; gap: 12px;
+.stat-cell {
+  background: var(--surface);
+  padding: 28px 26px;
+  display: flex; flex-direction: column; gap: 16px;
 }
 
-.status-label {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--muted);
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted);
 }
 
-.status-val {
-  font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85);
+.stat-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 300;
+  color: var(--w75);
+  line-height: 1;
 }
 
-.status-badge {
+.stat-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 10px; font-weight: 700; letter-spacing: 2px;
-  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase;
   align-self: flex-start;
 }
 
-.badge-live {
-  background: rgba(0,200,80,0.09);
-  border: 1px solid rgba(0,200,80,0.22);
-  color: rgba(60,220,100,0.90);
+.sb-live {
+  background: rgba(0,210,80,0.07); border: 1px solid rgba(0,210,80,0.18);
+  color: rgba(50,220,100,0.75);
 }
-
-.badge-dev {
-  background: rgba(255,160,0,0.09);
-  border: 1px solid rgba(255,160,0,0.22);
-  color: rgba(255,180,50,0.90);
+.sb-dev {
+  background: rgba(220,140,0,0.07); border: 1px solid rgba(220,140,0,0.18);
+  color: rgba(230,165,40,0.75);
 }
-
-.badge-stable {
-  background: var(--red-soft);
-  border: 1px solid var(--red-line);
-  color: rgba(255,80,90,0.90);
+.sb-on {
+  background: var(--r-soft); border: 1px solid var(--r-border);
+  color: rgba(232,24,42,0.65);
 }
 
 /* ═══════════════════════════════════════════════════════
-   DIVIDER LINE
-═══════════════════════════════════════════════════════ */
-.divider {
-  width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent 5%, var(--red-line) 35%, var(--red-line) 65%, transparent 95%);
-  position: relative; z-index: 10;
-}
-
-/* ═══════════════════════════════════════════════════════
-   SECTION: SUPORTE
+   SECTION: SUPPORT
 ═══════════════════════════════════════════════════════ */
 #suporte {
-  padding: 100px 0;
+  padding: 110px 0 120px;
   scroll-margin-top: var(--nav-h);
 }
 
 .support-inner {
-  max-width: 520px; margin: 0 auto;
-  text-align: center;
+  max-width: 480px; margin: 0 auto; text-align: center;
 }
 
 .support-card {
   margin-top: 40px;
-  background: rgba(8,2,2,0.90);
-  border: 1px solid var(--red-line);
-  border-radius: 22px;
-  padding: 36px;
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 44px 36px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  position: relative; overflow: hidden;
 }
 
-.support-icon-wrap {
-  width: 64px; height: 64px;
-  background: var(--red-soft);
-  border: 1px solid var(--red-line);
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 30px;
-  margin-bottom: 6px;
+.support-card::before {
+  content: '';
+  position: absolute; top: 0; left: 30%; right: 30%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,24,42,0.30), transparent);
+}
+
+.support-icon {
+  width: 58px; height: 58px;
+  background: var(--r-soft);
+  border: 1px solid var(--r-border);
+  border-radius: 15px;
+  display: grid; place-items: center;
+  font-size: 26px;
+  margin-bottom: 4px;
 }
 
 .support-title {
-  font-size: 20px; font-weight: 700; color: #e8e8e8;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 300;
+  color: var(--w75);
 }
 
 .support-desc {
-  font-size: 13.5px; color: var(--muted); line-height: 1.65;
-  max-width: 340px;
+  font-size: 13.5px; font-weight: 300;
+  color: var(--muted); line-height: 1.7;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -854,446 +837,431 @@ section {
 ═══════════════════════════════════════════════════════ */
 footer {
   position: relative; z-index: 10;
-  border-top: 1px solid var(--red-line);
-  background: rgba(5,5,5,0.95);
-  padding: 40px 0 32px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: rgba(5,3,3,0.95);
+  padding: 36px 0 28px;
 }
 
-.footer-inner {
+.footer-row {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 20px;
+  margin-bottom: 24px;
 }
 
 .footer-brand {
   display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
 }
 
-.footer-brand-icon {
-  width: 30px; height: 30px;
-  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px; color: #fff;
-  box-shadow: 0 0 12px rgba(255,27,45,0.40);
+.f-mark {
+  width: 26px; height: 26px;
+  background: var(--r);
+  border-radius: 6px;
+  display: grid; place-items: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; color: #fff;
+  box-shadow: 0 0 14px rgba(232,24,42,0.38);
 }
 
-.footer-brand-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px; letter-spacing: 5px; color: var(--white-60);
+.f-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--w30);
 }
 
-.footer-links {
-  display: flex; gap: 20px;
+.footer-nav {
+  display: flex; gap: 18px;
 }
-
-.footer-links a {
-  font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+.footer-nav a {
+  font-size: 11px; font-weight: 400; letter-spacing: 2px;
   text-transform: uppercase; text-decoration: none;
   color: var(--muted);
   transition: color 0.2s;
 }
-
-.footer-links a:hover { color: var(--white-60); }
+.footer-nav a:hover { color: var(--w55); }
 
 .footer-copy {
-  width: 100%;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  padding-top: 22px;
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 8px;
 }
 
 .footer-copy p {
-  font-size: 11.5px; color: rgba(255,255,255,0.22);
-  letter-spacing: 0.5px;
+  font-size: 11px; color: rgba(255,255,255,0.18);
+  letter-spacing: 0.3px;
 }
 
-.footer-version {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px; color: rgba(255,27,45,0.40);
-  letter-spacing: 2px;
+.footer-ver {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: rgba(232,24,42,0.28);
 }
 
 /* ═══════════════════════════════════════════════════════
    SCROLL REVEAL
 ═══════════════════════════════════════════════════════ */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+.rv {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.70s var(--ease), transform 0.70s var(--ease);
 }
+.rv.in { opacity: 1; transform: none; }
 
-.reveal.in {
-  opacity: 1;
-  transform: translateY(0);
+/* stagger children: feat-cell */
+.rv-stag .feat-cell,
+.rv-stag .plat-card,
+.rv-stag .stat-cell {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
 }
-
-/* stagger children */
-.reveal-stagger .feat-card,
-.reveal-stagger .platform-card,
-.reveal-stagger .status-card {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.60s cubic-bezier(0.16,1,0.3,1), transform 0.60s cubic-bezier(0.16,1,0.3,1);
-}
-
-.reveal-stagger.in .feat-card:nth-child(1),
-.reveal-stagger.in .platform-card:nth-child(1),
-.reveal-stagger.in .status-card:nth-child(1) { opacity:1; transform:translateY(0); transition-delay: 0.05s; }
-
-.reveal-stagger.in .feat-card:nth-child(2),
-.reveal-stagger.in .platform-card:nth-child(2),
-.reveal-stagger.in .status-card:nth-child(2) { opacity:1; transform:translateY(0); transition-delay: 0.12s; }
-
-.reveal-stagger.in .feat-card:nth-child(3),
-.reveal-stagger.in .platform-card:nth-child(3),
-.reveal-stagger.in .status-card:nth-child(3) { opacity:1; transform:translateY(0); transition-delay: 0.19s; }
-
-.reveal-stagger.in .feat-card:nth-child(4) { opacity:1; transform:translateY(0); transition-delay: 0.26s; }
-.reveal-stagger.in .feat-card:nth-child(5) { opacity:1; transform:translateY(0); transition-delay: 0.33s; }
-.reveal-stagger.in .feat-card:nth-child(6) { opacity:1; transform:translateY(0); transition-delay: 0.40s; }
+.rv-stag.in .feat-cell:nth-child(1),
+.rv-stag.in .plat-card:nth-child(1),
+.rv-stag.in .stat-cell:nth-child(1) { opacity:1; transform:none; transition-delay:0.04s; }
+.rv-stag.in .feat-cell:nth-child(2),
+.rv-stag.in .plat-card:nth-child(2),
+.rv-stag.in .stat-cell:nth-child(2) { opacity:1; transform:none; transition-delay:0.10s; }
+.rv-stag.in .feat-cell:nth-child(3),
+.rv-stag.in .stat-cell:nth-child(3) { opacity:1; transform:none; transition-delay:0.16s; }
+.rv-stag.in .feat-cell:nth-child(4) { opacity:1; transform:none; transition-delay:0.22s; }
+.rv-stag.in .feat-cell:nth-child(5) { opacity:1; transform:none; transition-delay:0.28s; }
+.rv-stag.in .feat-cell:nth-child(6) { opacity:1; transform:none; transition-delay:0.34s; }
 
 /* ═══════════════════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════════════════ */
-@media (max-width: 900px) {
-  .features-grid { grid-template-columns: 1fr 1fr; }
-  .feat-card.wide { grid-column: span 2; }
+@media (max-width: 860px) {
+  .feat-grid { grid-template-columns: 1fr 1fr; }
+  .feat-cell.span2 { grid-column: span 2; }
+  .plat-grid { grid-template-columns: 1fr; }
+  .plat-specs { grid-template-columns: 1fr 1fr; }
+  .dl-wrap { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 700px) {
   .nav-links { display: none; }
-  .nav-toggle { display: flex; }
-
-  .features-grid { grid-template-columns: 1fr; }
-  .feat-card.wide { grid-column: span 1; flex-direction: column; }
-
-  .platforms-grid { grid-template-columns: 1fr; }
-
-  .install-wrap { grid-template-columns: 1fr; }
-
-  .status-grid { grid-template-columns: 1fr 1fr; }
-
-  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .nav-ham { display: flex; }
+  .feat-grid { grid-template-columns: 1fr; }
+  .feat-cell.span2 { grid-column: span 1; flex-direction: column; }
+  .status-grid { grid-template-columns: 1fr; }
+  .footer-row { flex-direction: column; align-items: flex-start; gap: 14px; }
   .footer-copy { flex-direction: column; gap: 6px; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { flex-direction: column; gap: 10px; }
-  .hero-logo-icon { width: 60px; height: 60px; font-size: 30px; border-radius: 16px; }
-  .status-grid { grid-template-columns: 1fr; }
-  .hero-btns { flex-direction: column; align-items: stretch; }
-  .hero-btns .btn { justify-content: center; }
-  .install-info, .dl-card { padding: 24px 20px; }
-  .platform-card { padding: 28px 24px; }
+  .hero-wrap { padding: 80px 0 90px; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { justify-content: center; }
+  .steps-panel, .dl-card { padding: 28px 22px; }
+  .plat-card { padding: 30px 24px; }
+  .support-card { padding: 34px 22px; }
+  .status-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .reveal, .reveal-stagger .feat-card,
-  .reveal-stagger .platform-card,
-  .reveal-stagger .status-card { opacity: 1 !important; transform: none !important; }
+  .rv, .rv-stag .feat-cell, .rv-stag .plat-card, .rv-stag .stat-cell { opacity:1 !important; transform:none !important; }
 }
 </style>
 </head>
 <body>
 
-<!-- ══ AMBIENT ══ -->
-<div class="ambient">
-  <div class="ambient-blob amb-1"></div>
-  <div class="ambient-blob amb-2"></div>
-  <div class="ambient-blob amb-3"></div>
+<!-- ATMOS -->
+<div class="atmos">
+  <div class="atmos-orb orb-1"></div>
+  <div class="atmos-orb orb-2"></div>
 </div>
 
-<!-- ══ NAV ══ -->
+<!-- NAV -->
 <nav>
-  <a class="nav-logo" href="#home">
-    <div class="nav-logo-icon">X</div>
-    <span class="nav-logo-text">PROJETO X</span>
+  <a class="nav-brand" href="#home">
+    <div class="nav-mark">X</div>
+    <span class="nav-name">Projeto X</span>
   </a>
 
   <ul class="nav-links">
     <li><a href="#home">Home</a></li>
-    <li id="nav-android"><a href="#android">Android</a></li>
-    <li id="nav-tv"><a href="#tv">TV</a></li>
+    <li><a href="#android">Android</a></li>
+    <li><a href="#tv">TV</a></li>
     <li><a href="#recursos">Recursos</a></li>
     <li><a href="#download">Download</a></li>
-    <li class="nav-cta"><a href="#suporte">Suporte</a></li>
+    <li class="n-cta"><a href="#suporte">Suporte</a></li>
   </ul>
 
-  <div class="nav-toggle" id="navToggle" role="button" aria-label="Menu">
+  <div class="nav-ham" id="navHam" role="button" aria-label="Menu">
     <span></span><span></span><span></span>
   </div>
 </nav>
 
-<div class="nav-drawer" id="navDrawer">
-  <a href="#home" class="drawer-link">Home</a>
-  <a href="#android" class="drawer-link">Android</a>
-  <a href="#tv" class="drawer-link">TV</a>
-  <a href="#recursos" class="drawer-link">Recursos</a>
-  <a href="#download" class="drawer-link">Download</a>
-  <a href="#suporte" class="drawer-cta">💬 Suporte</a>
+<div class="drawer" id="navDrawer">
+  <a href="#home">Home</a>
+  <a href="#android">Android</a>
+  <a href="#tv">TV</a>
+  <a href="#recursos">Recursos</a>
+  <a href="#download">Download</a>
+  <a href="#suporte" class="d-cta">Suporte</a>
 </div>
 
 <!-- ══ HERO ══ -->
 <section id="home">
-  <div class="container">
-    <div class="hero-inner">
-      <div class="hero-tag">
-        <span class="hero-tag-dot"></span>
-        Plataforma Oficial
+  <div class="wrap">
+    <div class="hero-wrap">
+
+      <div class="live-pill">
+        <span class="live-dot"></span>
+        Plataforma Oficial · Android Beta
       </div>
 
-      <div class="hero-logo">
-        <div class="hero-logo-icon">X</div>
-        <div class="hero-wordmark">PROJETO X</div>
+      <div class="hero-logotype">
+        <div class="hero-logo-x">X</div>
+        <div class="hero-sub-name">Projeto &nbsp;·&nbsp; Streaming Premium</div>
       </div>
 
-      <h1 class="hero-headline">Streaming <em>Premium</em><br>na palma da mão</h1>
-
-      <p class="hero-sub">
-        Aplicativo completo de streaming com interface profissional,
-        atualizações automáticas e desempenho otimizado para qualquer dispositivo.
-      </p>
+      <h1 class="hero-h1">
+        Streaming <em>premium</em><br>para qualquer dispositivo.
+      </h1>
 
       <div class="hero-compat">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Compatível com &nbsp;<strong>Xtream Codes</strong>&nbsp; e &nbsp;<strong>M3U</strong>
+        <span class="compat-tag">Xtream Codes</span>
+        <span class="compat-sep"></span>
+        <span class="compat-tag">M3U</span>
+        <span class="compat-sep"></span>
+        <span class="compat-tag">Android 5.0+</span>
       </div>
 
-      <div class="hero-btns">
-        <a class="btn btn-red" href="ProjetoX.apk">
-          <span class="btn-icon-wrap">⬇</span>
-          Android APK
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="ProjetoX.apk">
+          ↓&nbsp; Download Android
         </a>
-        <a class="btn btn-outline" href="#tv">
-          <span class="btn-icon-wrap">📺</span>
-          Versão TV
+        <a class="btn btn-ghost" href="#tv">
+          ◻&nbsp; Smart TV
         </a>
       </div>
+
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="rule"></div>
 
 <!-- ══ RECURSOS ══ -->
 <section id="recursos">
-  <div class="container">
-    <div class="sec-header reveal">
-      <span class="sec-eyebrow">Funcionalidades</span>
-      <h2 class="sec-title">Recursos Exclusivos</h2>
-      <p class="sec-desc">Tudo que você precisa em um único app, feito para funcionar no menor dos dispositivos.</p>
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-eye">Funcionalidades</span>
+      <h2 class="s-title">Recursos exclusivos</h2>
+      <p class="s-sub">Uma plataforma completa, projetada para o melhor desempenho em qualquer dispositivo.</p>
     </div>
 
-    <div class="features-grid reveal-stagger">
-      <div class="feat-card wide">
-        <div class="feat-icon">🔄</div>
+    <div class="feat-grid rv-stag">
+
+      <div class="feat-cell span2">
+        <div class="feat-glyph">↻</div>
         <div>
-          <div class="feat-name">Atualização Automática OTA</div>
-          <div class="feat-desc">Receba atualizações diretamente pelo app, sem precisar reinstalar ou procurar novos links. O sistema OTA garante que você sempre tenha a versão mais recente.</div>
+          <span class="feat-badge">OTA</span>
+          <div class="feat-label">Atualizações automáticas</div>
+          <div class="feat-text">Receba cada nova versão diretamente pelo app, sem precisar reinstalar ou buscar novos links. O sistema OTA mantém você sempre atualizado com o mínimo esforço.</div>
         </div>
       </div>
 
-      <div class="feat-card">
-        <div class="feat-icon">🎨</div>
-        <div class="feat-name">Interface Premium</div>
-        <div class="feat-desc">Design moderno e elegante, pensado para a melhor experiência visual possível.</div>
+      <div class="feat-cell">
+        <div class="feat-glyph">◈</div>
+        <div class="feat-label">Interface premium</div>
+        <div class="feat-text">Design refinado e elegante, pensado para a melhor experiência visual em todas as telas.</div>
       </div>
 
-      <div class="feat-card">
-        <div class="feat-icon">⚡</div>
-        <div class="feat-name">Dispositivos Fracos</div>
-        <div class="feat-desc">Otimizado para funcionar bem até em celulares com pouca memória e processador básico.</div>
+      <div class="feat-cell">
+        <div class="feat-glyph">⚡</div>
+        <div class="feat-label">Desempenho otimizado</div>
+        <div class="feat-text">Funciona com fluidez até em dispositivos de entrada. Menos consumo, mais desempenho.</div>
       </div>
 
-      <div class="feat-card">
-        <div class="feat-icon">🔧</div>
-        <div class="feat-name">Sistema Otimizado</div>
-        <div class="feat-desc">Código leve e eficiente. Menos consumo de bateria e dados durante o uso.</div>
+      <div class="feat-cell">
+        <div class="feat-glyph">⊞</div>
+        <div class="feat-label">Android + TV</div>
+        <div class="feat-text">Smartphone, tablet ou TV Box — a plataforma se adapta ao seu dispositivo.</div>
       </div>
 
-      <div class="feat-card">
-        <div class="feat-icon">📱</div>
-        <div class="feat-name">Android + TV</div>
-        <div class="feat-desc">Uma plataforma, duas versões. Android para celular e TV Box para a grande tela.</div>
+      <div class="feat-cell">
+        <div class="feat-glyph">▶</div>
+        <div class="feat-label">Player avançado</div>
+        <div class="feat-text">Reprodução fluida com suporte a múltiplos formatos, legendas e controles completos.</div>
       </div>
 
-      <div class="feat-card">
-        <div class="feat-icon">▶️</div>
-        <div class="feat-name">Player Premium</div>
-        <div class="feat-desc">Reprodução fluida com suporte a múltiplos formatos, legendas e controles avançados.</div>
+      <div class="feat-cell">
+        <div class="feat-glyph">⊛</div>
+        <div class="feat-label">Compatibilidade total</div>
+        <div class="feat-text">Suporte nativo a Xtream Codes e M3U para integração com qualquer provedor.</div>
       </div>
+
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="rule"></div>
 
 <!-- ══ PLATAFORMAS ══ -->
-<section id="plataformas" style="padding: 100px 0;">
-  <div class="container">
-    <div class="sec-header reveal">
-      <span class="sec-eyebrow">Plataformas</span>
-      <h2 class="sec-title">Android & Smart TV</h2>
-      <p class="sec-desc">Disponível para celular Android e em desenvolvimento para TV Box e Smart TV.</p>
+<section id="plataformas">
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-eye">Plataformas</span>
+      <h2 class="s-title">Android & Smart TV</h2>
+      <p class="s-sub">Versão Android disponível agora. Versão TV com interface dedicada em breve.</p>
     </div>
 
-    <div class="platforms-grid reveal-stagger">
+    <div class="plat-grid rv-stag">
+
       <!-- Android -->
-      <div class="platform-card" id="android">
-        <div class="platform-tag tag-available">
-          <span class="tag-dot-green"></span>
+      <div class="plat-card" id="android">
+        <div class="plat-status st-live">
+          <span class="st-dot-g"></span>
           Disponível
         </div>
-        <div class="platform-icon">📱</div>
-        <div class="platform-name">Android</div>
-        <p class="platform-desc">
-          Versão completa para smartphones e tablets Android.
-          Instalação simples por cima do app anterior, sem perda de dados.
+        <div class="plat-name">Android</div>
+        <p class="plat-desc">
+          Versão completa para smartphones e tablets. Instalação direta por cima do app anterior — seus dados permanecem intactos.
         </p>
-        <div class="platform-specs">
-          <div class="spec-row">
-            <span class="spec-label">Versão atual</span>
-            <span class="spec-value">Beta 1.0.0</span>
+        <div class="plat-specs">
+          <div class="spec">
+            <div class="spec-k">Versão</div>
+            <div class="spec-v">Android Beta</div>
           </div>
-          <div class="spec-row">
-            <span class="spec-label">Arquivo</span>
-            <span class="spec-value">ProjetoX.apk</span>
+          <div class="spec">
+            <div class="spec-k">Arquivo</div>
+            <div class="spec-v">ProjetoX.apk</div>
           </div>
-          <div class="spec-row">
-            <span class="spec-label">Android mínimo</span>
-            <span class="spec-value">5.0+</span>
+          <div class="spec">
+            <div class="spec-k">Mínimo</div>
+            <div class="spec-v">Android 5.0</div>
           </div>
-          <div class="spec-row">
-            <span class="spec-label">Instalação</span>
-            <span class="spec-value">Por cima do app</span>
+          <div class="spec">
+            <div class="spec-k">Atualização</div>
+            <div class="spec-v">OTA · Automática</div>
           </div>
         </div>
-        <a class="btn btn-red btn-sm" href="ProjetoX.apk">
-          <span>⬇</span> Baixar APK
+        <a class="btn btn-primary btn-sm" href="ProjetoX.apk">
+          ↓&nbsp; Baixar APK
         </a>
       </div>
 
       <!-- TV -->
-      <div class="platform-card" id="tv">
-        <div class="platform-tag tag-dev">
-          <span class="tag-dot-orange"></span>
+      <div class="plat-card" id="tv">
+        <div class="plat-status st-dev">
+          <span class="st-dot-o"></span>
           Em desenvolvimento
         </div>
-        <div class="platform-icon">📺</div>
-        <div class="platform-name">Smart TV</div>
-        <p class="platform-desc">
-          Versão dedicada para TV Box, Smart TV e Android TV.
-          Interface redesenhada para uso com controle remoto e tela grande.
+        <div class="plat-name">Smart TV</div>
+        <p class="plat-desc">
+          Interface dedicada para TV Box, Smart TV e Android TV. Navegação completa via controle remoto, projetada para a grande tela.
         </p>
-        <div class="platform-specs">
-          <div class="spec-row">
-            <span class="spec-label">Status</span>
-            <span class="spec-value">Em desenvolvimento</span>
+        <div class="plat-specs">
+          <div class="spec">
+            <div class="spec-k">Status</div>
+            <div class="spec-v">Em breve</div>
           </div>
-          <div class="spec-row">
-            <span class="spec-label">Previsão</span>
-            <span class="spec-value">Em breve</span>
+          <div class="spec">
+            <div class="spec-k">Android TV</div>
+            <div class="spec-v">Suportado</div>
           </div>
-          <div class="spec-row">
-            <span class="spec-label">Android TV</span>
-            <span class="spec-value">Suportado</span>
+          <div class="spec">
+            <div class="spec-k">TV Box</div>
+            <div class="spec-v">Suportado</div>
           </div>
-          <div class="spec-row">
-            <span class="spec-label">Fire TV</span>
-            <span class="spec-value">Planejado</span>
+          <div class="spec">
+            <div class="spec-k">Fire TV</div>
+            <div class="spec-v">Planejado</div>
           </div>
         </div>
-        <button class="btn btn-outline btn-sm" style="cursor:default; opacity:0.55;" disabled>
-          <span>⏳</span> Em breve
+        <button class="btn btn-ghost btn-sm" style="opacity:0.45; cursor:default;" disabled>
+          ⏳&nbsp; Em breve
         </button>
       </div>
+
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="rule"></div>
 
-<!-- ══ INSTALAÇÃO / DOWNLOAD ══ -->
+<!-- ══ DOWNLOAD ══ -->
 <section id="download">
-  <div class="container">
-    <div class="sec-header reveal">
-      <span class="sec-eyebrow">Instalação</span>
-      <h2 class="sec-title">Download Oficial</h2>
-      <p class="sec-desc">Siga os passos abaixo para instalar ou atualizar o Projeto X com segurança.</p>
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-eye">Instalação</span>
+      <h2 class="s-title">Download oficial</h2>
+      <p class="s-sub">Instale ou atualize o Projeto X com segurança em poucos passos.</p>
     </div>
 
-    <div class="install-wrap">
-      <div class="install-info reveal">
-        <div class="install-title">Como Instalar</div>
-        <div class="install-subtitle">Processo rápido e sem complicações</div>
+    <div class="dl-wrap">
+      <div class="steps-panel rv">
+        <div class="steps-title">Como instalar</div>
+        <div class="steps-note">Processo simples, sem complicações.</div>
 
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">01</div>
-            <div class="step-body">
-              <div class="step-name">Baixe o APK oficial</div>
-              <div class="step-desc">Use o botão de download nesta página. Não instale versões de fontes desconhecidas.</div>
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-n">01</div>
+            <div>
+              <div class="step-ttl">Baixe o APK oficial</div>
+              <div class="step-body">Use somente o link desta página. Nunca instale versões de fontes desconhecidas.</div>
             </div>
           </div>
-          <div class="step">
-            <div class="step-num">02</div>
-            <div class="step-body">
-              <div class="step-name">Instale por cima do app</div>
-              <div class="step-desc">Não desinstale o app anterior. A instalação por cima preserva todos os seus dados e configurações.</div>
+          <div class="step-item">
+            <div class="step-n">02</div>
+            <div>
+              <div class="step-ttl">Instale por cima do app</div>
+              <div class="step-body">Não desinstale o app anterior. A atualização preserva todas as suas configurações e listas.</div>
             </div>
           </div>
-          <div class="step">
-            <div class="step-num">03</div>
-            <div class="step-body">
-              <div class="step-name">Seus dados permanecem</div>
-              <div class="step-desc">Listas, histórico e configurações são mantidos após a atualização.</div>
+          <div class="step-item">
+            <div class="step-n">03</div>
+            <div>
+              <div class="step-ttl">Dados preservados</div>
+              <div class="step-body">Histórico, listas e configurações permanecem intactos após a atualização.</div>
             </div>
           </div>
-          <div class="step">
-            <div class="step-num">04</div>
-            <div class="step-body">
-              <div class="step-name">Atualizações futuras via OTA</div>
-              <div class="step-desc">Após instalar, o app notifica automaticamente quando houver novas versões.</div>
+          <div class="step-item">
+            <div class="step-n">04</div>
+            <div>
+              <div class="step-ttl">Próximas atualizações via OTA</div>
+              <div class="step-body">O app notifica automaticamente quando uma nova versão estiver disponível.</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="download-box reveal">
+      <div class="dl-panel rv">
+        <!-- Android card -->
         <div class="dl-card">
-          <div class="dl-card-header">
-            <div class="dl-card-icon">⬇</div>
-            <div class="dl-card-meta">
-              <div class="dl-card-name">Projeto X Android</div>
-              <div class="dl-card-version">VERSÃO BETA 1.0.0</div>
+          <div class="dl-head">
+            <div class="dl-mark dl-mark-red">↓</div>
+            <div>
+              <div class="dl-name">Projeto X — Android</div>
+              <div class="dl-ver">Android Beta · Lançamento oficial</div>
             </div>
           </div>
-          <div class="dl-info-row">
-            <div class="dl-chip green">✓ Liberado</div>
-            <div class="dl-chip">ProjetoX.apk</div>
-            <div class="dl-chip">Android 5.0+</div>
+          <div class="dl-chips">
+            <span class="chip chip-green">✓ Disponível</span>
+            <span class="chip">ProjetoX.apk</span>
+            <span class="chip">Android 5.0+</span>
           </div>
-          <a class="btn btn-red" href="ProjetoX.apk" style="width:100%; justify-content:center;">
-            <span>⬇</span> Baixar Agora
+          <a class="btn btn-primary" href="ProjetoX.apk" style="width:100%; justify-content:center;">
+            ↓&nbsp; Download oficial
           </a>
         </div>
 
+        <!-- TV card -->
         <div class="dl-card">
-          <div class="dl-card-header">
-            <div class="dl-card-icon" style="background: rgba(255,255,255,0.07); box-shadow: none;">📺</div>
-            <div class="dl-card-meta">
-              <div class="dl-card-name">Projeto X Smart TV</div>
-              <div class="dl-card-version">EM DESENVOLVIMENTO</div>
+          <div class="dl-head">
+            <div class="dl-mark dl-mark-dim">◻</div>
+            <div>
+              <div class="dl-name">Projeto X — Smart TV</div>
+              <div class="dl-ver">Em desenvolvimento</div>
             </div>
           </div>
-          <div class="dl-info-row">
-            <div class="dl-chip">⏳ Em breve</div>
-            <div class="dl-chip">TV Box / Smart TV</div>
+          <div class="dl-chips">
+            <span class="chip">⏳ Em breve</span>
+            <span class="chip">TV Box · Smart TV</span>
           </div>
-          <button class="btn btn-outline" style="width:100%; justify-content:center; opacity:0.45; cursor:default;" disabled>
+          <button class="btn btn-ghost" style="width:100%; justify-content:center; opacity:0.40; cursor:default;" disabled>
             Disponível em breve
           </button>
         </div>
@@ -1302,47 +1270,39 @@ footer {
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="rule"></div>
 
 <!-- ══ STATUS ══ -->
 <section id="status-sec">
-  <div class="container">
-    <div class="sec-header reveal">
-      <span class="sec-eyebrow">Status da Plataforma</span>
-      <h2 class="sec-title">Estado Atual</h2>
-      <p class="sec-desc">Acompanhe o status de cada versão do Projeto X.</p>
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-eye">Status</span>
+      <h2 class="s-title">Estado da plataforma</h2>
+      <p class="s-sub">Acompanhe o status de cada componente do Projeto X em tempo real.</p>
     </div>
 
-    <div class="status-grid reveal-stagger">
-      <div class="status-card">
-        <div class="status-label">
-          <span style="color:rgba(60,220,100,0.7);">●</span> Android
-        </div>
-        <div class="status-val">Beta 1.0.0</div>
-        <div class="status-badge badge-live">
-          <span style="width:5px;height:5px;background:#00c850;border-radius:50%;display:inline-block;box-shadow:0 0 6px #00c850;"></span>
+    <div class="status-grid rv-stag">
+      <div class="stat-cell">
+        <div class="stat-label">Android</div>
+        <div class="stat-val">Beta</div>
+        <div class="stat-badge sb-live">
+          <span class="st-dot-g"></span>
           Disponível
         </div>
       </div>
-
-      <div class="status-card">
-        <div class="status-label">
-          <span style="color:rgba(255,180,50,0.7);">●</span> Smart TV
-        </div>
-        <div class="status-val">—</div>
-        <div class="status-badge badge-dev">
-          <span style="width:5px;height:5px;background:#ffa000;border-radius:50%;display:inline-block;"></span>
+      <div class="stat-cell">
+        <div class="stat-label">Smart TV</div>
+        <div class="stat-val">—</div>
+        <div class="stat-badge sb-dev">
+          <span class="st-dot-o"></span>
           Desenvolvimento
         </div>
       </div>
-
-      <div class="status-card">
-        <div class="status-label">
-          <span style="color:rgba(255,80,90,0.7);">●</span> OTA
-        </div>
-        <div class="status-val">Ativo</div>
-        <div class="status-badge badge-stable">
-          <span style="width:5px;height:5px;background:var(--red);border-radius:50%;display:inline-block;box-shadow:0 0 6px var(--red);"></span>
+      <div class="stat-cell">
+        <div class="stat-label">OTA</div>
+        <div class="stat-val">Ativo</div>
+        <div class="stat-badge sb-on">
+          <span style="width:4px;height:4px;background:var(--r);border-radius:50%;display:inline-block;box-shadow:0 0 5px var(--r);animation:blink 2s infinite;"></span>
           Online
         </div>
       </div>
@@ -1350,27 +1310,24 @@ footer {
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="rule"></div>
 
 <!-- ══ SUPORTE ══ -->
 <section id="suporte">
-  <div class="container">
+  <div class="wrap">
     <div class="support-inner">
-      <div class="sec-header reveal" style="margin-bottom:0;">
-        <span class="sec-eyebrow">Suporte</span>
-        <h2 class="sec-title">Precisou de Ajuda?</h2>
-        <p class="sec-desc">Nossa equipe está disponível para auxiliar você com qualquer dúvida ou problema.</p>
+      <div class="s-head rv" style="margin-bottom:0;">
+        <span class="s-eye">Suporte</span>
+        <h2 class="s-title">Precisa de ajuda?</h2>
+        <p class="s-sub">Nossa equipe responde dúvidas sobre instalação, configuração e atualizações.</p>
       </div>
 
-      <div class="support-card reveal">
-        <div class="support-icon-wrap">💬</div>
+      <div class="support-card rv">
+        <div class="support-icon">💬</div>
         <div class="support-title">Suporte via WhatsApp</div>
-        <p class="support-desc">
-          Fale diretamente com o suporte. Respondemos dúvidas sobre instalação,
-          configuração, problemas técnicos e atualizações.
-        </p>
-        <a class="btn btn-red" href="https://wa.me/5592991669391?text=Olá,%20preciso%20de%20suporte%20no%20Projeto%20X." style="margin-top:8px;">
-          <span>💬</span> Abrir WhatsApp
+        <p class="support-desc">Atendimento direto para dúvidas técnicas, problemas de instalação e configuração do app.</p>
+        <a class="btn btn-primary" href="https://wa.me/5592991669391?text=Olá,%20preciso%20de%20suporte%20no%20Projeto%20X." style="margin-top:6px;">
+          Abrir WhatsApp
         </a>
       </div>
     </div>
@@ -1379,74 +1336,58 @@ footer {
 
 <!-- ══ FOOTER ══ -->
 <footer>
-  <div class="container">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <div class="footer-brand-icon">X</div>
-        <span class="footer-brand-name">PROJETO X</span>
-      </div>
-      <div class="footer-links">
+  <div class="wrap">
+    <div class="footer-row">
+      <a class="footer-brand" href="#home">
+        <div class="f-mark">X</div>
+        <span class="f-name">Projeto X</span>
+      </a>
+      <nav class="footer-nav">
         <a href="#suporte">Suporte</a>
         <a href="#download">Download</a>
         <a href="#recursos">Recursos</a>
-      </div>
+      </nav>
     </div>
     <div class="footer-copy">
       <p>© 2025 Projeto X — Streaming Premium. Todos os direitos reservados.</p>
-      <span class="footer-version">BUILD · BETA 1.0.0 · OTA ATIVO</span>
+      <span class="footer-ver">Android Beta · OTA Ativo</span>
     </div>
   </div>
 </footer>
 
 <script>
-/* ─── NAV TOGGLE ─── */
-const toggle = document.getElementById('navToggle');
+/* NAV HAMBURGER */
+const ham = document.getElementById('navHam');
 const drawer = document.getElementById('navDrawer');
 
-toggle.addEventListener('click', () => {
-  drawer.classList.toggle('open');
-});
+ham.addEventListener('click', () => drawer.classList.toggle('open'));
 
-drawer.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => drawer.classList.remove('open'));
-});
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => drawer.classList.remove('open')));
 
 document.addEventListener('click', e => {
-  if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
-    drawer.classList.remove('open');
-  }
+  if (!drawer.contains(e.target) && !ham.contains(e.target)) drawer.classList.remove('open');
 });
 
-/* ─── SCROLL REVEAL ─── */
-const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+/* SCROLL REVEAL */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.07, rootMargin: '0px 0px -36px 0px' });
 
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('in');
-      io.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.rv, .rv-stag').forEach(el => io.observe(el));
 
-revealEls.forEach(el => io.observe(el));
-
-/* ─── NAV ACTIVE HIGHLIGHT ─── */
+/* NAV ACTIVE */
 const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-links a');
+const navAs = document.querySelectorAll('.nav-links a');
 
-window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(s => {
-    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+const updateActive = () => {
+  let cur = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) cur = s.id; });
+  navAs.forEach(a => {
+    const href = a.getAttribute('href').replace('#','');
+    a.style.color = (href === cur || (cur === 'plataformas' && (href === 'android' || href === 'tv'))) ? 'rgba(255,255,255,0.80)' : '';
   });
-  navLinks.forEach(a => {
-    a.style.color = '';
-    if (a.getAttribute('href') === '#' + current) {
-      a.style.color = '#fff';
-    }
-  });
-}, { passive: true });
+};
+window.addEventListener('scroll', updateActive, { passive: true });
 </script>
 </body>
 </html>
