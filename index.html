@@ -1,529 +1,306 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projeto X Update</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
+<!-- FUNDO PREMIUM OTIMIZADO -->
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --red: #ff1b2d;
-  --red-glow: rgba(255,27,45,0.3);
-  --red-dim: rgba(255,27,45,0.12);
-  --red-border: rgba(255,27,45,0.2);
-  --glass-border: rgba(255,255,255,0.06);
+body{
+    margin:0;
+    padding:0;
+    background:
+        radial-gradient(circle at top,
+        rgba(180,0,0,0.18) 0%,
+        rgba(0,0,0,0) 40%),
+        linear-gradient(to bottom,
+        #070707 0%,
+        #050505 100%);
+    font-family: Arial, sans-serif;
+    color:white;
+    overflow-x:hidden;
 }
 
-html { scroll-behavior: smooth; }
-
-body {
-  min-height: 100vh;
-  background: #070707;
-  color: #fff;
-  font-family: 'Rajdhani', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
-  overflow-x: hidden;
+/* GLOW SUAVE */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at center,
+        rgba(255,0,0,0.08),
+        transparent 60%);
+    pointer-events:none;
+    z-index:-1;
 }
 
-/* ── FUNDO LEVE — apenas gradientes CSS, sem blur pesado ── */
-.bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  /* 3 manchas de cor simples, sem filter: blur() no DOM */
-  background:
-    radial-gradient(ellipse 70% 45% at 50% 0%,   rgba(255,27,45,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 0%  60%,  rgba(140,0,15,0.10)  0%, transparent 65%),
-    radial-gradient(ellipse 50% 40% at 100% 40%, rgba(140,0,15,0.10)  0%, transparent 65%),
-    radial-gradient(ellipse 80% 35% at 50% 105%, rgba(255,27,45,0.12) 0%, transparent 60%),
-    #070707;
+/* CONTAINER */
+.main-card{
+    width:88%;
+    max-width:420px;
+    margin:40px auto;
+    padding:28px;
+    border-radius:32px;
+
+    background:linear-gradient(
+        to bottom,
+        rgba(20,20,20,0.96),
+        rgba(8,8,8,0.98)
+    );
+
+    border:1px solid rgba(255,0,0,0.12);
+
+    box-shadow:
+        0 0 30px rgba(255,0,0,0.10),
+        0 0 80px rgba(120,0,0,0.08);
 }
 
-/* vinheta — só uma pseudo, sem camadas extras */
-.bg::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse 120% 120% at 50% 50%, transparent 35%, rgba(0,0,0,0.75) 100%);
+/* LOGO */
+.logo-area{
+    text-align:center;
+    margin-bottom:22px;
 }
 
-/* linha decorativa no topo */
-.top-line {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,27,45,0.6) 40%, rgba(255,27,45,0.8) 50%, rgba(255,27,45,0.6) 60%, transparent 100%);
-  z-index: 5;
+.logo-box{
+    width:60px;
+    height:60px;
+    margin:auto;
+    border-radius:18px;
+
+    background:linear-gradient(
+        135deg,
+        #ff1a1a,
+        #7a0000
+    );
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:28px;
+    font-weight:bold;
+
+    box-shadow:
+        0 0 25px rgba(255,0,0,0.35);
 }
 
-/* ── CARD ── */
-.card {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 560px;
-  background: linear-gradient(160deg, rgba(18,4,4,0.88) 0%, rgba(7,2,2,0.95) 100%);
-  border: 1px solid var(--red-border);
-  border-radius: 24px;
-  padding: 40px 34px;
-  text-align: center;
-  /* sombra única, sem múltiplas camadas pesadas */
-  box-shadow:
-    0 0 50px rgba(255,27,45,0.08),
-    0 32px 64px rgba(0,0,0,0.65),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-  /* backdrop-filter leve — só quando suportado */
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  animation: cardIn 0.7s cubic-bezier(0.16,1,0.3,1) both;
+.logo-title{
+    margin-top:16px;
+    font-size:32px;
+    font-weight:900;
+    letter-spacing:10px;
 }
 
-/* brilho sutil no topo do card */
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 15%; right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,27,45,0.55), transparent);
+/* BADGE */
+.beta-badge{
+    display:inline-block;
+    margin-top:18px;
+    padding:10px 22px;
+
+    border-radius:50px;
+
+    background:rgba(120,0,0,0.25);
+
+    border:1px solid rgba(255,0,0,0.20);
+
+    color:#ff4d4d;
+
+    font-size:13px;
+    font-weight:bold;
+    letter-spacing:5px;
 }
 
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(24px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+/* TITULO */
+.hero-title{
+    text-align:center;
+    font-size:56px;
+    line-height:0.95;
+    font-weight:900;
+
+    margin-top:38px;
+    margin-bottom:26px;
 }
 
-/* ── LOGO ── */
-.logo-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 6px;
+.hero-sub{
+    text-align:center;
+    color:#c8c8c8;
+    font-size:21px;
+    line-height:1.8;
+
+    margin-bottom:45px;
 }
 
-.logo-icon {
-  width: 30px; height: 30px;
-  background: linear-gradient(135deg, #ff1b2d, #7a0009);
-  border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 17px; color: #fff;
-  /* sombra simples */
-  box-shadow: 0 0 14px rgba(255,27,45,0.45);
+/* CARDS */
+.info-card{
+    background:linear-gradient(
+        to bottom,
+        rgba(30,0,0,0.45),
+        rgba(12,12,12,0.92)
+    );
+
+    border:1px solid rgba(255,0,0,0.10);
+
+    border-radius:24px;
+
+    padding:26px;
+    margin-bottom:24px;
+
+    box-shadow:
+        0 0 25px rgba(255,0,0,0.05);
 }
 
-.logo-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 21px;
-  letter-spacing: 7px;
-  color: #fff;
+.card-title{
+    color:#ff4d4d;
+    font-size:14px;
+    font-weight:bold;
+    letter-spacing:5px;
+
+    margin-bottom:20px;
 }
 
-/* ── BADGE ── */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 14px;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: rgba(255,27,45,0.09);
-  border: 1px solid rgba(255,27,45,0.3);
-  color: #ff4455;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
+.card-text{
+    color:#ededed;
+    font-size:18px;
+    line-height:1.8;
 }
 
-.badge-dot {
-  width: 6px; height: 6px;
-  background: var(--red);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--red);
-  /* animação leve — só opacidade, sem transform */
-  animation: blink 2.4s ease-in-out infinite;
+/* GRID */
+.stats-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-bottom:28px;
 }
 
-@keyframes blink {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.35; }
+.small-card{
+    background:rgba(18,18,18,0.95);
+
+    border-radius:22px;
+
+    border:1px solid rgba(255,255,255,0.06);
+
+    padding:22px;
 }
 
-/* ── TÍTULO ── */
-h1 {
-  margin: 20px 0 10px;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(36px, 8vw, 50px);
-  letter-spacing: 2px;
-  line-height: 1;
-  /* gradiente no texto — performático, sem filter */
-  background: linear-gradient(135deg, #ffffff 20%, #ffbbbb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.small-label{
+    color:#ff4d4d;
+    font-size:12px;
+    letter-spacing:4px;
+    margin-bottom:12px;
 }
 
-/* ── SUBTÍTULO ── */
-.subtitle {
-  color: rgba(210,210,210,0.65);
-  line-height: 1.65;
-  font-size: 14px;
-  font-weight: 400;
-  max-width: 420px;
-  margin: 0 auto;
-  font-family: 'Inter', sans-serif;
+.small-value{
+    font-size:18px;
+    font-weight:bold;
 }
 
-/* ── NOTICE ── */
-.notice {
-  margin: 24px 0;
-  padding: 16px 18px;
-  border-radius: 14px;
-  background: rgba(255,27,45,0.06);
-  border: 1px solid rgba(255,27,45,0.16);
-  color: #d8d8d8;
-  text-align: left;
-  font-family: 'Inter', sans-serif;
-  font-size: 13.5px;
-  line-height: 1.7;
-  position: relative;
+/* LISTA */
+.update-list{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
 }
 
-.notice::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 10%; bottom: 10%;
-  width: 3px;
-  background: linear-gradient(180deg, var(--red), transparent);
-  border-radius: 3px 0 0 3px;
+.update-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    color:#ededed;
+    font-size:18px;
 }
 
-.notice strong {
-  display: block;
-  margin-bottom: 7px;
-  color: #ff4455;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#ff1a1a;
+
+    box-shadow:0 0 10px red;
 }
 
-/* ── INFO GRID ── */
-.info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px;
-  margin: 18px 0;
+/* BOTAO */
+.download-btn{
+    width:100%;
+    border:none;
+
+    padding:24px;
+
+    border-radius:24px;
+
+    background:linear-gradient(
+        to bottom,
+        #ff1f1f,
+        #b80000
+    );
+
+    color:white;
+
+    font-size:22px;
+    font-weight:900;
+    letter-spacing:4px;
+
+    margin-top:30px;
+
+    box-shadow:
+        0 0 35px rgba(255,0,0,0.35);
+
+    transition:0.2s;
 }
 
-.info-item {
-  background: rgba(255,255,255,0.028);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 13px 15px;
-  text-align: left;
-  transition: border-color 0.25s;
+.download-btn:active{
+    transform:scale(0.98);
 }
 
-.info-item:active {
-  border-color: rgba(255,27,45,0.22);
-  background: rgba(255,27,45,0.04);
+/* WHATS */
+.whats-btn{
+    width:100%;
+
+    padding:22px;
+
+    margin-top:18px;
+
+    border-radius:24px;
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    background:rgba(18,18,18,0.96);
+
+    color:white;
+
+    font-size:20px;
+    font-weight:bold;
 }
 
-.info-label {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(255,27,45,0.75);
-  font-family: 'Rajdhani', sans-serif;
-  margin-bottom: 4px;
+/* FOOTER */
+.footer{
+    text-align:center;
+    margin-top:45px;
+
+    color:#9f9f9f;
+
+    font-size:16px;
+    line-height:1.8;
 }
 
-.info-value {
-  font-size: 13.5px;
-  color: #e0e0e0;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-}
+/* MOBILE */
+@media(max-width:600px){
 
-/* ── FEATURES ── */
-.features {
-  margin: 18px 0;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--glass-border);
-  border-radius: 14px;
-  padding: 16px 18px;
-  text-align: left;
-}
+    .main-card{
+        width:90%;
+        padding:22px;
+    }
 
-.features-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: rgba(255,27,45,0.65);
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
+    .hero-title{
+        font-size:42px;
+    }
 
-.features ul { list-style: none; }
+    .hero-sub{
+        font-size:18px;
+    }
 
-.features li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 13.5px;
-  color: #bbb;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
+    .stats-grid{
+        grid-template-columns:1fr;
+    }
 
-.features li:last-child { border-bottom: none; }
+    .download-btn{
+        font-size:19px;
+        letter-spacing:2px;
+    }
 
-.features li::before {
-  content: '';
-  width: 5px; height: 5px;
-  min-width: 5px;
-  background: var(--red);
-  border-radius: 50%;
-  box-shadow: 0 0 5px rgba(255,27,45,0.5);
-}
-
-/* ── BOTÕES ── */
-.btn {
-  display: block;
-  width: 100%;
-  padding: 17px;
-  border-radius: 13px;
-  text-decoration: none;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 19px;
-  letter-spacing: 3px;
-  margin-top: 10px;
-  position: relative;
-  overflow: hidden;
-  /* transição só em propriedades baratas */
-  transition: transform 0.18s ease, box-shadow 0.25s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #e8182a 0%, #9e000c 100%);
-  color: #fff;
-  border: 1px solid rgba(255,70,80,0.25);
-  /* sombra reduzida */
-  box-shadow:
-    0 0 24px rgba(255,27,45,0.28),
-    0 6px 24px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.12);
-}
-
-/* shimmer: só em hover/tap, CSS puro, não anima o tempo todo */
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -120%;
-  width: 55%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
-  transform: skewX(-18deg);
-  transition: left 0.45s ease;
-}
-
-.btn-primary:hover::after,
-.btn-primary:active::after { left: 160%; }
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 0 38px rgba(255,27,45,0.38),
-    0 10px 32px rgba(0,0,0,0.55),
-    inset 0 1px 0 rgba(255,255,255,0.15);
-}
-
-.btn-primary:active { transform: translateY(0); }
-
-.btn-secondary {
-  background: rgba(255,255,255,0.035);
-  color: rgba(255,255,255,0.7);
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-}
-
-.btn-secondary:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.18);
-  color: #fff;
-  transform: translateY(-2px);
-}
-
-.btn-secondary:active { transform: translateY(0); }
-
-.btn-icon { margin-right: 8px; vertical-align: middle; }
-
-/* ── RODAPÉ ── */
-.footer {
-  margin-top: 26px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-}
-
-.footer-text {
-  font-family: 'Inter', sans-serif;
-  font-size: 12.5px;
-  color: rgba(255,255,255,0.35);
-  line-height: 1.65;
-}
-
-.footer-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 12px;
-  font-size: 10px;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: rgba(255,27,45,0.45);
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 600;
-}
-
-.footer-brand::before,
-.footer-brand::after {
-  content: '';
-  width: 18px; height: 1px;
-  background: rgba(255,27,45,0.28);
-}
-
-/* ── ENTRADA ESCALONADA (CSS, sem JS) ── */
-.card > * { animation: fadeUp 0.55s ease both; }
-.logo-wrap       { animation-delay: 0.10s; }
-.badge           { animation-delay: 0.17s; }
-h1               { animation-delay: 0.22s; }
-.subtitle        { animation-delay: 0.27s; }
-.notice          { animation-delay: 0.32s; }
-.info            { animation-delay: 0.37s; }
-.features        { animation-delay: 0.42s; }
-.btn-primary     { animation-delay: 0.47s; }
-.btn-secondary   { animation-delay: 0.51s; }
-.footer          { animation-delay: 0.56s; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── MEDIA QUERIES ── */
-@media (max-width: 480px) {
-  .card { padding: 28px 18px; border-radius: 20px; }
-  h1 { font-size: 34px; }
-  .info { grid-template-columns: 1fr 1fr; }
-  .btn { font-size: 17px; padding: 15px; }
-}
-
-/* Reduz efeitos em dispositivos com preferência por menos movimento */
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
-}
-
-/* Desativa backdrop-filter em dispositivos de baixo desempenho */
-@media (max-width: 480px) and (hover: none) {
-  .card {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    background: rgba(12,3,3,0.98);
-  }
 }
 </style>
-</head>
-
-<body>
-
-<div class="bg"></div>
-<div class="top-line"></div>
-
-<div class="card">
-
-  <div class="logo-wrap">
-    <div class="logo-icon">X</div>
-    <div class="logo-text">PROJETO X</div>
-  </div>
-
-  <div class="badge">
-    <span class="badge-dot"></span>
-    VERSÃO BETA
-  </div>
-
-  <h1>Atualização Disponível</h1>
-
-  <p class="subtitle">
-    Uma nova versão do Projeto X está pronta para download.
-    Baixe agora para receber melhorias, correções e novos recursos exclusivos.
-  </p>
-
-  <div class="notice">
-    <strong>⚡ Link Oficial de Atualização</strong>
-    O APK pode ser instalado diretamente dentro do app quando a mensagem de atualização aparecer,
-    ou por este link oficial. Não desinstale o aplicativo antigo antes de atualizar,
-    para evitar perda de dados salvos.
-  </div>
-
-  <div class="info">
-    <div class="info-item">
-      <div class="info-label">Versão</div>
-      <div class="info-value">Beta 1.0.0</div>
-    </div>
-    <div class="info-item">
-      <div class="info-label">Status</div>
-      <div class="info-value">✅ Liberada</div>
-    </div>
-    <div class="info-item">
-      <div class="info-label">Arquivo</div>
-      <div class="info-value">ProjetoX.apk</div>
-    </div>
-    <div class="info-item">
-      <div class="info-label">Instalação</div>
-      <div class="info-value">Por cima do app</div>
-    </div>
-  </div>
-
-  <div class="features">
-    <div class="features-title">O que há de novo</div>
-    <ul>
-      <li>Melhorias de estabilidade e desempenho</li>
-      <li>Correções internas e de segurança</li>
-      <li>Experiência mais rápida e fluida</li>
-      <li>Ajustes visuais e melhorias premium</li>
-    </ul>
-  </div>
-
-  <a class="btn btn-primary" href="ProjetoX.apk">
-    <span class="btn-icon">⬇</span>BAIXAR ATUALIZAÇÃO
-  </a>
-
-  <a class="btn btn-secondary" href="https://wa.me/5592991669391?text=Olá,%20preciso%20de%20suporte%20no%20Projeto%20X.">
-    <span class="btn-icon">💬</span>SUPORTE VIA WHATSAPP
-  </a>
-
-  <div class="footer">
-    <p class="footer-text">
-      Obrigado por utilizar o Projeto X.<br>
-      Sua confiança ajuda o app a evoluir cada vez mais.
-    </p>
-    <div class="footer-brand">Projeto X &bull; Streaming Premium &bull; Atualização Oficial</div>
-  </div>
-
-</div>
-
-</body>
-</html>
