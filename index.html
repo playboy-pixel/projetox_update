@@ -6,16 +6,15 @@
 <title>Projeto X Update</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
   min-height:100vh;
   background:
-    radial-gradient(circle at top, rgba(255,0,0,.25), transparent 35%),
-    linear-gradient(135deg, #050505, #120000, #000);
+    radial-gradient(circle at top, rgba(255,0,0,.35), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(120,0,255,.25), transparent 30%),
+    linear-gradient(135deg,#020202,#120000,#000);
   color:white;
   font-family:Arial, Helvetica, sans-serif;
   display:flex;
@@ -26,68 +25,100 @@ body{
 
 .card{
   width:100%;
-  max-width:520px;
-  background:rgba(15,15,15,.92);
-  border:1px solid rgba(255,0,0,.35);
-  border-radius:22px;
-  padding:30px;
+  max-width:560px;
+  background:rgba(10,10,10,.94);
+  border:1px solid rgba(255,0,0,.38);
+  border-radius:26px;
+  padding:34px;
   text-align:center;
-  box-shadow:0 0 35px rgba(255,0,0,.22);
+  box-shadow:0 0 45px rgba(255,0,0,.28);
 }
 
-.badge{
-  color:#ff1d2e;
+.logo{
+  color:#ff1b2d;
+  font-weight:900;
+  letter-spacing:5px;
+  font-size:14px;
+}
+
+.beta{
+  display:inline-block;
+  margin-top:14px;
+  padding:7px 14px;
+  border-radius:999px;
+  background:rgba(255,0,0,.16);
+  border:1px solid rgba(255,0,0,.45);
+  color:#ff3344;
   font-weight:bold;
-  letter-spacing:4px;
-  font-size:13px;
+  font-size:12px;
+  letter-spacing:2px;
 }
 
 h1{
-  margin:14px 0 8px;
-  font-size:34px;
+  margin:18px 0 10px;
+  font-size:36px;
 }
 
 p{
-  color:#cfcfcf;
+  color:#d6d6d6;
   line-height:1.6;
   font-size:16px;
 }
 
-.info{
-  margin:24px 0;
-  background:#111;
-  border-radius:16px;
+.notice{
+  margin:22px 0;
   padding:16px;
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  color:#e8e8e8;
+  text-align:left;
+}
+
+.info{
+  margin:20px 0;
+  background:#111;
+  border-radius:18px;
+  padding:18px;
   text-align:left;
   color:#ddd;
 }
 
 .info div{
-  margin:8px 0;
+  margin:9px 0;
+}
+
+ul{
+  text-align:left;
+  color:#dcdcdc;
+  line-height:1.7;
+  padding-left:20px;
 }
 
 .btn{
   display:block;
   width:100%;
-  background:#e50914;
+  background:linear-gradient(135deg,#ff1b2d,#d90012);
   color:white;
-  padding:17px;
-  border-radius:14px;
+  padding:18px;
+  border-radius:16px;
   text-decoration:none;
   font-size:18px;
-  font-weight:bold;
+  font-weight:900;
   margin-top:16px;
+  box-shadow:0 0 20px rgba(255,0,0,.28);
 }
 
 .btn.secondary{
   background:#222;
   border:1px solid rgba(255,255,255,.18);
+  box-shadow:none;
 }
 
 .footer{
-  margin-top:22px;
+  margin-top:24px;
   font-size:13px;
-  color:#777;
+  color:#888;
 }
 </style>
 </head>
@@ -95,7 +126,8 @@ p{
 <body>
 
 <div class="card">
-  <div class="badge">PROJETO X</div>
+  <div class="logo">PROJETO X</div>
+  <div class="beta">VERSÃO BETA</div>
 
   <h1>Atualização disponível</h1>
 
@@ -104,20 +136,39 @@ p{
     Baixe a atualização para receber melhorias, correções e novos recursos.
   </p>
 
+  <div class="notice">
+    <strong>Link oficial de atualização</strong><br><br>
+    O APK pode ser instalado diretamente dentro do app, quando a mensagem de atualização aparecer,
+    ou por este link oficial. Não desinstale o aplicativo antigo antes de atualizar, para evitar
+    perda de dados salvos.
+  </div>
+
   <div class="info">
-    <div><strong>Versão:</strong> 1.0.0</div>
+    <div><strong>Versão:</strong> Beta 1.0.0</div>
     <div><strong>Status:</strong> Atualização liberada</div>
     <div><strong>Arquivo:</strong> ProjetoX.apk</div>
+    <div><strong>Instalação:</strong> Atualização por cima do app atual</div>
   </div>
+
+  <ul>
+    <li>Melhorias de estabilidade</li>
+    <li>Correções internas</li>
+    <li>Experiência mais rápida e fluida</li>
+    <li>Ajustes visuais e melhorias premium</li>
+  </ul>
 
   <a class="btn" href="ProjetoX.apk">BAIXAR ATUALIZAÇÃO</a>
 
-  <a class="btn secondary" href="https://wa.me/5592991669391">
+  <a class="btn secondary" href="https://wa.me/5592991669391?text=Olá,%20preciso%20de%20suporte%20no%20Projeto%20X.">
     SUPORTE VIA WHATSAPP
   </a>
 
+  <p>
+    Obrigado por utilizar o Projeto X. Sua confiança ajuda o app a evoluir cada vez mais.
+  </p>
+
   <div class="footer">
-    Projeto X • Streaming Premium
+    Projeto X • Streaming Premium • Atualização Oficial
   </div>
 </div>
 
