@@ -4,585 +4,374 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Projeto X — Plataforma Oficial</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Montserrat:wght@500;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@500;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  background:#050505;
-  color:#fff;
-  font-family:'Montserrat',sans-serif;
-  overflow-x:hidden;
-}
+body{background:#050505;color:#fff;font-family:'Montserrat',sans-serif;overflow-x:hidden}
 
 body::before{
-  content:"";
-  position:fixed;
-  inset:0;
+  content:"";position:fixed;inset:0;
   background:
-    radial-gradient(circle at 50% -10%,rgba(255,0,35,.30),transparent 38%),
-    radial-gradient(circle at 10% 40%,rgba(255,0,35,.12),transparent 30%),
-    radial-gradient(circle at 90% 55%,rgba(255,0,35,.10),transparent 32%),
+    radial-gradient(circle at 50% -10%,rgba(255,0,35,.28),transparent 38%),
+    radial-gradient(circle at 10% 40%,rgba(255,0,35,.10),transparent 30%),
+    radial-gradient(circle at 90% 55%,rgba(255,0,35,.08),transparent 32%),
     linear-gradient(180deg,#090102 0%,#050505 55%,#090102 100%);
-  z-index:-3;
+  z-index:-3
 }
 body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  content:"";position:fixed;inset:0;
+  background:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
   background-size:48px 48px;
-  mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 75%);
-  z-index:-2;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 70%);
+  z-index:-2
 }
 
+/* HEADER */
 header{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:72px;
-  z-index:50;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 34px;
-  background:rgba(5,5,5,.86);
-  backdrop-filter:blur(18px);
-  border-bottom:1px solid rgba(255,0,35,.22);
+  position:fixed;top:0;left:0;right:0;height:68px;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;padding:0 32px;
+  background:rgba(5,5,5,.90);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,0,35,.20)
 }
-.logo{
-  font-family:'Anton',sans-serif;
-  font-size:24px;
-  letter-spacing:3px;
-  color:#fff;
-  text-decoration:none;
-  text-shadow:0 0 24px rgba(255,0,35,.6);
-}
+.logo{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:3px;color:#fff;text-decoration:none;text-shadow:0 0 22px rgba(255,0,35,.55)}
 .logo span{color:#ff1b2d}
-nav{display:flex;gap:8px}
-nav a{
-  color:#aaa;
-  text-decoration:none;
-  font-family:'Oswald',sans-serif;
-  font-weight:700;
-  font-size:13px;
-  letter-spacing:1.5px;
-  padding:9px 13px;
-  border-radius:8px;
-  transition:.2s;
-}
+nav{display:flex;gap:6px}
+nav a{color:#888;text-decoration:none;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.4px;padding:8px 12px;border-radius:8px;transition:.2s}
 nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
-nav .nav-btn{
-  color:#fff;
-  background:linear-gradient(135deg,#ff1b2d,#8b000b);
-  box-shadow:0 0 24px rgba(255,0,35,.35);
-}
-
-.menu-btn{display:none;color:#fff;font-size:28px;cursor:pointer}
+nav .nav-btn{color:#fff;background:linear-gradient(135deg,#ff1b2d,#8b000b);box-shadow:0 0 20px rgba(255,0,35,.30)}
+.menu-btn{display:none;color:#fff;font-size:26px;cursor:pointer}
 .mobile-menu{
-  display:none;
-  position:fixed;
-  top:72px;left:0;right:0;
-  z-index:40;
-  background:#070707;
-  border-bottom:1px solid rgba(255,0,35,.25);
-  padding:16px;
+  display:none;position:fixed;top:68px;left:0;right:0;z-index:40;
+  background:#080808;border-bottom:1px solid rgba(255,0,35,.22);padding:14px
 }
-.mobile-menu a{
-  display:block;
-  color:#fff;
-  text-decoration:none;
-  font-weight:900;
-  padding:14px;
-  border-radius:10px;
-  background:rgba(255,255,255,.04);
-  margin-bottom:8px;
-}
+.mobile-menu a{display:block;color:#fff;text-decoration:none;font-weight:900;padding:13px 16px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:7px;font-family:'Oswald',sans-serif;letter-spacing:1px}
 
-section{position:relative;padding:96px 22px}
-.wrap{width:100%;max-width:1180px;margin:0 auto}
-.section-title{text-align:center;margin-bottom:42px}
+/* SECTIONS */
+section{position:relative;padding:72px 22px}
+.wrap{width:100%;max-width:1160px;margin:0 auto}
+.section-title{text-align:center;margin-bottom:36px}
 .tag{
-  display:inline-block;
-  color:#ff1b2d;
-  border:1px solid rgba(255,0,35,.4);
-  background:rgba(255,0,35,.10);
-  padding:7px 16px;
-  border-radius:999px;
-  font-family:'Oswald',sans-serif;
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:2px;
-  margin-bottom:16px;
+  display:inline-block;color:#ff1b2d;border:1px solid rgba(255,0,35,.38);
+  background:rgba(255,0,35,.09);padding:6px 15px;border-radius:999px;
+  font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:14px
 }
-h2{
-  font-family:'Anton',sans-serif;
-  font-size:clamp(42px,7vw,76px);
-  letter-spacing:2px;
-  line-height:1;
-  text-transform:uppercase;
-  text-shadow:0 0 38px rgba(255,0,35,.35);
-}
-.sub{
-  color:#bbb;
-  font-size:16px;
-  font-weight:700;
-  margin-top:12px;
-}
+h2{font-family:'Anton',sans-serif;font-size:clamp(38px,6vw,68px);letter-spacing:2px;line-height:1;text-transform:uppercase;text-shadow:0 0 34px rgba(255,0,35,.30)}
+.sub{color:#bbb;font-size:15px;font-weight:700;margin-top:10px}
 
-.hero{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  padding-top:130px;
-}
-.hero-inner{
-  display:grid;
-  grid-template-columns:1.1fr .9fr;
-  gap:38px;
-  align-items:center;
-}
-.hero-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:9px;
-  padding:9px 18px;
-  border:1px solid rgba(255,0,35,.45);
-  border-radius:999px;
-  color:#ff1b2d;
-  background:rgba(255,0,35,.10);
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:2px;
-  margin-bottom:22px;
-}
-.pulse{
-  width:8px;height:8px;
-  background:#ff1b2d;
-  border-radius:50%;
-  box-shadow:0 0 14px #ff1b2d;
-  flex-shrink:0;
-}
-.hero h1{
-  font-family:'Anton',sans-serif;
-  font-size:clamp(70px,13vw,150px);
-  line-height:.88;
-  letter-spacing:4px;
-  text-transform:uppercase;
-  text-shadow:0 0 70px rgba(255,0,35,.45);
-}
-.hero h1 span{color:#ff1b2d}
-.hero-text{
-  margin-top:22px;
-  max-width:610px;
-  color:#d8d8d8;
-  font-size:22px;
-  font-weight:800;
-  line-height:1.35;
-}
-.hero-text span{color:#ff1b2d}
-.hero-actions{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-  margin-top:34px;
-}
+/* PULSE */
+@keyframes pulse-dot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(51,255,122,.5)}70%{opacity:.8;box-shadow:0 0 0 6px rgba(51,255,122,0)}}
+@keyframes pulse-red{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,177,59,.5)}70%{opacity:.8;box-shadow:0 0 0 6px rgba(255,177,59,0)}}
+.dot-green{display:inline-block;width:8px;height:8px;background:#33ff7a;border-radius:50%;animation:pulse-dot 1.8s infinite;flex-shrink:0}
+.dot-orange{display:inline-block;width:8px;height:8px;background:#ffb13b;border-radius:50%;animation:pulse-red 1.8s infinite;flex-shrink:0}
+
+/* BTN */
 .btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  min-height:56px;
-  padding:0 30px;
-  border-radius:12px;
-  border:0;
-  text-decoration:none;
-  cursor:pointer;
-  font-family:'Oswald',sans-serif;
-  font-size:16px;
-  font-weight:900;
-  letter-spacing:1.4px;
-  text-transform:uppercase;
-  transition:.2s;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:52px;padding:0 28px;border-radius:12px;border:0;text-decoration:none;cursor:pointer;
+  font-family:'Oswald',sans-serif;font-size:15px;font-weight:900;letter-spacing:1.3px;text-transform:uppercase;transition:.2s
 }
-.btn-red{
-  color:#fff;
-  background:linear-gradient(135deg,#ff1b2d,#97000d);
-  box-shadow:0 0 36px rgba(255,0,35,.45),0 16px 38px rgba(0,0,0,.55);
+.btn-red{color:#fff;background:linear-gradient(135deg,#ff1b2d,#97000d);box-shadow:0 0 32px rgba(255,0,35,.40),0 12px 32px rgba(0,0,0,.50)}
+.btn-dark{color:#fff;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05)}
+.btn:hover{transform:translateY(-2px)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:110px;padding-bottom:48px}
+.hero-inner{display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:center}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:8px 16px;
+  border:1px solid rgba(255,0,35,.40);border-radius:999px;color:#ff1b2d;
+  background:rgba(255,0,35,.09);font-size:11px;font-weight:900;letter-spacing:2px;margin-bottom:20px
 }
-.btn-dark{
-  color:#fff;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.06);
-}
-.btn:hover{transform:translateY(-3px)}
+.hero h1{font-family:'Anton',sans-serif;font-size:clamp(64px,12vw,140px);line-height:.88;letter-spacing:4px;text-transform:uppercase;text-shadow:0 0 65px rgba(255,0,35,.42)}
+.hero h1 span{color:#ff1b2d}
+.hero-text{margin-top:18px;max-width:580px;color:#d0d0d0;font-size:20px;font-weight:800;line-height:1.4}
+.hero-text span{color:#ff1b2d}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
 .hero-card{
-  border:1px solid rgba(255,0,35,.35);
-  background:linear-gradient(180deg,rgba(25,3,6,.92),rgba(8,8,8,.96));
-  border-radius:26px;
-  padding:28px;
-  box-shadow:0 0 60px rgba(255,0,35,.18);
+  border:1px solid rgba(255,0,35,.30);
+  background:linear-gradient(180deg,rgba(22,3,6,.94),rgba(8,8,8,.97));
+  border-radius:24px;padding:24px;box-shadow:0 0 50px rgba(255,0,35,.14)
 }
-.status-line{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  padding:18px 0;
-}
+.status-line{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07);padding:16px 0;gap:12px}
 .status-line:first-child{padding-top:0}
 .status-line:last-child{border-bottom:0;padding-bottom:0}
-.status-line b{
-  font-family:'Oswald',sans-serif;
-  font-size:18px;
-  letter-spacing:1px;
-}
-.status-line span{color:#ff1b2d;font-weight:900}
+.status-line b{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:1px}
+.status-line .val{display:flex;align-items:center;gap:7px;font-weight:900;font-size:13px}
+.val-green{color:#33ff7a}
+.val-orange{color:#ffb13b}
+.val-red{color:#ff1b2d}
 
-.grid-3{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-}
-.card{
-  min-height:210px;
-  padding:28px;
-  border-radius:22px;
-  background:linear-gradient(180deg,rgba(22,22,22,.96),rgba(9,9,9,.98));
-  border:1px solid rgba(255,0,35,.22);
-  box-shadow:0 0 34px rgba(255,0,35,.08);
-  transition:.25s;
-}
-.card:hover{
-  transform:translateY(-5px);
-  border-color:rgba(255,0,35,.55);
-  box-shadow:0 0 48px rgba(255,0,35,.18);
-}
-.icon{font-size:36px;margin-bottom:18px}
-.card h3{
-  font-family:'Oswald',sans-serif;
-  font-size:24px;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-.card p{
-  color:#bdbdbd;
-  font-size:15px;
-  font-weight:700;
-  line-height:1.55;
-}
-
-.platforms{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
-}
+/* PLATAFORMAS */
+.platforms{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .platform{
-  padding:38px;
-  border-radius:28px;
-  background:linear-gradient(145deg,rgba(30,3,7,.95),rgba(8,8,8,.98));
-  border:1px solid rgba(255,0,35,.30);
-  box-shadow:0 0 55px rgba(255,0,35,.13);
+  padding:32px;border-radius:24px;
+  background:linear-gradient(145deg,rgba(26,3,7,.96),rgba(8,8,8,.98));
+  border:1px solid rgba(255,0,35,.26);box-shadow:0 0 44px rgba(255,0,35,.10);
+  transition:.25s
 }
-.platform h3{
-  font-family:'Anton',sans-serif;
-  font-size:62px;
-  letter-spacing:2px;
-  line-height:1;
-  margin-bottom:16px;
-}
-.platform .status{
-  display:inline-block;
-  margin-bottom:18px;
-  padding:7px 14px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:1.5px;
-}
-.ok{
-  color:#33ff7a;
-  background:rgba(51,255,122,.10);
-  border:1px solid rgba(51,255,122,.25);
-}
-.dev{
-  color:#ffb13b;
-  background:rgba(255,177,59,.10);
-  border:1px solid rgba(255,177,59,.25);
-}
-.platform p{
-  color:#cfcfcf;
-  font-size:16px;
-  font-weight:700;
-  line-height:1.6;
-  margin-bottom:24px;
-}
-.specs{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin:24px 0;
-}
-.spec{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:12px;
-  padding:14px;
-}
-.spec small{
-  display:block;
-  color:#777;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:1.5px;
-  margin-bottom:5px;
-}
-.spec b{
-  font-family:'Oswald',sans-serif;
-  font-size:16px;
-}
+.platform:hover{border-color:rgba(255,0,35,.50);box-shadow:0 0 55px rgba(255,0,35,.18)}
+.platform-status{display:inline-flex;align-items:center;gap:7px;margin-bottom:16px;padding:6px 13px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:1.5px}
+.status-ok{color:#33ff7a;background:rgba(51,255,122,.09);border:1px solid rgba(51,255,122,.22)}
+.status-dev{color:#ffb13b;background:rgba(255,177,59,.09);border:1px solid rgba(255,177,59,.22)}
+.platform h3{font-family:'Anton',sans-serif;font-size:54px;letter-spacing:2px;line-height:1;margin-bottom:12px}
+.platform p{color:#c8c8c8;font-size:15px;font-weight:700;line-height:1.6;margin-bottom:20px}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:18px 0}
+.spec{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px}
+.spec small{display:block;color:#666;font-size:9px;font-weight:900;letter-spacing:1.5px;margin-bottom:4px}
+.spec b{font-family:'Oswald',sans-serif;font-size:15px}
 
-.download-box{
-  display:grid;
-  grid-template-columns:.9fr 1.1fr;
-  gap:18px;
+/* RECURSOS */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{
+  padding:26px;border-radius:20px;
+  background:linear-gradient(180deg,rgba(20,20,20,.96),rgba(9,9,9,.98));
+  border:1px solid rgba(255,0,35,.18);box-shadow:0 0 28px rgba(255,0,35,.06);
+  transition:.25s
 }
-.steps,.download-card{
-  border-radius:28px;
-  padding:34px;
-  background:linear-gradient(180deg,rgba(20,20,20,.96),rgba(8,8,8,.98));
-  border:1px solid rgba(255,0,35,.25);
-}
-.step{
-  display:flex;
-  gap:10px;
-  padding:18px 0;
-  border-bottom:1px solid rgba(255,255,255,.07);
-}
+.card:hover{transform:translateY(-4px);border-color:rgba(255,0,35,.48);box-shadow:0 0 40px rgba(255,0,35,.15)}
+.icon{font-size:32px;margin-bottom:14px}
+.card h3{font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;margin-bottom:8px}
+.card p{color:#b8b8b8;font-size:14px;font-weight:700;line-height:1.55}
+
+/* DOWNLOAD */
+.download-box{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}
+.steps,.download-card{border-radius:24px;padding:30px;background:linear-gradient(180deg,rgba(18,18,18,.96),rgba(8,8,8,.98));border:1px solid rgba(255,0,35,.22)}
+.step{display:flex;gap:10px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 .step:last-child{border-bottom:0}
-.num{
-  font-family:'Anton',sans-serif;
-  font-size:22px;
-  color:#ff1b2d;
-}
-.step b{
-  font-family:'Oswald',sans-serif;
-  font-size:19px;
-  text-transform:uppercase;
-}
-.step p{
-  color:#aaa;
-  font-size:14px;
-  font-weight:700;
-  margin-top:5px;
-}
-.download-card{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  text-align:center;
-  box-shadow:0 0 55px rgba(255,0,35,.16);
-}
-.download-card h3{
-  font-family:'Anton',sans-serif;
-  font-size:56px;
-  line-height:1;
-  margin-bottom:14px;
-}
-.download-card p{
-  color:#ccc;
-  font-size:16px;
-  font-weight:800;
-  margin-bottom:24px;
-}
-.chips{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-bottom:28px;
-}
-.chip{
-  padding:8px 13px;
-  border-radius:999px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.10);
-  color:#ddd;
-  font-size:12px;
-  font-weight:900;
-}
+.num{font-family:'Anton',sans-serif;font-size:20px;color:#ff1b2d;flex-shrink:0}
+.step b{font-family:'Oswald',sans-serif;font-size:17px;text-transform:uppercase}
+.step p{color:#999;font-size:13px;font-weight:700;margin-top:4px}
+.download-card{display:flex;flex-direction:column;justify-content:center;text-align:center;box-shadow:0 0 48px rgba(255,0,35,.14)}
+.download-card h3{font-family:'Anton',sans-serif;font-size:50px;line-height:1;margin-bottom:12px}
+.download-card p{color:#ccc;font-size:15px;font-weight:800;margin-bottom:20px}
+.chips{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin-bottom:24px}
+.chip{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#ccc;font-size:11px;font-weight:900}
 
+/* CODE BOX */
 .code-box{
-  max-width:820px;
-  margin:0 auto;
-  border-radius:30px;
-  padding:34px;
-  background:linear-gradient(180deg,rgba(24,4,7,.96),rgba(8,8,8,.98));
-  border:1px solid rgba(255,0,35,.35);
-  box-shadow:0 0 65px rgba(255,0,35,.18);
+  max-width:800px;margin:0 auto;border-radius:26px;padding:30px;
+  background:linear-gradient(180deg,rgba(22,4,7,.97),rgba(8,8,8,.98));
+  border:1px solid rgba(255,0,35,.32);box-shadow:0 0 60px rgba(255,0,35,.16)
 }
+.code-input{
+  width:100%;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.05);color:#fff;padding:0 16px 0 44px;outline:none;
+  font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s
+}
+.code-input:focus{border-color:rgba(255,0,35,.75);box-shadow:0 0 0 3px rgba(255,0,35,.14)}
+.code-input::placeholder{color:#555}
+.input-wrap{position:relative}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#555;font-size:14px;pointer-events:none}
 
-.support{
-  text-align:center;
-  max-width:720px;
-  margin:0 auto;
-  padding:46px;
-  border-radius:30px;
-  border:1px solid rgba(255,0,35,.35);
-  background:linear-gradient(180deg,rgba(24,4,7,.96),rgba(8,8,8,.98));
-  box-shadow:0 0 65px rgba(255,0,35,.18);
+/* SUPORTE */
+.support-box{
+  text-align:center;max-width:680px;margin:0 auto;padding:42px;border-radius:26px;
+  border:1px solid rgba(255,0,35,.30);
+  background:linear-gradient(180deg,rgba(22,4,7,.97),rgba(8,8,8,.98));
+  box-shadow:0 0 58px rgba(255,0,35,.14)
 }
-.support h2{font-size:58px}
-.support p{
-  color:#cfcfcf;
-  font-weight:800;
-  margin:18px 0 28px;
-}
+.support-box h2{font-size:clamp(36px,6vw,54px)}
+.support-box p{color:#c8c8c8;font-weight:800;margin:14px 0 24px;font-size:15px;line-height:1.6}
 
+/* FOOTER */
 footer{
-  border-top:1px solid rgba(255,0,35,.20);
-  padding:34px 22px;
-  background:#050505;
+  border-top:1px solid rgba(255,0,35,.18);
+  background:linear-gradient(180deg,#070707,#050505);
+  padding:0
 }
-footer .wrap{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:18px;
-  flex-wrap:wrap;
+.footer-top{
+  padding:48px 22px 32px;
+  display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px;max-width:1160px;margin:0 auto
 }
-footer b{
-  font-family:'Anton',sans-serif;
-  letter-spacing:2px;
+.footer-brand .footer-logo{font-family:'Anton',sans-serif;font-size:26px;letter-spacing:3px;color:#fff;text-shadow:0 0 20px rgba(255,0,35,.50);margin-bottom:10px}
+.footer-brand .footer-logo span{color:#ff1b2d}
+.footer-brand p{color:#555;font-size:13px;font-weight:700;line-height:1.65;max-width:300px}
+.footer-brand .footer-social{display:flex;align-items:center;gap:10px;margin-top:18px}
+.footer-brand .footer-social a{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 16px;border-radius:10px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);color:#ccc;text-decoration:none;
+  font-size:13px;font-weight:900;font-family:'Oswald',sans-serif;letter-spacing:1px;transition:.2s
 }
-footer span{
-  color:#777;
-  font-size:13px;
-  font-weight:800;
+.footer-brand .footer-social a:hover{background:rgba(255,0,35,.12);border-color:rgba(255,0,35,.35);color:#fff}
+.footer-col h4{font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:14px}
+.footer-col a{display:block;color:#888;text-decoration:none;font-size:13px;font-weight:700;padding:5px 0;transition:.2s}
+.footer-col a:hover{color:#ff1b2d}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.06);padding:18px 22px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  max-width:1160px;margin:0 auto
+}
+.footer-bottom span{color:#333;font-size:12px;font-weight:800}
+.footer-bottom .footer-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:999px;background:rgba(255,0,35,.08);
+  border:1px solid rgba(255,0,35,.20);color:#ff1b2d;font-size:11px;font-weight:900;letter-spacing:1px
 }
 
+/* DIVIDER */
+.section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,0,35,.18),transparent);margin:0}
+
+/* RESPONSIVE */
 @media(max-width:900px){
-  nav{display:none}
-  .menu-btn{display:block}
+  nav{display:none}.menu-btn{display:block}
   .hero-inner,.platforms,.download-box{grid-template-columns:1fr}
   .grid-3{grid-template-columns:1fr 1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
 }
-
 @media(max-width:560px){
-  header{padding:0 16px;height:62px}
-  .logo{font-size:20px;letter-spacing:2px}
-  .menu-btn{font-size:24px}
-  .mobile-menu{top:62px;padding:12px}
-  .mobile-menu a{padding:12px;font-size:14px;margin-bottom:6px}
-  section{padding:56px 14px}
-  .hero{min-height:auto;padding-top:80px;padding-bottom:48px;align-items:flex-start}
-  .hero-inner{gap:24px}
-  .hero-badge{font-size:9px;letter-spacing:1px;padding:8px 14px;gap:8px;margin-bottom:16px;white-space:nowrap;}
-  .pulse{width:6px;height:6px}
-  .hero h1{font-size:clamp(46px,14.5vw,68px);letter-spacing:2px;line-height:.9;white-space:nowrap;}
-  .hero-text{font-size:15px;line-height:1.45;margin-top:14px;font-weight:700}
-  .hero-actions{flex-direction:column;gap:10px;margin-top:22px}
-  .hero-actions .btn{width:100%;min-height:48px;font-size:14px;border-radius:10px}
-  .hero-card{padding:18px 16px;border-radius:18px}
-  .status-line{padding:12px 0}
+  header{padding:0 16px;height:60px}
+  .mobile-menu{top:60px}
+  section{padding:48px 14px}
+  .hero{padding-top:72px;padding-bottom:32px;min-height:auto;align-items:flex-start}
+  .hero-inner{gap:20px}
+  .hero-badge{font-size:9px;letter-spacing:1px;padding:7px 13px}
+  .hero h1{font-size:clamp(44px,14vw,66px);letter-spacing:2px}
+  .hero-text{font-size:14px;margin-top:12px}
+  .hero-actions{flex-direction:column;gap:9px;margin-top:20px}
+  .hero-actions .btn{width:100%;min-height:48px;font-size:14px}
+  .hero-card{padding:16px}
+  .status-line{padding:11px 0}
   .status-line b{font-size:13px}
-  .status-line span{font-size:11px;text-align:right}
-  .section-title{margin-bottom:28px}
-  .tag{font-size:10px;padding:6px 12px;letter-spacing:1.5px;margin-bottom:12px}
-  h2{font-size:clamp(32px,9vw,44px);letter-spacing:1px}
-  .sub{font-size:13px;margin-top:8px}
-  .grid-3{grid-template-columns:1fr;gap:10px}
-  .card{min-height:auto;padding:20px 18px;border-radius:16px}
+  h2{font-size:clamp(30px,9vw,42px)}
+  .sub{font-size:13px}
+  .grid-3{grid-template-columns:1fr;gap:9px}
+  .card{padding:18px 16px;border-radius:14px}
   .icon{font-size:26px;margin-bottom:10px}
-  .card h3{font-size:17px;margin-bottom:7px}
-  .card p{font-size:13px;line-height:1.5}
-  .platforms{grid-template-columns:1fr;gap:12px}
-  .platform{padding:22px 18px;border-radius:20px}
-  .platform h3{font-size:clamp(34px,10vw,46px);margin-bottom:12px}
-  .platform .status{font-size:10px;padding:6px 12px;margin-bottom:12px}
-  .platform p{font-size:13px;line-height:1.5;margin-bottom:16px}
-  .specs{grid-template-columns:1fr 1fr;gap:6px;margin:14px 0}
-  .spec{padding:10px 12px;border-radius:10px}
-  .spec small{font-size:9px;margin-bottom:3px}
+  .card h3{font-size:16px}
+  .card p{font-size:13px}
+  .platforms{grid-template-columns:1fr;gap:10px}
+  .platform{padding:20px 16px;border-radius:18px}
+  .platform h3{font-size:clamp(32px,10vw,44px)}
+  .platform p{font-size:13px}
+  .specs{gap:6px;margin:14px 0}
+  .spec{padding:10px}
   .spec b{font-size:13px}
-  .platform .btn{width:100%;min-height:46px;font-size:14px;border-radius:10px}
-  .download-box{grid-template-columns:1fr;gap:12px}
-  .steps{padding:18px 14px;border-radius:18px;overflow:hidden}
-  .step{gap:8px;padding:12px 0;align-items:flex-start}
-  .num{font-size:20px;flex-shrink:0}
-  .step > div{min-width:0}
-  .step b{display:block;font-size:13px;font-weight:900;color:#fff;line-height:1.2}
-  .step p{font-size:11px;margin-top:2px;color:#aaa;font-weight:700;line-height:1.3}
-  .download-card{padding:24px 18px;border-radius:18px}
-  .download-card h3{font-size:clamp(30px,9vw,42px);margin-bottom:10px}
-  .download-card p{font-size:13px;margin-bottom:16px}
-  .chips{gap:6px;margin-bottom:18px}
-  .chip{font-size:11px;padding:6px 11px}
-  .download-card .btn{width:100%;min-height:46px;font-size:14px;border-radius:10px}
-  .code-box{padding:22px 16px;border-radius:20px}
-  .support{padding:26px 16px;border-radius:20px}
-  .support h2{font-size:clamp(30px,9vw,40px)}
-  .support p{font-size:13px;margin:12px 0 20px}
-  .support .btn{width:100%;min-height:46px;font-size:14px;border-radius:10px}
-  footer{padding:20px 14px}
-  footer .wrap{flex-direction:column;align-items:flex-start;gap:4px}
-  footer b{font-size:15px}
-  footer span{font-size:11px}
+  .platform .btn{width:100%;min-height:46px;font-size:14px}
+  .download-box{grid-template-columns:1fr;gap:10px}
+  .steps{padding:16px}
+  .step{gap:8px;padding:11px 0}
+  .step b{font-size:13px}
+  .step p{font-size:11px}
+  .download-card{padding:22px 16px}
+  .download-card h3{font-size:clamp(28px,9vw,40px)}
+  .download-card p{font-size:13px}
+  .download-card .btn{width:100%;min-height:46px;font-size:14px}
+  .code-box{padding:20px 14px;border-radius:18px}
+  .support-box{padding:24px 16px;border-radius:18px}
+  .support-box .btn{width:100%;min-height:46px;font-size:14px}
+  .footer-top{grid-template-columns:1fr;gap:24px;padding:32px 14px 24px}
+  .footer-bottom{flex-direction:column;align-items:flex-start;padding:14px}
+  .footer-bottom span{font-size:11px}
 }
 </style>
 </head>
-
 <body>
 
 <header>
   <a href="#home" class="logo">PROJETO <span>X</span></a>
   <nav>
     <a href="#home">Home</a>
-    <a href="#android">Android</a>
-    <a href="#tv">TV</a>
-    <a href="#codigo">Código TV</a>
+    <a href="#plataformas">Android & TV</a>
     <a href="#recursos">Recursos</a>
-    <a href="#download" class="nav-btn">Download</a>
+    <a href="#download">Download</a>
+    <a href="#codigo">Código TV</a>
+    <a href="#suporte" class="nav-btn">Suporte</a>
   </nav>
   <div class="menu-btn" onclick="toggleMenu()">☰</div>
 </header>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#home">Home</a>
-  <a href="#android">Android</a>
-  <a href="#tv">TV</a>
-  <a href="#codigo">Código TV</a>
-  <a href="#recursos">Recursos</a>
-  <a href="#download">Download</a>
+  <a href="#home" onclick="fecharMenu()">Home</a>
+  <a href="#plataformas" onclick="fecharMenu()">Android & TV</a>
+  <a href="#recursos" onclick="fecharMenu()">Recursos</a>
+  <a href="#download" onclick="fecharMenu()">Download</a>
+  <a href="#codigo" onclick="fecharMenu()">Código TV</a>
+  <a href="#suporte" onclick="fecharMenu()">Suporte</a>
 </div>
 
+<!-- HOME -->
 <section class="hero" id="home">
   <div class="wrap hero-inner">
     <div>
-      <div class="hero-badge"><span class="pulse"></span> PLATAFORMA OFICIAL • ANDROID BETA</div>
+      <div class="hero-badge"><span class="dot-green"></span> PLATAFORMA OFICIAL • ANDROID BETA</div>
       <h1>PROJETO <span>X</span></h1>
       <p class="hero-text">
         Uma experiência <span>premium</span>, rápida e otimizada para quem usa IPTV, Xtream Codes ou listas M3U.
       </p>
       <div class="hero-actions">
         <a class="btn btn-red" href="ProjetoX.apk">⬇ Baixar Android</a>
-        <a class="btn btn-dark" href="#codigo">📺 Gerar Código TV</a>
+        <a class="btn btn-dark" href="#recursos">Ver Recursos</a>
       </div>
     </div>
     <div class="hero-card">
-      <div class="status-line"><b>ANDROID</b><span>DISPONÍVEL</span></div>
-      <div class="status-line"><b>SMART TV</b><span>EM DESENVOLVIMENTO</span></div>
-      <div class="status-line"><b>ATUALIZAÇÕES</b><span>OTA ATIVO</span></div>
-      <div class="status-line"><b>CÓDIGO TV</b><span>ATIVO</span></div>
+      <div class="status-line">
+        <b>ANDROID</b>
+        <div class="val val-green"><span class="dot-green"></span> DISPONÍVEL</div>
+      </div>
+      <div class="status-line">
+        <b>SMART TV</b>
+        <div class="val val-orange"><span class="dot-orange"></span> EM DESENVOLVIMENTO</div>
+      </div>
+      <div class="status-line">
+        <b>OTA</b>
+        <div class="val val-green"><span class="dot-green"></span> ATIVO</div>
+      </div>
+      <div class="status-line">
+        <b>CÓDIGO TV</b>
+        <div class="val val-green"><span class="dot-green"></span> ONLINE</div>
+      </div>
     </div>
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<!-- ANDROID & TV -->
+<section id="plataformas">
+  <div class="wrap">
+    <div class="section-title">
+      <span class="tag">PLATAFORMAS</span>
+      <h2>Android & Smart TV</h2>
+      <p class="sub">Dois apps, uma plataforma. Experiência premium em qualquer tela.</p>
+    </div>
+    <div class="platforms">
+
+      <div class="platform" id="android">
+        <div class="platform-status status-ok"><span class="dot-green"></span> DISPONÍVEL AGORA</div>
+        <h3>ANDROID</h3>
+        <p>Versão oficial para celulares e tablets. Instale por cima do app atual e mantenha seus dados salvos.</p>
+        <div class="specs">
+          <div class="spec"><small>STATUS</small><b>Beta Ativo</b></div>
+          <div class="spec"><small>ARQUIVO</small><b>ProjetoX.apk</b></div>
+          <div class="spec"><small>SUPORTE</small><b>Xtream + M3U</b></div>
+          <div class="spec"><small>UPDATE</small><b>OTA Ativo</b></div>
+        </div>
+        <a class="btn btn-red" href="ProjetoX.apk">⬇ Download Oficial</a>
+      </div>
+
+      <div class="platform" id="tv">
+        <div class="platform-status status-dev"><span class="dot-orange"></span> EM DESENVOLVIMENTO</div>
+        <h3>SMART TV</h3>
+        <p>Use o gerador de código para entrar no app TV sem digitar URL ou servidor no controle remoto.</p>
+        <div class="specs">
+          <div class="spec"><small>LOGIN</small><b>Código único</b></div>
+          <div class="spec"><small>FOCO</small><b>Controle remoto</b></div>
+          <div class="spec"><small>TV BOX</small><b>Compatível</b></div>
+          <div class="spec"><small>ANDROID TV</small><b>Compatível</b></div>
+        </div>
+        <a class="btn btn-dark" href="#codigo">📺 Gerar Código TV</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- RECURSOS -->
 <section id="recursos">
   <div class="wrap">
     <div class="section-title">
@@ -603,7 +392,7 @@ footer span{
       </div>
       <div class="card">
         <div class="icon">🔁</div>
-        <h3>Atualizações oficiais</h3>
+        <h3>Atualizações OTA</h3>
         <p>O app avisa quando tiver nova versão e atualiza sem precisar procurar links.</p>
       </div>
       <div class="card">
@@ -625,35 +414,9 @@ footer span{
   </div>
 </section>
 
-<section>
-  <div class="wrap platforms">
-    <div class="platform" id="android">
-      <span class="status ok">● DISPONÍVEL AGORA</span>
-      <h3>ANDROID</h3>
-      <p>Versão oficial para celulares e tablets. Instale por cima do app atual e mantenha seus dados salvos.</p>
-      <div class="specs">
-        <div class="spec"><small>STATUS</small><b>Android Beta</b></div>
-        <div class="spec"><small>ARQUIVO</small><b>ProjetoX.apk</b></div>
-        <div class="spec"><small>SUPORTE</small><b>Xtream + M3U</b></div>
-        <div class="spec"><small>UPDATE</small><b>OTA Ativo</b></div>
-      </div>
-      <a class="btn btn-red" href="ProjetoX.apk">⬇ Download Oficial</a>
-    </div>
-    <div class="platform" id="tv">
-      <span class="status dev">● CÓDIGO TV ATIVO</span>
-      <h3>SMART TV</h3>
-      <p>Use o gerador de código para entrar no app TV sem digitar URL ou servidor no controle remoto.</p>
-      <div class="specs">
-        <div class="spec"><small>LOGIN</small><b>Código único</b></div>
-        <div class="spec"><small>FOCO</small><b>Controle remoto</b></div>
-        <div class="spec"><small>TV BOX</small><b>Compatível</b></div>
-        <div class="spec"><small>ANDROID TV</small><b>Compatível</b></div>
-      </div>
-      <a class="btn btn-red" href="#codigo">📺 Gerar Código TV</a>
-    </div>
-  </div>
-</section>
+<div class="section-divider"></div>
 
+<!-- DOWNLOAD -->
 <section id="download">
   <div class="wrap">
     <div class="section-title">
@@ -677,7 +440,7 @@ footer span{
         </div>
         <div class="step">
           <div class="num">04</div>
-          <div><b>Próximas atualizações via OTA</b><p>Depois disso, novas versões aparecem automaticamente.</p></div>
+          <div><b>Atualizações via OTA</b><p>Novas versões aparecem automaticamente pelo app.</p></div>
         </div>
       </div>
       <div class="download-card">
@@ -695,6 +458,9 @@ footer span{
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<!-- CÓDIGO TV -->
 <section id="codigo">
   <div class="wrap">
     <div class="section-title">
@@ -705,27 +471,33 @@ footer span{
 
     <div class="code-box">
 
-      <!-- Alternador de modo -->
-      <div style="display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:5px;margin-bottom:28px;gap:5px;">
-        <button id="tabDns" onclick="trocarModo('dns')" style="flex:1;height:46px;border:none;border-radius:10px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .25s;background:linear-gradient(135deg,#ff1b2d,#97000d);color:#fff;box-shadow:0 0 24px rgba(255,0,35,.35);">🌐 DNS / Xtream</button>
-        <button id="tabM3u" onclick="trocarModo('m3u')" style="flex:1;height:46px;border:none;border-radius:10px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .25s;background:transparent;color:#777;box-shadow:none;">📋 Lista M3U</button>
+      <!-- Status online -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px;">
+        <span class="dot-green"></span>
+        <span style="color:#33ff7a;font-size:11px;font-weight:900;letter-spacing:2px;">SERVIÇO ONLINE</span>
+      </div>
+
+      <!-- Alternador -->
+      <div style="display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:4px;margin-bottom:24px;gap:4px;">
+        <button id="tabDns" onclick="trocarModo('dns')" style="flex:1;height:44px;border:none;border-radius:10px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;transition:all .25s;background:linear-gradient(135deg,#ff1b2d,#97000d);color:#fff;box-shadow:0 0 20px rgba(255,0,35,.30);">🌐 DNS / Xtream</button>
+        <button id="tabM3u" onclick="trocarModo('m3u')" style="flex:1;height:44px;border:none;border-radius:10px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;transition:all .25s;background:transparent;color:#666;box-shadow:none;">📋 Lista M3U</button>
       </div>
 
       <!-- Painel DNS -->
       <div id="painelDns" style="opacity:1;transition:opacity .25s;">
-        <div style="display:grid;grid-template-columns:1fr;gap:12px;">
-          <div style="position:relative;">
-            <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">🌐</span>
-            <input id="servidorTv" type="text" placeholder="URL do servidor  —  ex: http://meuservidor.com" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+          <div class="input-wrap">
+            <span class="input-icon">🌐</span>
+            <input id="servidorTv" class="code-input" type="text" placeholder="URL do servidor  —  ex: http://meuservidor.com">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div style="position:relative;">
-              <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">👤</span>
-              <input id="usuarioTv" type="text" placeholder="Usuário" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input id="usuarioTv" class="code-input" type="text" placeholder="Usuário">
             </div>
-            <div style="position:relative;">
-              <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">🔒</span>
-              <input id="senhaTv" type="password" placeholder="Senha" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="senhaTv" class="code-input" type="password" placeholder="Senha">
             </div>
           </div>
         </div>
@@ -733,44 +505,44 @@ footer span{
 
       <!-- Painel M3U -->
       <div id="painelM3u" style="opacity:0;display:none;transition:opacity .25s;">
-        <div style="position:relative;">
-          <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">📋</span>
-          <input id="m3uTv" type="text" placeholder="Cole sua M3U  —  ex: http://servidor.com/get.php?username=user&password=pass&type=m3u" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+        <div class="input-wrap">
+          <span class="input-icon">📋</span>
+          <input id="m3uTv" class="code-input" type="text" placeholder="Cole sua M3U  —  ex: http://servidor.com/get.php?username=user&password=pass&type=m3u">
         </div>
-        <div id="m3uPreview" style="display:none;margin-top:12px;padding:16px 20px;border-radius:13px;background:rgba(255,0,35,.07);border:1px solid rgba(255,0,35,.25);">
-          <p style="color:#aaa;font-size:11px;font-weight:900;letter-spacing:1.5px;margin-bottom:10px;">DADOS EXTRAÍDOS DA M3U</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;">
-              <small style="color:#666;font-size:10px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:4px;">SERVIDOR</small>
-              <b id="previewServidor" style="font-family:'Oswald',sans-serif;font-size:13px;word-break:break-all;color:#fff;">—</b>
+        <div id="m3uPreview" style="display:none;margin-top:10px;padding:14px 18px;border-radius:12px;background:rgba(255,0,35,.07);border:1px solid rgba(255,0,35,.22);">
+          <p style="color:#888;font-size:10px;font-weight:900;letter-spacing:1.5px;margin-bottom:9px;">DADOS EXTRAÍDOS DA M3U</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:9px 12px;">
+              <small style="color:#555;font-size:9px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:3px;">SERVIDOR</small>
+              <b id="previewServidor" style="font-family:'Oswald',sans-serif;font-size:12px;word-break:break-all;color:#fff;">—</b>
             </div>
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;">
-              <small style="color:#666;font-size:10px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:4px;">USUÁRIO</small>
-              <b id="previewUsuario" style="font-family:'Oswald',sans-serif;font-size:13px;color:#fff;">—</b>
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:9px 12px;">
+              <small style="color:#555;font-size:9px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:3px;">USUÁRIO</small>
+              <b id="previewUsuario" style="font-family:'Oswald',sans-serif;font-size:12px;color:#fff;">—</b>
             </div>
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;">
-              <small style="color:#666;font-size:10px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:4px;">SENHA</small>
-              <b id="previewSenha" style="font-family:'Oswald',sans-serif;font-size:13px;color:#fff;">—</b>
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:9px 12px;">
+              <small style="color:#555;font-size:9px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:3px;">SENHA</small>
+              <b id="previewSenha" style="font-family:'Oswald',sans-serif;font-size:12px;color:#fff;">—</b>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Botão gerar -->
-      <div style="margin-top:20px;">
-        <button class="btn btn-red" id="btnGerar" onclick="gerarCodigoTV()" style="width:100%;min-height:54px;font-size:15px;border-radius:13px;letter-spacing:1.5px;">
+      <!-- Botão -->
+      <div style="margin-top:18px;">
+        <button class="btn btn-red" id="btnGerar" onclick="gerarCodigoTV()" style="width:100%;min-height:52px;font-size:14px;border-radius:12px;letter-spacing:1.4px;">
           📺 Gerar Código TV
         </button>
       </div>
 
       <!-- Erro -->
-      <div id="codigoErro" style="display:none;margin-top:14px;padding:16px 20px;border-radius:13px;color:#ff7777;font-weight:900;font-size:13px;background:rgba(255,0,35,.08);border:1px solid rgba(255,0,35,.30);text-align:center;line-height:1.5;"></div>
+      <div id="codigoErro" style="display:none;margin-top:12px;padding:14px 18px;border-radius:12px;color:#ff7777;font-weight:900;font-size:13px;background:rgba(255,0,35,.08);border:1px solid rgba(255,0,35,.28);text-align:center;line-height:1.5;"></div>
 
       <!-- Resultado -->
-      <div id="codigoResultado" style="display:none;margin-top:18px;padding:32px 22px;border-radius:20px;text-align:center;background:rgba(255,0,35,.10);border:1px solid rgba(255,0,35,.35);">
-        <small style="display:block;color:#aaa;font-weight:900;letter-spacing:2px;font-size:11px;margin-bottom:14px;">SEU CÓDIGO DE ACESSO</small>
-        <div id="codigoNumero" style="font-family:'Anton',sans-serif;font-size:62px;letter-spacing:10px;color:#fff;text-shadow:0 0 36px rgba(255,0,35,.8);line-height:1;">000000</div>
-        <div style="margin-top:16px;color:#bbb;font-size:13px;font-weight:800;line-height:1.7;">
+      <div id="codigoResultado" style="display:none;margin-top:16px;padding:28px 20px;border-radius:18px;text-align:center;background:rgba(255,0,35,.09);border:1px solid rgba(255,0,35,.32);">
+        <small style="display:block;color:#888;font-weight:900;letter-spacing:2px;font-size:10px;margin-bottom:12px;">SEU CÓDIGO DE ACESSO</small>
+        <div id="codigoNumero" style="font-family:'Anton',sans-serif;font-size:58px;letter-spacing:10px;color:#fff;text-shadow:0 0 32px rgba(255,0,35,.75);line-height:1;">000000</div>
+        <div style="margin-top:14px;color:#aaa;font-size:13px;font-weight:800;line-height:1.7;">
           Digite este código no app <strong style="color:#fff;">Projeto X TV</strong>.<br>
           O código será usado apenas uma vez.
         </div>
@@ -780,33 +552,74 @@ footer span{
   </div>
 </section>
 
-<section>
+<div class="section-divider"></div>
+
+<!-- SUPORTE -->
+<section id="suporte">
   <div class="wrap">
-    <div class="support">
+    <div class="support-box">
       <span class="tag">SUPORTE</span>
       <h2>Precisa de ajuda?</h2>
-      <p>Entre em contato com nosso suporte oficial pelo WhatsApp ou Telegram.</p>
+      <p>Nossa equipe está disponível para garantir a melhor experiência com o Projeto X. Entre em contato pelo WhatsApp ou Telegram e receba suporte direto.</p>
       <a class="btn btn-red" href="#">💬 Falar com Suporte</a>
     </div>
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
-  <div class="wrap">
-    <b>PROJETO <span style="color:#ff1b2d">X</span></b>
-    <span>© 2025 Projeto X — Todos os direitos reservados</span>
+  <div class="footer-top">
+
+    <div class="footer-brand">
+      <div class="footer-logo">PROJETO <span>X</span></div>
+      <p>Desenvolvido para uma experiência premium.<br>Plataforma otimizada para clientes exigentes que buscam o melhor em streaming com qualidade cinematográfica.</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/playboyx7x" target="_blank">
+          📸 @playboyx7x
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Plataforma</h4>
+      <a href="#home">Home</a>
+      <a href="#plataformas">Android</a>
+      <a href="#plataformas">Smart TV</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#download">Download</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Acesso</h4>
+      <a href="#codigo">Gerar Código TV</a>
+      <a href="#suporte">Suporte</a>
+      <a href="ProjetoX.apk">Download APK</a>
+    </div>
+
+  </div>
+
+  <div style="max-width:1160px;margin:0 auto;padding:0 22px;">
+    <div class="footer-bottom">
+      <span>© 2025 Projeto X — Todos os direitos reservados. Desenvolvido por <strong style="color:#ff1b2d;">Playboy</strong>.</span>
+      <div class="footer-tag"><span class="dot-green"></span> PLATAFORMA ONLINE</div>
+    </div>
   </div>
 </footer>
 
 <script>
-
 const API_PROJETO_X = "https://royal-shadow-2220.arllison001.workers.dev";
-
 let modoAtual = 'dns';
+
+function toggleMenu() {
+  const m = document.getElementById('mobileMenu');
+  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+}
+function fecharMenu() {
+  document.getElementById('mobileMenu').style.display = 'none';
+}
 
 function trocarModo(modo) {
   modoAtual = modo;
-
   const painelDns = document.getElementById('painelDns');
   const painelM3u = document.getElementById('painelM3u');
   const tabDns    = document.getElementById('tabDns');
@@ -820,24 +633,22 @@ function trocarModo(modo) {
     setTimeout(() => { painelM3u.style.display = 'none'; }, 260);
     painelDns.style.display = 'block';
     setTimeout(() => { painelDns.style.opacity = '1'; }, 10);
-
     tabDns.style.background = 'linear-gradient(135deg,#ff1b2d,#97000d)';
     tabDns.style.color      = '#fff';
-    tabDns.style.boxShadow  = '0 0 24px rgba(255,0,35,.35)';
+    tabDns.style.boxShadow  = '0 0 20px rgba(255,0,35,.30)';
     tabM3u.style.background = 'transparent';
-    tabM3u.style.color      = '#777';
+    tabM3u.style.color      = '#666';
     tabM3u.style.boxShadow  = 'none';
   } else {
     painelDns.style.opacity = '0';
     setTimeout(() => { painelDns.style.display = 'none'; }, 260);
     painelM3u.style.display = 'block';
     setTimeout(() => { painelM3u.style.opacity = '1'; }, 10);
-
     tabM3u.style.background = 'linear-gradient(135deg,#ff1b2d,#97000d)';
     tabM3u.style.color      = '#fff';
-    tabM3u.style.boxShadow  = '0 0 24px rgba(255,0,35,.35)';
+    tabM3u.style.boxShadow  = '0 0 20px rgba(255,0,35,.30)';
     tabDns.style.background = 'transparent';
-    tabDns.style.color      = '#777';
+    tabDns.style.color      = '#666';
     tabDns.style.boxShadow  = 'none';
   }
 }
@@ -849,16 +660,13 @@ function extrairM3U(url) {
     const password = u.searchParams.get('password') || u.searchParams.get('pass') || '';
     const servidor = u.origin;
     return { servidor, username, password };
-  } catch(e) {
-    return null;
-  }
+  } catch(e) { return null; }
 }
 
 document.getElementById('m3uTv').addEventListener('input', function() {
   const val     = this.value.trim();
   const preview = document.getElementById('m3uPreview');
   const dados   = extrairM3U(val);
-
   if (dados && dados.username && dados.password) {
     document.getElementById('previewServidor').innerText = dados.servidor || '—';
     document.getElementById('previewUsuario').innerText  = dados.username || '—';
@@ -870,16 +678,14 @@ document.getElementById('m3uTv').addEventListener('input', function() {
 });
 
 function mostrarErroCodigo(msg) {
-  const erro      = document.getElementById('codigoErro');
-  const resultado = document.getElementById('codigoResultado');
+  const erro = document.getElementById('codigoErro');
   erro.innerHTML  = '⚠ ' + msg;
-  erro.style.display      = 'block';
-  resultado.style.display = 'none';
+  erro.style.display = 'block';
+  document.getElementById('codigoResultado').style.display = 'none';
 }
-
 function limparErroCodigo() {
-  const erro         = document.getElementById('codigoErro');
-  erro.innerHTML     = '';
+  const erro = document.getElementById('codigoErro');
+  erro.innerHTML = '';
   erro.style.display = 'none';
 }
 
@@ -887,28 +693,21 @@ async function gerarCodigoTV() {
   limparErroCodigo();
   document.getElementById('codigoResultado').style.display = 'none';
 
-  let servidor = '';
-  let usuario  = '';
-  let senha    = '';
-  let m3u      = '';
+  let servidor = '', usuario = '', senha = '', m3u = '';
 
   if (modoAtual === 'dns') {
     servidor = document.getElementById('servidorTv').value.trim();
     usuario  = document.getElementById('usuarioTv').value.trim();
     senha    = document.getElementById('senhaTv').value.trim();
-
     if (!servidor) { mostrarErroCodigo('Informe a URL do servidor.'); return; }
     if (!usuario)  { mostrarErroCodigo('Informe o usuário.'); return; }
     if (!senha)    { mostrarErroCodigo('Informe a senha.'); return; }
-
   } else {
     m3u = document.getElementById('m3uTv').value.trim();
-
     if (!m3u) { mostrarErroCodigo('Cole sua M3U completa no campo acima.'); return; }
-
     const dados = extrairM3U(m3u);
     if (!dados || !dados.username || !dados.password) {
-      mostrarErroCodigo('Não foi possível extrair os dados da M3U. Verifique o link e tente novamente.');
+      mostrarErroCodigo('Não foi possível extrair os dados da M3U. Verifique o link.');
       return;
     }
     servidor = dados.servidor;
@@ -916,10 +715,10 @@ async function gerarCodigoTV() {
     senha    = dados.password;
   }
 
-  const btn           = document.getElementById('btnGerar');
+  const btn = document.getElementById('btnGerar');
   const textoOriginal = btn.innerText;
-  btn.innerText       = 'GERANDO...';
-  btn.disabled        = true;
+  btn.innerText = 'GERANDO...';
+  btn.disabled  = true;
 
   try {
     const resposta = await fetch(API_PROJETO_X + '/gerar', {
@@ -927,17 +726,13 @@ async function gerarCodigoTV() {
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ m3u, servidor, usuario, senha })
     });
-
     const dados = await resposta.json();
-
     if (!dados.success) {
       mostrarErroCodigo(dados.erro || 'Não foi possível gerar o código. Tente novamente.');
       return;
     }
-
     document.getElementById('codigoNumero').innerText        = dados.codigo;
     document.getElementById('codigoResultado').style.display = 'block';
-
   } catch(e) {
     mostrarErroCodigo('Erro ao conectar com a API do Projeto X. Verifique sua conexão.');
   } finally {
@@ -945,16 +740,6 @@ async function gerarCodigoTV() {
     btn.disabled  = false;
   }
 }
-
-function toggleMenu() {
-  const menu = document.getElementById('mobileMenu');
-  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-}
-
-document.querySelectorAll('.mobile-menu a').forEach(a => {
-  a.onclick = () => document.getElementById('mobileMenu').style.display = 'none';
-});
-
 </script>
 </body>
 </html>
