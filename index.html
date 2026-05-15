@@ -18,7 +18,6 @@ body{
   overflow-x:hidden;
 }
 
-/* FUNDO */
 body::before{
   content:"";
   position:fixed;
@@ -42,7 +41,6 @@ body::after{
   z-index:-2;
 }
 
-/* NAV */
 header{
   position:fixed;
   top:0;left:0;right:0;
@@ -65,10 +63,7 @@ header{
   text-shadow:0 0 24px rgba(255,0,35,.6);
 }
 .logo span{color:#ff1b2d}
-nav{
-  display:flex;
-  gap:8px;
-}
+nav{display:flex;gap:8px}
 nav a{
   color:#aaa;
   text-decoration:none;
@@ -80,17 +75,13 @@ nav a{
   border-radius:8px;
   transition:.2s;
 }
-nav a:hover{
-  color:#fff;
-  background:rgba(255,255,255,.06);
-}
+nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
 nav .nav-btn{
   color:#fff;
   background:linear-gradient(135deg,#ff1b2d,#8b000b);
   box-shadow:0 0 24px rgba(255,0,35,.35);
 }
 
-/* MENU MOBILE */
 .menu-btn{display:none;color:#fff;font-size:28px;cursor:pointer}
 .mobile-menu{
   display:none;
@@ -112,20 +103,9 @@ nav .nav-btn{
   margin-bottom:8px;
 }
 
-/* GERAL */
-section{
-  position:relative;
-  padding:96px 22px;
-}
-.wrap{
-  width:100%;
-  max-width:1180px;
-  margin:0 auto;
-}
-.section-title{
-  text-align:center;
-  margin-bottom:42px;
-}
+section{position:relative;padding:96px 22px}
+.wrap{width:100%;max-width:1180px;margin:0 auto}
+.section-title{text-align:center;margin-bottom:42px}
 .tag{
   display:inline-block;
   color:#ff1b2d;
@@ -154,7 +134,6 @@ h2{
   margin-top:12px;
 }
 
-/* HERO */
 .hero{
   min-height:100vh;
   display:flex;
@@ -262,12 +241,8 @@ h2{
   font-size:18px;
   letter-spacing:1px;
 }
-.status-line span{
-  color:#ff1b2d;
-  font-weight:900;
-}
+.status-line span{color:#ff1b2d;font-weight:900}
 
-/* CARDS */
 .grid-3{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -287,10 +262,7 @@ h2{
   border-color:rgba(255,0,35,.55);
   box-shadow:0 0 48px rgba(255,0,35,.18);
 }
-.icon{
-  font-size:36px;
-  margin-bottom:18px;
-}
+.icon{font-size:36px;margin-bottom:18px}
 .card h3{
   font-family:'Oswald',sans-serif;
   font-size:24px;
@@ -305,7 +277,6 @@ h2{
   line-height:1.55;
 }
 
-/* PLATAFORMAS */
 .platforms{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -376,7 +347,6 @@ h2{
   font-size:16px;
 }
 
-/* DOWNLOAD */
 .download-box{
   display:grid;
   grid-template-columns:.9fr 1.1fr;
@@ -399,7 +369,6 @@ h2{
   font-family:'Anton',sans-serif;
   font-size:22px;
   color:#ff1b2d;
-  min-width:auto;
 }
 .step b{
   font-family:'Oswald',sans-serif;
@@ -448,7 +417,88 @@ h2{
   font-weight:900;
 }
 
-/* SUPORTE */
+/* GERADOR TV */
+.code-box{
+  max-width:820px;
+  margin:0 auto;
+  border-radius:30px;
+  padding:34px;
+  background:linear-gradient(180deg,rgba(24,4,7,.96),rgba(8,8,8,.98));
+  border:1px solid rgba(255,0,35,.35);
+  box-shadow:0 0 65px rgba(255,0,35,.18);
+}
+.code-form{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.code-form input{
+  width:100%;
+  height:54px;
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  padding:0 16px;
+  outline:none;
+  font-family:'Montserrat',sans-serif;
+  font-weight:800;
+  font-size:14px;
+}
+.code-form input:focus{
+  border-color:rgba(255,0,35,.75);
+  box-shadow:0 0 0 3px rgba(255,0,35,.16);
+}
+.code-form input::placeholder{color:#777}
+.code-form .full{grid-column:1/-1}
+.code-actions{
+  margin-top:16px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.code-actions .btn{flex:1}
+.code-result{
+  display:none;
+  margin-top:18px;
+  padding:22px;
+  border-radius:20px;
+  text-align:center;
+  background:rgba(255,0,35,.10);
+  border:1px solid rgba(255,0,35,.35);
+}
+.code-result small{
+  display:block;
+  color:#aaa;
+  font-weight:900;
+  letter-spacing:1.5px;
+  margin-bottom:8px;
+}
+.code-number{
+  font-family:'Anton',sans-serif;
+  font-size:52px;
+  letter-spacing:8px;
+  color:#fff;
+  text-shadow:0 0 28px rgba(255,0,35,.7);
+}
+.code-msg{
+  margin-top:10px;
+  color:#bbb;
+  font-size:13px;
+  font-weight:800;
+}
+.code-alert{
+  display:none;
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  color:#ff7777;
+  font-weight:900;
+  background:rgba(255,0,35,.08);
+  border:1px solid rgba(255,0,35,.25);
+  text-align:center;
+}
+
 .support{
   text-align:center;
   max-width:720px;
@@ -466,7 +516,6 @@ h2{
   margin:18px 0 28px;
 }
 
-/* FOOTER */
 footer{
   border-top:1px solid rgba(255,0,35,.20);
   padding:34px 22px;
@@ -489,9 +538,6 @@ footer span{
   font-weight:800;
 }
 
-/* =============================================
-   TABLET
-   ============================================= */
 @media(max-width:900px){
   nav{display:none}
   .menu-btn{display:block}
@@ -499,48 +545,15 @@ footer span{
   .grid-3{grid-template-columns:1fr 1fr}
 }
 
-/* =============================================
-   MOBILE — corrigido
-   ============================================= */
 @media(max-width:560px){
-
-  /* HEADER */
-  header{
-    padding:0 16px;
-    height:62px;
-  }
-  .logo{
-    font-size:20px;
-    letter-spacing:2px;
-  }
-  .menu-btn{
-    font-size:24px;
-  }
-  .mobile-menu{
-    top:62px;
-    padding:12px;
-  }
-  .mobile-menu a{
-    padding:12px;
-    font-size:14px;
-    margin-bottom:6px;
-  }
-
-  /* SECTIONS */
-  section{
-    padding:56px 14px;
-  }
-
-  /* HERO */
-  .hero{
-    min-height:auto;
-    padding-top:80px;
-    padding-bottom:48px;
-    align-items:flex-start;
-  }
-  .hero-inner{
-    gap:24px;
-  }
+  header{padding:0 16px;height:62px}
+  .logo{font-size:20px;letter-spacing:2px}
+  .menu-btn{font-size:24px}
+  .mobile-menu{top:62px;padding:12px}
+  .mobile-menu a{padding:12px;font-size:14px;margin-bottom:6px}
+  section{padding:56px 14px}
+  .hero{min-height:auto;padding-top:80px;padding-bottom:48px;align-items:flex-start}
+  .hero-inner{gap:24px}
   .hero-badge{
     font-size:9px;
     letter-spacing:1px;
@@ -549,240 +562,65 @@ footer span{
     margin-bottom:16px;
     white-space:nowrap;
   }
-  .pulse{
-    width:6px;
-    height:6px;
-  }
-
-  /* PROJETO X — escala fluida, sempre numa linha */
+  .pulse{width:6px;height:6px}
   .hero h1{
     font-size:clamp(46px,14.5vw,68px);
     letter-spacing:2px;
     line-height:.9;
     white-space:nowrap;
   }
-
-  .hero-text{
-    font-size:15px;
-    line-height:1.45;
-    margin-top:14px;
-    font-weight:700;
-  }
-  .hero-actions{
-    flex-direction:column;
-    gap:10px;
-    margin-top:22px;
-  }
-  .hero-actions .btn{
-    width:100%;
-    min-height:48px;
-    font-size:14px;
-    border-radius:10px;
-  }
-
-  /* STATUS CARD */
-  .hero-card{
-    padding:18px 16px;
-    border-radius:18px;
-  }
-  .status-line{
-    padding:12px 0;
-  }
-  .status-line b{
-    font-size:13px;
-  }
-  .status-line span{
-    font-size:11px;
-    text-align:right;
-  }
-
-  /* SECTION TITLES */
-  .section-title{
-    margin-bottom:28px;
-  }
-  .tag{
-    font-size:10px;
-    padding:6px 12px;
-    letter-spacing:1.5px;
-    margin-bottom:12px;
-  }
-  h2{
-    font-size:clamp(32px,9vw,44px);
-    letter-spacing:1px;
-  }
-  .sub{
-    font-size:13px;
-    margin-top:8px;
-  }
-
-  /* CARDS GRID */
-  .grid-3{
-    grid-template-columns:1fr;
-    gap:10px;
-  }
-  .card{
-    min-height:auto;
-    padding:20px 18px;
-    border-radius:16px;
-  }
-  .icon{
-    font-size:26px;
-    margin-bottom:10px;
-  }
-  .card h3{
-    font-size:17px;
-    margin-bottom:7px;
-  }
-  .card p{
-    font-size:13px;
-    line-height:1.5;
-  }
-
-  /* PLATAFORMAS */
-  .platforms{
-    grid-template-columns:1fr;
-    gap:12px;
-  }
-  .platform{
-    padding:22px 18px;
-    border-radius:20px;
-  }
-  .platform h3{
-    font-size:clamp(34px,10vw,46px);
-    margin-bottom:12px;
-  }
-  .platform .status{
-    font-size:10px;
-    padding:6px 12px;
-    margin-bottom:12px;
-  }
-  .platform p{
-    font-size:13px;
-    line-height:1.5;
-    margin-bottom:16px;
-  }
-  .specs{
-    grid-template-columns:1fr 1fr;
-    gap:6px;
-    margin:14px 0;
-  }
-  .spec{
-    padding:10px 12px;
-    border-radius:10px;
-  }
-  .spec small{
-    font-size:9px;
-    margin-bottom:3px;
-  }
-  .spec b{
-    font-size:13px;
-  }
-  .platform .btn{
-    width:100%;
-    min-height:46px;
-    font-size:14px;
-    border-radius:10px;
-  }
-
-  /* DOWNLOAD */
-  .download-box{
-    grid-template-columns:1fr;
-    gap:12px;
-  }
-  .steps{
-    padding:18px 14px;
-    border-radius:18px;
-    overflow:hidden;
-  }
-  .step{
-    gap:8px;
-    padding:12px 0;
-    align-items:flex-start;
-  }
-  .num{
-    font-size:20px;
-    flex-shrink:0;
-    width:auto;
-    min-width:auto;
-  }
-  .step > div{
-    min-width:0;
-  }
-  .step b{
-    display:block;
-    font-size:13px;
-    font-weight:900;
-    color:#fff;
-    line-height:1.2;
-  }
-  .step p{
-    font-size:11px;
-    margin-top:2px;
-    color:#aaa;
-    font-weight:700;
-    line-height:1.3;
-  }
-  .download-card{
-    padding:24px 18px;
-    border-radius:18px;
-  }
-  .download-card h3{
-    font-size:clamp(30px,9vw,42px);
-    margin-bottom:10px;
-  }
-  .download-card p{
-    font-size:13px;
-    margin-bottom:16px;
-  }
-  .chips{
-    gap:6px;
-    margin-bottom:18px;
-  }
-  .chip{
-    font-size:11px;
-    padding:6px 11px;
-  }
-  .download-card .btn{
-    width:100%;
-    min-height:46px;
-    font-size:14px;
-    border-radius:10px;
-  }
-
-  /* SUPORTE */
-  .support{
-    padding:26px 16px;
-    border-radius:20px;
-  }
-  .support h2{
-    font-size:clamp(30px,9vw,40px);
-  }
-  .support p{
-    font-size:13px;
-    margin:12px 0 20px;
-  }
-  .support .btn{
-    width:100%;
-    min-height:46px;
-    font-size:14px;
-    border-radius:10px;
-  }
-
-  /* FOOTER */
-  footer{
-    padding:20px 14px;
-  }
-  footer .wrap{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:4px;
-  }
-  footer b{
-    font-size:15px;
-  }
-  footer span{
-    font-size:11px;
-  }
+  .hero-text{font-size:15px;line-height:1.45;margin-top:14px;font-weight:700}
+  .hero-actions{flex-direction:column;gap:10px;margin-top:22px}
+  .hero-actions .btn{width:100%;min-height:48px;font-size:14px;border-radius:10px}
+  .hero-card{padding:18px 16px;border-radius:18px}
+  .status-line{padding:12px 0}
+  .status-line b{font-size:13px}
+  .status-line span{font-size:11px;text-align:right}
+  .section-title{margin-bottom:28px}
+  .tag{font-size:10px;padding:6px 12px;letter-spacing:1.5px;margin-bottom:12px}
+  h2{font-size:clamp(32px,9vw,44px);letter-spacing:1px}
+  .sub{font-size:13px;margin-top:8px}
+  .grid-3{grid-template-columns:1fr;gap:10px}
+  .card{min-height:auto;padding:20px 18px;border-radius:16px}
+  .icon{font-size:26px;margin-bottom:10px}
+  .card h3{font-size:17px;margin-bottom:7px}
+  .card p{font-size:13px;line-height:1.5}
+  .platforms{grid-template-columns:1fr;gap:12px}
+  .platform{padding:22px 18px;border-radius:20px}
+  .platform h3{font-size:clamp(34px,10vw,46px);margin-bottom:12px}
+  .platform .status{font-size:10px;padding:6px 12px;margin-bottom:12px}
+  .platform p{font-size:13px;line-height:1.5;margin-bottom:16px}
+  .specs{grid-template-columns:1fr 1fr;gap:6px;margin:14px 0}
+  .spec{padding:10px 12px;border-radius:10px}
+  .spec small{font-size:9px;margin-bottom:3px}
+  .spec b{font-size:13px}
+  .platform .btn{width:100%;min-height:46px;font-size:14px;border-radius:10px}
+  .download-box{grid-template-columns:1fr;gap:12px}
+  .steps{padding:18px 14px;border-radius:18px;overflow:hidden}
+  .step{gap:8px;padding:12px 0;align-items:flex-start}
+  .num{font-size:20px;flex-shrink:0}
+  .step > div{min-width:0}
+  .step b{display:block;font-size:13px;font-weight:900;color:#fff;line-height:1.2}
+  .step p{font-size:11px;margin-top:2px;color:#aaa;font-weight:700;line-height:1.3}
+  .download-card{padding:24px 18px;border-radius:18px}
+  .download-card h3{font-size:clamp(30px,9vw,42px);margin-bottom:10px}
+  .download-card p{font-size:13px;margin-bottom:16px}
+  .chips{gap:6px;margin-bottom:18px}
+  .chip{font-size:11px;padding:6px 11px}
+  .download-card .btn{width:100%;min-height:46px;font-size:14px;border-radius:10px}
+  .code-box{padding:22px 16px;border-radius:20px}
+  .code-form{grid-template-columns:1fr}
+  .code-form input{height:48px;font-size:13px}
+  .code-actions{flex-direction:column}
+  .code-number{font-size:42px;letter-spacing:5px}
+  .support{padding:26px 16px;border-radius:20px}
+  .support h2{font-size:clamp(30px,9vw,40px)}
+  .support p{font-size:13px;margin:12px 0 20px}
+  .support .btn{width:100%;min-height:46px;font-size:14px;border-radius:10px}
+  footer{padding:20px 14px}
+  footer .wrap{flex-direction:column;align-items:flex-start;gap:4px}
+  footer b{font-size:15px}
+  footer span{font-size:11px}
 }
 </style>
 </head>
@@ -795,6 +633,7 @@ footer span{
     <a href="#home">Home</a>
     <a href="#android">Android</a>
     <a href="#tv">TV</a>
+    <a href="#codigo">Código TV</a>
     <a href="#recursos">Recursos</a>
     <a href="#download" class="nav-btn">Download</a>
   </nav>
@@ -805,6 +644,7 @@ footer span{
   <a href="#home">Home</a>
   <a href="#android">Android</a>
   <a href="#tv">TV</a>
+  <a href="#codigo">Código TV</a>
   <a href="#recursos">Recursos</a>
   <a href="#download">Download</a>
 </div>
@@ -819,7 +659,7 @@ footer span{
       </p>
       <div class="hero-actions">
         <a class="btn btn-red" href="ProjetoX.apk">⬇ Baixar Android</a>
-        <a class="btn btn-dark" href="#tv">📺 Versão TV</a>
+        <a class="btn btn-dark" href="#codigo">📺 Gerar Código TV</a>
       </div>
     </div>
 
@@ -827,7 +667,7 @@ footer span{
       <div class="status-line"><b>ANDROID</b><span>DISPONÍVEL</span></div>
       <div class="status-line"><b>SMART TV</b><span>EM DESENVOLVIMENTO</span></div>
       <div class="status-line"><b>ATUALIZAÇÕES</b><span>OTA ATIVO</span></div>
-      <div class="status-line"><b>COMPATIBILIDADE</b><span>XTREAM + M3U</span></div>
+      <div class="status-line"><b>CÓDIGO TV</b><span>ATIVO</span></div>
     </div>
   </div>
 </section>
@@ -864,12 +704,12 @@ footer span{
       <div class="card">
         <div class="icon">📺</div>
         <h3>Versão TV</h3>
-        <p>Aplicativo dedicado para TV em desenvolvimento, com foco em controle remoto.</p>
+        <p>Aplicativo dedicado para TV, com foco em controle remoto e código de acesso.</p>
       </div>
       <div class="card">
-        <div class="icon">🔗</div>
-        <h3>Xtream + M3U</h3>
-        <p>Compatível com login Xtream Codes e listas M3U para uso flexível.</p>
+        <div class="icon">🔐</div>
+        <h3>Código seguro</h3>
+        <p>Gere um código no site e entre na TV sem digitar URL, DNS ou lista M3U.</p>
       </div>
     </div>
   </div>
@@ -891,16 +731,16 @@ footer span{
     </div>
 
     <div class="platform" id="tv">
-      <span class="status dev">● EM DESENVOLVIMENTO</span>
+      <span class="status dev">● CÓDIGO TV ATIVO</span>
       <h3>SMART TV</h3>
-      <p>Versão separada para TV Box, Smart TV e Android TV. Interface pensada para controle remoto.</p>
+      <p>Use o gerador de código para entrar no app TV sem digitar URL ou servidor no controle remoto.</p>
       <div class="specs">
-        <div class="spec"><small>STATUS</small><b>Em breve</b></div>
+        <div class="spec"><small>LOGIN</small><b>Código único</b></div>
         <div class="spec"><small>FOCO</small><b>Controle remoto</b></div>
-        <div class="spec"><small>TV BOX</small><b>Planejado</b></div>
-        <div class="spec"><small>ANDROID TV</small><b>Planejado</b></div>
+        <div class="spec"><small>TV BOX</small><b>Compatível</b></div>
+        <div class="spec"><small>ANDROID TV</small><b>Compatível</b></div>
       </div>
-      <button class="btn btn-dark" disabled>📺 Em breve</button>
+      <a class="btn btn-red" href="#codigo">📺 Gerar Código TV</a>
     </div>
   </div>
 </section>
@@ -948,6 +788,36 @@ footer span{
   </div>
 </section>
 
+<section id="codigo">
+  <div class="wrap">
+    <div class="section-title">
+      <span class="tag">CÓDIGO TV</span>
+      <h2>Gerar código de acesso</h2>
+      <p class="sub">Digite os dados da sua lista e use apenas o código no app da TV.</p>
+    </div>
+
+    <div class="code-box">
+      <div class="code-form">
+        <input id="servidorTv" class="full" type="text" placeholder="URL do servidor / DNS. Ex: http://servidor.com">
+        <input id="usuarioTv" type="text" placeholder="Usuário">
+        <input id="senhaTv" type="password" placeholder="Senha">
+      </div>
+
+      <div class="code-actions">
+        <button class="btn btn-red" onclick="gerarCodigoTV()">📺 Gerar Código TV</button>
+      </div>
+
+      <div class="code-alert" id="codigoErro"></div>
+
+      <div class="code-result" id="codigoResultado">
+        <small>SEU CÓDIGO DE ACESSO</small>
+        <div class="code-number" id="codigoNumero">000000</div>
+        <div class="code-msg">Digite este código no app Projeto X TV. O código será usado apenas uma vez.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="suporte">
   <div class="wrap">
     <div class="support">
@@ -962,18 +832,81 @@ footer span{
 <footer>
   <div class="wrap">
     <b>PROJETO X</b>
-    <span>Android Beta • OTA Ativo • Plataforma oficial</span>
+    <span>Android Beta • OTA Ativo • Código TV Ativo</span>
   </div>
 </footer>
 
 <script>
+const API_PROJETO_X = "https://royal-shadow-2220.arllison001.workers.dev";
+
 function toggleMenu(){
   const menu=document.getElementById("mobileMenu");
   menu.style.display = menu.style.display==="block" ? "none" : "block";
 }
+
 document.querySelectorAll('.mobile-menu a').forEach(a=>{
   a.onclick=()=>document.getElementById("mobileMenu").style.display="none";
 });
+
+function mostrarErroCodigo(msg){
+  const erro = document.getElementById("codigoErro");
+  const resultado = document.getElementById("codigoResultado");
+  erro.innerText = msg;
+  erro.style.display = "block";
+  resultado.style.display = "none";
+}
+
+function limparErroCodigo(){
+  const erro = document.getElementById("codigoErro");
+  erro.innerText = "";
+  erro.style.display = "none";
+}
+
+async function gerarCodigoTV(){
+  const servidor = document.getElementById("servidorTv").value.trim();
+  const usuario = document.getElementById("usuarioTv").value.trim();
+  const senha = document.getElementById("senhaTv").value.trim();
+
+  limparErroCodigo();
+
+  if(!servidor || !usuario || !senha){
+    mostrarErroCodigo("Preencha URL, usuário e senha para gerar o código.");
+    return;
+  }
+
+  const botao = document.querySelector("#codigo .btn-red");
+  const textoOriginal = botao.innerText;
+  botao.innerText = "GERANDO...";
+  botao.disabled = true;
+
+  try{
+    const resposta = await fetch(API_PROJETO_X + "/gerar", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        servidor: servidor,
+        usuario: usuario,
+        senha: senha
+      })
+    });
+
+    const dados = await resposta.json();
+
+    if(!dados.success){
+      mostrarErroCodigo(dados.erro || "Não foi possível gerar o código.");
+      return;
+    }
+
+    document.getElementById("codigoNumero").innerText = dados.codigo;
+    document.getElementById("codigoResultado").style.display = "block";
+
+  }catch(e){
+    mostrarErroCodigo("Erro ao conectar com a API do Projeto X.");
+  }finally{
+    botao.innerText = textoOriginal;
+    botao.disabled = false;
+  }
+}
 </script>
 
 </body>
