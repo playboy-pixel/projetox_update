@@ -417,7 +417,6 @@ h2{
   font-weight:900;
 }
 
-/* GERADOR TV */
 .code-box{
   max-width:820px;
   margin:0 auto;
@@ -426,77 +425,6 @@ h2{
   background:linear-gradient(180deg,rgba(24,4,7,.96),rgba(8,8,8,.98));
   border:1px solid rgba(255,0,35,.35);
   box-shadow:0 0 65px rgba(255,0,35,.18);
-}
-.code-form{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.code-form input{
-  width:100%;
-  height:54px;
-  border-radius:13px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.055);
-  color:#fff;
-  padding:0 16px;
-  outline:none;
-  font-family:'Montserrat',sans-serif;
-  font-weight:800;
-  font-size:14px;
-}
-.code-form input:focus{
-  border-color:rgba(255,0,35,.75);
-  box-shadow:0 0 0 3px rgba(255,0,35,.16);
-}
-.code-form input::placeholder{color:#777}
-.code-form .full{grid-column:1/-1}
-.code-actions{
-  margin-top:16px;
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.code-actions .btn{flex:1}
-.code-result{
-  display:none;
-  margin-top:18px;
-  padding:22px;
-  border-radius:20px;
-  text-align:center;
-  background:rgba(255,0,35,.10);
-  border:1px solid rgba(255,0,35,.35);
-}
-.code-result small{
-  display:block;
-  color:#aaa;
-  font-weight:900;
-  letter-spacing:1.5px;
-  margin-bottom:8px;
-}
-.code-number{
-  font-family:'Anton',sans-serif;
-  font-size:52px;
-  letter-spacing:8px;
-  color:#fff;
-  text-shadow:0 0 28px rgba(255,0,35,.7);
-}
-.code-msg{
-  margin-top:10px;
-  color:#bbb;
-  font-size:13px;
-  font-weight:800;
-}
-.code-alert{
-  display:none;
-  margin-top:14px;
-  padding:14px;
-  border-radius:14px;
-  color:#ff7777;
-  font-weight:900;
-  background:rgba(255,0,35,.08);
-  border:1px solid rgba(255,0,35,.25);
-  text-align:center;
 }
 
 .support{
@@ -554,21 +482,9 @@ footer span{
   section{padding:56px 14px}
   .hero{min-height:auto;padding-top:80px;padding-bottom:48px;align-items:flex-start}
   .hero-inner{gap:24px}
-  .hero-badge{
-    font-size:9px;
-    letter-spacing:1px;
-    padding:8px 14px;
-    gap:8px;
-    margin-bottom:16px;
-    white-space:nowrap;
-  }
+  .hero-badge{font-size:9px;letter-spacing:1px;padding:8px 14px;gap:8px;margin-bottom:16px;white-space:nowrap;}
   .pulse{width:6px;height:6px}
-  .hero h1{
-    font-size:clamp(46px,14.5vw,68px);
-    letter-spacing:2px;
-    line-height:.9;
-    white-space:nowrap;
-  }
+  .hero h1{font-size:clamp(46px,14.5vw,68px);letter-spacing:2px;line-height:.9;white-space:nowrap;}
   .hero-text{font-size:15px;line-height:1.45;margin-top:14px;font-weight:700}
   .hero-actions{flex-direction:column;gap:10px;margin-top:22px}
   .hero-actions .btn{width:100%;min-height:48px;font-size:14px;border-radius:10px}
@@ -609,10 +525,6 @@ footer span{
   .chip{font-size:11px;padding:6px 11px}
   .download-card .btn{width:100%;min-height:46px;font-size:14px;border-radius:10px}
   .code-box{padding:22px 16px;border-radius:20px}
-  .code-form{grid-template-columns:1fr}
-  .code-form input{height:48px;font-size:13px}
-  .code-actions{flex-direction:column}
-  .code-number{font-size:42px;letter-spacing:5px}
   .support{padding:26px 16px;border-radius:20px}
   .support h2{font-size:clamp(30px,9vw,40px)}
   .support p{font-size:13px;margin:12px 0 20px}
@@ -662,7 +574,6 @@ footer span{
         <a class="btn btn-dark" href="#codigo">📺 Gerar Código TV</a>
       </div>
     </div>
-
     <div class="hero-card">
       <div class="status-line"><b>ANDROID</b><span>DISPONÍVEL</span></div>
       <div class="status-line"><b>SMART TV</b><span>EM DESENVOLVIMENTO</span></div>
@@ -679,7 +590,6 @@ footer span{
       <h2>Feito para ser rápido</h2>
       <p class="sub">Visual premium, desempenho leve e atualização direta pelo app.</p>
     </div>
-
     <div class="grid-3">
       <div class="card">
         <div class="icon">⚡</div>
@@ -729,7 +639,6 @@ footer span{
       </div>
       <a class="btn btn-red" href="ProjetoX.apk">⬇ Download Oficial</a>
     </div>
-
     <div class="platform" id="tv">
       <span class="status dev">● CÓDIGO TV ATIVO</span>
       <h3>SMART TV</h3>
@@ -752,7 +661,6 @@ footer span{
       <h2>Instalação simples</h2>
       <p class="sub">Baixe o APK oficial e instale por cima. Seus dados continuam salvos.</p>
     </div>
-
     <div class="download-box">
       <div class="steps">
         <div class="step">
@@ -772,7 +680,6 @@ footer span{
           <div><b>Próximas atualizações via OTA</b><p>Depois disso, novas versões aparecem automaticamente.</p></div>
         </div>
       </div>
-
       <div class="download-card">
         <h3>ANDROID BETA</h3>
         <p>Download oficial do Projeto X para Android.</p>
@@ -793,60 +700,78 @@ footer span{
     <div class="section-title">
       <span class="tag">CÓDIGO TV</span>
       <h2>Gerar código de acesso</h2>
-      <p class="sub">
-        Cole sua M3U completa ou use URL, usuário e senha.
-      </p>
+      <p class="sub">Escolha como deseja entrar e gere seu código para o app TV.</p>
     </div>
 
     <div class="code-box">
 
-      <div class="code-form">
-
-        <input
-          id="m3uTv"
-          class="full"
-          type="text"
-          placeholder="Cole aqui sua M3U completa"
-        >
-
-        <input
-          id="servidorTv"
-          class="full"
-          type="text"
-          placeholder="Ou URL do servidor / DNS. Ex: http://servidor.com"
-        >
-
-        <input
-          id="usuarioTv"
-          type="text"
-          placeholder="Usuário"
-        >
-
-        <input
-          id="senhaTv"
-          type="password"
-          placeholder="Senha"
-        >
-
+      <!-- Alternador de modo -->
+      <div style="display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:5px;margin-bottom:28px;gap:5px;">
+        <button id="tabDns" onclick="trocarModo('dns')" style="flex:1;height:46px;border:none;border-radius:10px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .25s;background:linear-gradient(135deg,#ff1b2d,#97000d);color:#fff;box-shadow:0 0 24px rgba(255,0,35,.35);">🌐 DNS / Xtream</button>
+        <button id="tabM3u" onclick="trocarModo('m3u')" style="flex:1;height:46px;border:none;border-radius:10px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .25s;background:transparent;color:#777;box-shadow:none;">📋 Lista M3U</button>
       </div>
 
-      <div class="code-actions">
-        <button class="btn btn-red" onclick="gerarCodigoTV()">
+      <!-- Painel DNS -->
+      <div id="painelDns" style="opacity:1;transition:opacity .25s;">
+        <div style="display:grid;grid-template-columns:1fr;gap:12px;">
+          <div style="position:relative;">
+            <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">🌐</span>
+            <input id="servidorTv" type="text" placeholder="URL do servidor  —  ex: http://meuservidor.com" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="position:relative;">
+              <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">👤</span>
+              <input id="usuarioTv" type="text" placeholder="Usuário" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+            </div>
+            <div style="position:relative;">
+              <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">🔒</span>
+              <input id="senhaTv" type="password" placeholder="Senha" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel M3U -->
+      <div id="painelM3u" style="opacity:0;display:none;transition:opacity .25s;">
+        <div style="position:relative;">
+          <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#555;font-size:15px;pointer-events:none;">📋</span>
+          <input id="m3uTv" type="text" placeholder="Cole sua M3U  —  ex: http://servidor.com/get.php?username=user&password=pass&type=m3u" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#fff;padding:0 16px 0 44px;outline:none;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;transition:border .2s,box-shadow .2s;" onfocus="this.style.borderColor='rgba(255,0,35,.75)';this.style.boxShadow='0 0 0 3px rgba(255,0,35,.16)'" onblur="this.style.borderColor='rgba(255,255,255,.10)';this.style.boxShadow='none'">
+        </div>
+        <div id="m3uPreview" style="display:none;margin-top:12px;padding:16px 20px;border-radius:13px;background:rgba(255,0,35,.07);border:1px solid rgba(255,0,35,.25);">
+          <p style="color:#aaa;font-size:11px;font-weight:900;letter-spacing:1.5px;margin-bottom:10px;">DADOS EXTRAÍDOS DA M3U</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;">
+              <small style="color:#666;font-size:10px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:4px;">SERVIDOR</small>
+              <b id="previewServidor" style="font-family:'Oswald',sans-serif;font-size:13px;word-break:break-all;color:#fff;">—</b>
+            </div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;">
+              <small style="color:#666;font-size:10px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:4px;">USUÁRIO</small>
+              <b id="previewUsuario" style="font-family:'Oswald',sans-serif;font-size:13px;color:#fff;">—</b>
+            </div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;">
+              <small style="color:#666;font-size:10px;font-weight:900;letter-spacing:1.5px;display:block;margin-bottom:4px;">SENHA</small>
+              <b id="previewSenha" style="font-family:'Oswald',sans-serif;font-size:13px;color:#fff;">—</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão gerar -->
+      <div style="margin-top:20px;">
+        <button class="btn btn-red" id="btnGerar" onclick="gerarCodigoTV()" style="width:100%;min-height:54px;font-size:15px;border-radius:13px;letter-spacing:1.5px;">
           📺 Gerar Código TV
         </button>
       </div>
 
-      <div class="code-alert" id="codigoErro"></div>
+      <!-- Erro -->
+      <div id="codigoErro" style="display:none;margin-top:14px;padding:16px 20px;border-radius:13px;color:#ff7777;font-weight:900;font-size:13px;background:rgba(255,0,35,.08);border:1px solid rgba(255,0,35,.30);text-align:center;line-height:1.5;"></div>
 
-      <div class="code-result" id="codigoResultado">
-        <small>SEU CÓDIGO DE ACESSO</small>
-
-        <div class="code-number" id="codigoNumero">
-          000000
-        </div>
-
-        <div class="code-msg">
-          Digite este código no app Projeto X TV.
+      <!-- Resultado -->
+      <div id="codigoResultado" style="display:none;margin-top:18px;padding:32px 22px;border-radius:20px;text-align:center;background:rgba(255,0,35,.10);border:1px solid rgba(255,0,35,.35);">
+        <small style="display:block;color:#aaa;font-weight:900;letter-spacing:2px;font-size:11px;margin-bottom:14px;">SEU CÓDIGO DE ACESSO</small>
+        <div id="codigoNumero" style="font-family:'Anton',sans-serif;font-size:62px;letter-spacing:10px;color:#fff;text-shadow:0 0 36px rgba(255,0,35,.8);line-height:1;">000000</div>
+        <div style="margin-top:16px;color:#bbb;font-size:13px;font-weight:800;line-height:1.7;">
+          Digite este código no app <strong style="color:#fff;">Projeto X TV</strong>.<br>
           O código será usado apenas uma vez.
         </div>
       </div>
@@ -855,154 +780,180 @@ footer span{
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <div class="support">
+      <span class="tag">SUPORTE</span>
+      <h2>Precisa de ajuda?</h2>
+      <p>Entre em contato com nosso suporte oficial pelo WhatsApp ou Telegram.</p>
+      <a class="btn btn-red" href="#">💬 Falar com Suporte</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <b>PROJETO <span style="color:#ff1b2d">X</span></b>
+    <span>© 2025 Projeto X — Todos os direitos reservados</span>
+  </div>
+</footer>
+
 <script>
 
-const API_PROJETO_X =
-"https://royal-shadow-2220.arllison001.workers.dev";
+const API_PROJETO_X = "https://royal-shadow-2220.arllison001.workers.dev";
 
-function toggleMenu(){
+let modoAtual = 'dns';
 
-  const menu =
-    document.getElementById("mobileMenu");
+function trocarModo(modo) {
+  modoAtual = modo;
 
-  menu.style.display =
-    menu.style.display==="block"
-      ? "none"
-      : "block";
-}
-
-document.querySelectorAll('.mobile-menu a')
-.forEach(a=>{
-
-  a.onclick=()=>
-    document.getElementById("mobileMenu")
-      .style.display="none";
-});
-
-function mostrarErroCodigo(msg){
-
-  const erro =
-    document.getElementById("codigoErro");
-
-  const resultado =
-    document.getElementById("codigoResultado");
-
-  erro.innerText = msg;
-
-  erro.style.display = "block";
-
-  resultado.style.display = "none";
-}
-
-function limparErroCodigo(){
-
-  const erro =
-    document.getElementById("codigoErro");
-
-  erro.innerText = "";
-
-  erro.style.display = "none";
-}
-
-async function gerarCodigoTV(){
-
-  const m3u =
-    document.getElementById("m3uTv")
-      .value
-      .trim();
-
-  const servidor =
-    document.getElementById("servidorTv")
-      .value
-      .trim();
-
-  const usuario =
-    document.getElementById("usuarioTv")
-      .value
-      .trim();
-
-  const senha =
-    document.getElementById("senhaTv")
-      .value
-      .trim();
+  const painelDns = document.getElementById('painelDns');
+  const painelM3u = document.getElementById('painelM3u');
+  const tabDns    = document.getElementById('tabDns');
+  const tabM3u    = document.getElementById('tabM3u');
 
   limparErroCodigo();
+  document.getElementById('codigoResultado').style.display = 'none';
 
-  if(
-    !m3u &&
-    (!servidor || !usuario || !senha)
-  ){
+  if (modo === 'dns') {
+    painelM3u.style.opacity = '0';
+    setTimeout(() => { painelM3u.style.display = 'none'; }, 260);
+    painelDns.style.display = 'block';
+    setTimeout(() => { painelDns.style.opacity = '1'; }, 10);
 
-    mostrarErroCodigo(
-      "Cole uma M3U completa ou preencha URL, usuário e senha."
-    );
+    tabDns.style.background = 'linear-gradient(135deg,#ff1b2d,#97000d)';
+    tabDns.style.color      = '#fff';
+    tabDns.style.boxShadow  = '0 0 24px rgba(255,0,35,.35)';
+    tabM3u.style.background = 'transparent';
+    tabM3u.style.color      = '#777';
+    tabM3u.style.boxShadow  = 'none';
+  } else {
+    painelDns.style.opacity = '0';
+    setTimeout(() => { painelDns.style.display = 'none'; }, 260);
+    painelM3u.style.display = 'block';
+    setTimeout(() => { painelM3u.style.opacity = '1'; }, 10);
 
-    return;
+    tabM3u.style.background = 'linear-gradient(135deg,#ff1b2d,#97000d)';
+    tabM3u.style.color      = '#fff';
+    tabM3u.style.boxShadow  = '0 0 24px rgba(255,0,35,.35)';
+    tabDns.style.background = 'transparent';
+    tabDns.style.color      = '#777';
+    tabDns.style.boxShadow  = 'none';
+  }
+}
+
+function extrairM3U(url) {
+  try {
+    const u        = new URL(url);
+    const username = u.searchParams.get('username') || u.searchParams.get('user') || '';
+    const password = u.searchParams.get('password') || u.searchParams.get('pass') || '';
+    const servidor = u.origin;
+    return { servidor, username, password };
+  } catch(e) {
+    return null;
+  }
+}
+
+document.getElementById('m3uTv').addEventListener('input', function() {
+  const val     = this.value.trim();
+  const preview = document.getElementById('m3uPreview');
+  const dados   = extrairM3U(val);
+
+  if (dados && dados.username && dados.password) {
+    document.getElementById('previewServidor').innerText = dados.servidor || '—';
+    document.getElementById('previewUsuario').innerText  = dados.username || '—';
+    document.getElementById('previewSenha').innerText    = dados.password || '—';
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+});
+
+function mostrarErroCodigo(msg) {
+  const erro      = document.getElementById('codigoErro');
+  const resultado = document.getElementById('codigoResultado');
+  erro.innerHTML  = '⚠ ' + msg;
+  erro.style.display      = 'block';
+  resultado.style.display = 'none';
+}
+
+function limparErroCodigo() {
+  const erro         = document.getElementById('codigoErro');
+  erro.innerHTML     = '';
+  erro.style.display = 'none';
+}
+
+async function gerarCodigoTV() {
+  limparErroCodigo();
+  document.getElementById('codigoResultado').style.display = 'none';
+
+  let servidor = '';
+  let usuario  = '';
+  let senha    = '';
+  let m3u      = '';
+
+  if (modoAtual === 'dns') {
+    servidor = document.getElementById('servidorTv').value.trim();
+    usuario  = document.getElementById('usuarioTv').value.trim();
+    senha    = document.getElementById('senhaTv').value.trim();
+
+    if (!servidor) { mostrarErroCodigo('Informe a URL do servidor.'); return; }
+    if (!usuario)  { mostrarErroCodigo('Informe o usuário.'); return; }
+    if (!senha)    { mostrarErroCodigo('Informe a senha.'); return; }
+
+  } else {
+    m3u = document.getElementById('m3uTv').value.trim();
+
+    if (!m3u) { mostrarErroCodigo('Cole sua M3U completa no campo acima.'); return; }
+
+    const dados = extrairM3U(m3u);
+    if (!dados || !dados.username || !dados.password) {
+      mostrarErroCodigo('Não foi possível extrair os dados da M3U. Verifique o link e tente novamente.');
+      return;
+    }
+    servidor = dados.servidor;
+    usuario  = dados.username;
+    senha    = dados.password;
   }
 
-  const botao =
-    document.querySelector("#codigo .btn-red");
+  const btn           = document.getElementById('btnGerar');
+  const textoOriginal = btn.innerText;
+  btn.innerText       = 'GERANDO...';
+  btn.disabled        = true;
 
-  const textoOriginal =
-    botao.innerText;
-
-  botao.innerText = "GERANDO...";
-  botao.disabled = true;
-
-  try{
-
-    const resposta =
-      await fetch(API_PROJETO_X + "/gerar", {
-
-      method: "POST",
-
-      headers: {
-        "Content-Type":"application/json"
-      },
-
-      body: JSON.stringify({
-
-        m3u: m3u,
-
-        servidor: servidor,
-
-        usuario: usuario,
-
-        senha: senha
-      })
+  try {
+    const resposta = await fetch(API_PROJETO_X + '/gerar', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ m3u, servidor, usuario, senha })
     });
 
-    const dados =
-      await resposta.json();
+    const dados = await resposta.json();
 
-    if(!dados.success){
-
-      mostrarErroCodigo(
-        dados.erro ||
-        "Não foi possível gerar o código."
-      );
-
+    if (!dados.success) {
+      mostrarErroCodigo(dados.erro || 'Não foi possível gerar o código. Tente novamente.');
       return;
     }
 
-    document.getElementById("codigoNumero")
-      .innerText = dados.codigo;
+    document.getElementById('codigoNumero').innerText        = dados.codigo;
+    document.getElementById('codigoResultado').style.display = 'block';
 
-    document.getElementById("codigoResultado")
-      .style.display = "block";
-
-  }catch(e){
-
-    mostrarErroCodigo(
-      "Erro ao conectar com a API do Projeto X."
-    );
-
-  }finally{
-
-    botao.innerText = textoOriginal;
-    botao.disabled = false;
+  } catch(e) {
+    mostrarErroCodigo('Erro ao conectar com a API do Projeto X. Verifique sua conexão.');
+  } finally {
+    btn.innerText = textoOriginal;
+    btn.disabled  = false;
   }
 }
+
+function toggleMenu() {
+  const menu = document.getElementById('mobileMenu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+document.querySelectorAll('.mobile-menu a').forEach(a => {
+  a.onclick = () => document.getElementById('mobileMenu').style.display = 'none';
+});
 
 </script>
 </body>
