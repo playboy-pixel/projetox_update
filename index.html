@@ -691,21 +691,35 @@ footer span{
   .steps{
     padding:20px 16px;
     border-radius:18px;
+    overflow:hidden;
   }
   .step{
-    gap:14px;
+    gap:12px;
     padding:13px 0;
+    align-items:flex-start;
   }
   .num{
-    font-size:24px;
-    min-width:30px;
+    font-size:22px;
+    min-width:28px;
+    flex-shrink:0;
+  }
+  .step > div{
+    min-width:0;
+    flex:1;
   }
   .step b{
+    display:block;
     font-size:14px;
+    font-weight:900;
+    color:#fff;
+    line-height:1.2;
   }
   .step p{
     font-size:12px;
-    margin-top:3px;
+    margin-top:4px;
+    color:#aaa;
+    font-weight:700;
+    line-height:1.4;
   }
   .download-card{
     padding:24px 18px;
@@ -914,7 +928,7 @@ footer span{
         </div>
         <div class="step">
           <div class="num">04</div>
-          <div><b>Atualize pelo app</b><p>Depois disso, novas versões aparecem automaticamente.</p></div>
+          <div><b>Próximas atualizações via OTA</b><p>O app notifica automaticamente quando uma nova versão estiver disponível.</p></div>
         </div>
       </div>
 
