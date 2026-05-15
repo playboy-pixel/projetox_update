@@ -793,121 +793,217 @@ footer span{
     <div class="section-title">
       <span class="tag">CÓDIGO TV</span>
       <h2>Gerar código de acesso</h2>
-      <p class="sub">Digite os dados da sua lista e use apenas o código no app da TV.</p>
+      <p class="sub">
+        Cole sua M3U completa ou use URL, usuário e senha.
+      </p>
     </div>
 
     <div class="code-box">
+
       <div class="code-form">
-        <input id="servidorTv" class="full" type="text" placeholder="URL do servidor / DNS. Ex: http://servidor.com">
-        <input id="usuarioTv" type="text" placeholder="Usuário">
-        <input id="senhaTv" type="password" placeholder="Senha">
+
+        <input
+          id="m3uTv"
+          class="full"
+          type="text"
+          placeholder="Cole aqui sua M3U completa"
+        >
+
+        <input
+          id="servidorTv"
+          class="full"
+          type="text"
+          placeholder="Ou URL do servidor / DNS. Ex: http://servidor.com"
+        >
+
+        <input
+          id="usuarioTv"
+          type="text"
+          placeholder="Usuário"
+        >
+
+        <input
+          id="senhaTv"
+          type="password"
+          placeholder="Senha"
+        >
+
       </div>
 
       <div class="code-actions">
-        <button class="btn btn-red" onclick="gerarCodigoTV()">📺 Gerar Código TV</button>
+        <button class="btn btn-red" onclick="gerarCodigoTV()">
+          📺 Gerar Código TV
+        </button>
       </div>
 
       <div class="code-alert" id="codigoErro"></div>
 
       <div class="code-result" id="codigoResultado">
         <small>SEU CÓDIGO DE ACESSO</small>
-        <div class="code-number" id="codigoNumero">000000</div>
-        <div class="code-msg">Digite este código no app Projeto X TV. O código será usado apenas uma vez.</div>
+
+        <div class="code-number" id="codigoNumero">
+          000000
+        </div>
+
+        <div class="code-msg">
+          Digite este código no app Projeto X TV.
+          O código será usado apenas uma vez.
+        </div>
       </div>
+
     </div>
   </div>
 </section>
-
-<section id="suporte">
-  <div class="wrap">
-    <div class="support">
-      <span class="tag">SUPORTE</span>
-      <h2>Precisa de ajuda?</h2>
-      <p>Fale pelo WhatsApp para suporte de instalação, atualização ou configuração.</p>
-      <a class="btn btn-red" href="https://wa.me/5592991669391?text=Olá,%20preciso%20de%20suporte%20no%20Projeto%20X.">💬 Abrir WhatsApp</a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <b>PROJETO X</b>
-    <span>Android Beta • OTA Ativo • Código TV Ativo</span>
-  </div>
-</footer>
 
 <script>
-const API_PROJETO_X = "https://royal-shadow-2220.arllison001.workers.dev";
+
+const API_PROJETO_X =
+"https://royal-shadow-2220.arllison001.workers.dev";
 
 function toggleMenu(){
-  const menu=document.getElementById("mobileMenu");
-  menu.style.display = menu.style.display==="block" ? "none" : "block";
+
+  const menu =
+    document.getElementById("mobileMenu");
+
+  menu.style.display =
+    menu.style.display==="block"
+      ? "none"
+      : "block";
 }
 
-document.querySelectorAll('.mobile-menu a').forEach(a=>{
-  a.onclick=()=>document.getElementById("mobileMenu").style.display="none";
+document.querySelectorAll('.mobile-menu a')
+.forEach(a=>{
+
+  a.onclick=()=>
+    document.getElementById("mobileMenu")
+      .style.display="none";
 });
 
 function mostrarErroCodigo(msg){
-  const erro = document.getElementById("codigoErro");
-  const resultado = document.getElementById("codigoResultado");
+
+  const erro =
+    document.getElementById("codigoErro");
+
+  const resultado =
+    document.getElementById("codigoResultado");
+
   erro.innerText = msg;
+
   erro.style.display = "block";
+
   resultado.style.display = "none";
 }
 
 function limparErroCodigo(){
-  const erro = document.getElementById("codigoErro");
+
+  const erro =
+    document.getElementById("codigoErro");
+
   erro.innerText = "";
+
   erro.style.display = "none";
 }
 
 async function gerarCodigoTV(){
-  const servidor = document.getElementById("servidorTv").value.trim();
-  const usuario = document.getElementById("usuarioTv").value.trim();
-  const senha = document.getElementById("senhaTv").value.trim();
+
+  const m3u =
+    document.getElementById("m3uTv")
+      .value
+      .trim();
+
+  const servidor =
+    document.getElementById("servidorTv")
+      .value
+      .trim();
+
+  const usuario =
+    document.getElementById("usuarioTv")
+      .value
+      .trim();
+
+  const senha =
+    document.getElementById("senhaTv")
+      .value
+      .trim();
 
   limparErroCodigo();
 
-  if(!servidor || !usuario || !senha){
-    mostrarErroCodigo("Preencha URL, usuário e senha para gerar o código.");
+  if(
+    !m3u &&
+    (!servidor || !usuario || !senha)
+  ){
+
+    mostrarErroCodigo(
+      "Cole uma M3U completa ou preencha URL, usuário e senha."
+    );
+
     return;
   }
 
-  const botao = document.querySelector("#codigo .btn-red");
-  const textoOriginal = botao.innerText;
+  const botao =
+    document.querySelector("#codigo .btn-red");
+
+  const textoOriginal =
+    botao.innerText;
+
   botao.innerText = "GERANDO...";
   botao.disabled = true;
 
   try{
-    const resposta = await fetch(API_PROJETO_X + "/gerar", {
+
+    const resposta =
+      await fetch(API_PROJETO_X + "/gerar", {
+
       method: "POST",
-      headers: {"Content-Type":"application/json"},
+
+      headers: {
+        "Content-Type":"application/json"
+      },
+
       body: JSON.stringify({
+
+        m3u: m3u,
+
         servidor: servidor,
+
         usuario: usuario,
+
         senha: senha
       })
     });
 
-    const dados = await resposta.json();
+    const dados =
+      await resposta.json();
 
     if(!dados.success){
-      mostrarErroCodigo(dados.erro || "Não foi possível gerar o código.");
+
+      mostrarErroCodigo(
+        dados.erro ||
+        "Não foi possível gerar o código."
+      );
+
       return;
     }
 
-    document.getElementById("codigoNumero").innerText = dados.codigo;
-    document.getElementById("codigoResultado").style.display = "block";
+    document.getElementById("codigoNumero")
+      .innerText = dados.codigo;
+
+    document.getElementById("codigoResultado")
+      .style.display = "block";
 
   }catch(e){
-    mostrarErroCodigo("Erro ao conectar com a API do Projeto X.");
+
+    mostrarErroCodigo(
+      "Erro ao conectar com a API do Projeto X."
+    );
+
   }finally{
+
     botao.innerText = textoOriginal;
     botao.disabled = false;
   }
 }
-</script>
 
+</script>
 </body>
 </html>
