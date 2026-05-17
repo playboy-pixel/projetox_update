@@ -1,6 +1,6 @@
 {
-  "versionCode": 8,
-  "versionName": "Beta 1.0.7",
+  "versionCode": 9,
+  "versionName": "Beta 1.0.8",
   "apkUrl": "https://px-update.pages.dev/ProjetoX.apk",
   "message": "Nova atualização disponível com melhorias.",
   "forceUpdate": false
