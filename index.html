@@ -4,1046 +4,977 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Projeto X — Plataforma Oficial</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;700;800;900&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Montserrat:wght@500;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:#040404;color:#fff;font-family:'Montserrat',sans-serif;overflow-x:hidden}
+body{
+  background:#050505;
+  color:#fff;
+  font-family:'Montserrat',sans-serif;
+  overflow-x:hidden;
+}
 
-/* BG */
+/* FUNDO */
 body::before{
-  content:"";position:fixed;inset:0;z-index:-3;
+  content:"";
+  position:fixed;
+  inset:0;
   background:
-    radial-gradient(ellipse 80% 40% at 50% -5%,rgba(229,9,20,.22),transparent),
-    radial-gradient(ellipse 40% 60% at 5% 50%,rgba(229,9,20,.07),transparent),
-    radial-gradient(ellipse 40% 60% at 95% 50%,rgba(229,9,20,.06),transparent),
-    #040404
+    radial-gradient(circle at 50% -10%,rgba(255,0,35,.30),transparent 38%),
+    radial-gradient(circle at 10% 40%,rgba(255,0,35,.12),transparent 30%),
+    radial-gradient(circle at 90% 55%,rgba(255,0,35,.10),transparent 32%),
+    linear-gradient(180deg,#090102 0%,#050505 55%,#090102 100%);
+  z-index:-3;
 }
 body::after{
-  content:"";position:fixed;inset:0;z-index:-2;
+  content:"";
+  position:fixed;
+  inset:0;
   background:
-    linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
-  background-size:56px 56px;
-  mask-image:linear-gradient(180deg,rgba(0,0,0,.6) 0%,transparent 65%)
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 75%);
+  z-index:-2;
 }
 
-/* SCROLL BAR */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:#080808}
-::-webkit-scrollbar-thumb{background:#E50914;border-radius:2px}
-
-/* HEADER */
+/* NAV */
 header{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  height:64px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 40px;
-  background:rgba(4,4,4,.92);
-  backdrop-filter:blur(24px);
-  border-bottom:1px solid rgba(229,9,20,.15)
+  position:fixed;
+  top:0;left:0;right:0;
+  height:72px;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 34px;
+  background:rgba(5,5,5,.86);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,0,35,.22);
 }
 .logo{
-  font-family:'Anton',sans-serif;font-size:20px;
-  letter-spacing:4px;color:#fff;text-decoration:none;
-  text-shadow:0 0 30px rgba(229,9,20,.5)
+  font-family:'Anton',sans-serif;
+  font-size:24px;
+  letter-spacing:3px;
+  color:#fff;
+  text-decoration:none;
+  text-shadow:0 0 24px rgba(255,0,35,.6);
 }
-.logo span{color:#E50914}
-nav{display:flex;align-items:center;gap:2px}
+.logo span{color:#ff1b2d}
+nav{
+  display:flex;
+  gap:8px;
+}
 nav a{
-  color:#666;text-decoration:none;
-  font-family:'Oswald',sans-serif;font-weight:600;
-  font-size:12px;letter-spacing:1.8px;
-  padding:8px 14px;border-radius:8px;
-  transition:color .2s,background .2s
-}
-nav a:hover{color:#fff;background:rgba(255,255,255,.05)}
-.nav-cta{
-  color:#fff !important;
-  background:linear-gradient(135deg,#E50914,#8B0000) !important;
-  box-shadow:0 0 18px rgba(229,9,20,.30);
-  margin-left:6px;
-  border-radius:8px !important
-}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 26px rgba(229,9,20,.45) !important}
-.menu-btn{display:none;color:#fff;font-size:24px;cursor:pointer;padding:4px}
-.mob-nav{
-  display:none;position:fixed;
-  top:64px;left:0;right:0;z-index:99;
-  background:rgba(4,4,4,.97);
-  border-bottom:1px solid rgba(229,9,20,.18);
-  padding:12px 16px 16px
-}
-.mob-nav a{
-  display:flex;align-items:center;
-  color:#ccc;text-decoration:none;
-  font-family:'Oswald',sans-serif;font-weight:600;
-  font-size:14px;letter-spacing:1.5px;
-  padding:13px 16px;border-radius:10px;
-  margin-bottom:5px;
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.05);
-  transition:.2s
-}
-.mob-nav a:hover{color:#fff;border-color:rgba(229,9,20,.30);background:rgba(229,9,20,.08)}
-.mob-nav a:last-child{
-  color:#fff;margin-bottom:0;
-  background:linear-gradient(135deg,#E50914,#8B0000);
-  border-color:transparent
-}
-
-/* PULSE DOTS */
-@keyframes pdot{0%,100%{box-shadow:0 0 0 0 rgba(51,255,120,.45)}60%{box-shadow:0 0 0 5px rgba(51,255,120,0)}}
-@keyframes odot{0%,100%{box-shadow:0 0 0 0 rgba(255,180,50,.45)}60%{box-shadow:0 0 0 5px rgba(255,180,50,0)}}
-@keyframes rdot{0%,100%{box-shadow:0 0 0 0 rgba(229,9,20,.45)}60%{box-shadow:0 0 0 5px rgba(229,9,20,0)}}
-.dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dot-g{background:#33ff78;animation:pdot 2s infinite}
-.dot-o{background:#ffb432;animation:odot 2s infinite}
-.dot-r{background:#E50914;animation:rdot 2s infinite}
-
-/* BTN */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  min-height:50px;padding:0 26px;
-  border-radius:10px;border:0;
-  text-decoration:none;cursor:pointer;
+  color:#aaa;
+  text-decoration:none;
   font-family:'Oswald',sans-serif;
-  font-size:14px;font-weight:700;
-  letter-spacing:1.6px;text-transform:uppercase;
-  transition:transform .2s,box-shadow .2s;
-  white-space:nowrap
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:1.5px;
+  padding:9px 13px;
+  border-radius:8px;
+  transition:.2s;
+}
+nav a:hover{
+  color:#fff;
+  background:rgba(255,255,255,.06);
+}
+nav .nav-btn{
+  color:#fff;
+  background:linear-gradient(135deg,#ff1b2d,#8b000b);
+  box-shadow:0 0 24px rgba(255,0,35,.35);
+}
+
+/* MENU MOBILE */
+.menu-btn{display:none;color:#fff;font-size:28px;cursor:pointer}
+.mobile-menu{
+  display:none;
+  position:fixed;
+  top:72px;left:0;right:0;
+  z-index:40;
+  background:#070707;
+  border-bottom:1px solid rgba(255,0,35,.25);
+  padding:16px;
+}
+.mobile-menu a{
+  display:block;
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+  padding:14px;
+  border-radius:10px;
+  background:rgba(255,255,255,.04);
+  margin-bottom:8px;
+}
+
+/* GERAL */
+section{
+  position:relative;
+  padding:96px 22px;
+}
+.wrap{
+  width:100%;
+  max-width:1180px;
+  margin:0 auto;
+}
+.section-title{
+  text-align:center;
+  margin-bottom:42px;
+}
+.tag{
+  display:inline-block;
+  color:#ff1b2d;
+  border:1px solid rgba(255,0,35,.4);
+  background:rgba(255,0,35,.10);
+  padding:7px 16px;
+  border-radius:999px;
+  font-family:'Oswald',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:2px;
+  margin-bottom:16px;
+}
+h2{
+  font-family:'Anton',sans-serif;
+  font-size:clamp(42px,7vw,76px);
+  letter-spacing:2px;
+  line-height:1;
+  text-transform:uppercase;
+  text-shadow:0 0 38px rgba(255,0,35,.35);
+}
+.sub{
+  color:#bbb;
+  font-size:16px;
+  font-weight:700;
+  margin-top:12px;
+}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  padding-top:130px;
+}
+.hero-inner{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:38px;
+  align-items:center;
+}
+.hero-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 18px;
+  border:1px solid rgba(255,0,35,.45);
+  border-radius:999px;
+  color:#ff1b2d;
+  background:rgba(255,0,35,.10);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:2px;
+  margin-bottom:22px;
+}
+.pulse{
+  width:8px;height:8px;
+  background:#ff1b2d;
+  border-radius:50%;
+  box-shadow:0 0 14px #ff1b2d;
+  flex-shrink:0;
+}
+.hero h1{
+  font-family:'Anton',sans-serif;
+  font-size:clamp(70px,13vw,150px);
+  line-height:.88;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  text-shadow:0 0 70px rgba(255,0,35,.45);
+}
+.hero h1 span{color:#ff1b2d}
+.hero-text{
+  margin-top:22px;
+  max-width:610px;
+  color:#d8d8d8;
+  font-size:22px;
+  font-weight:800;
+  line-height:1.35;
+}
+.hero-text span{color:#ff1b2d}
+.hero-actions{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:34px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:56px;
+  padding:0 30px;
+  border-radius:12px;
+  border:0;
+  text-decoration:none;
+  cursor:pointer;
+  font-family:'Oswald',sans-serif;
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+  transition:.2s;
 }
 .btn-red{
   color:#fff;
-  background:linear-gradient(135deg,#E50914,#8B0000);
-  box-shadow:0 0 28px rgba(229,9,20,.35),0 8px 24px rgba(0,0,0,.5)
+  background:linear-gradient(135deg,#ff1b2d,#97000d);
+  box-shadow:0 0 36px rgba(255,0,35,.45),0 16px 38px rgba(0,0,0,.55);
 }
-.btn-red:hover{transform:translateY(-2px);box-shadow:0 0 38px rgba(229,9,20,.50),0 12px 28px rgba(0,0,0,.55)}
-.btn-ghost{
-  color:#ccc;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.12)
+.btn-dark{
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
 }
-.btn-ghost:hover{color:#fff;background:rgba(255,255,255,.09);transform:translateY(-2px)}
-
-/* SECTIONS */
-section{position:relative;padding:80px 24px}
-.wrap{width:100%;max-width:1140px;margin:0 auto}
-
-.sec-label{
-  display:inline-flex;align-items:center;gap:8px;
-  color:#E50914;
-  border:1px solid rgba(229,9,20,.30);
-  background:rgba(229,9,20,.07);
-  padding:5px 14px;border-radius:999px;
-  font-family:'Oswald',sans-serif;
-  font-size:10px;font-weight:700;letter-spacing:2.5px;
-  text-transform:uppercase;margin-bottom:14px
-}
-.sec-h{
-  font-family:'Anton',sans-serif;
-  font-size:clamp(36px,5.5vw,64px);
-  letter-spacing:2px;line-height:1;
-  text-transform:uppercase;
-  text-shadow:0 0 30px rgba(229,9,20,.25)
-}
-.sec-sub{color:#888;font-size:14px;font-weight:700;margin-top:10px;line-height:1.6}
-.sec-head{text-align:center;margin-bottom:40px}
-
-/* DIVIDER */
-.div-line{
-  width:100%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(229,9,20,.20),transparent)
-}
-
-/* ── HERO ── */
-.hero{
-  min-height:100vh;
-  display:flex;align-items:center;
-  padding-top:100px;padding-bottom:60px
-}
-.hero-grid{
-  display:grid;
-  grid-template-columns:1fr 420px;
-  gap:40px;align-items:center
-}
-.hero-eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:7px 16px;
-  border:1px solid rgba(229,9,20,.35);
-  background:rgba(229,9,20,.08);
-  border-radius:999px;
-  color:#E50914;font-size:11px;
-  font-weight:900;letter-spacing:2px;
-  margin-bottom:22px
-}
-.hero-title{
-  font-family:'Anton',sans-serif;
-  font-size:clamp(72px,11vw,136px);
-  line-height:.86;letter-spacing:3px;
-  text-transform:uppercase;
-  text-shadow:0 0 80px rgba(229,9,20,.40)
-}
-.hero-title span{color:#E50914}
-.hero-desc{
-  margin-top:20px;
-  color:#bbb;font-size:18px;
-  font-weight:700;line-height:1.5;
-  max-width:520px
-}
-.hero-desc em{color:#E50914;font-style:normal}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn:hover{transform:translateY(-3px)}
 .hero-card{
-  background:linear-gradient(160deg,rgba(20,4,5,.98),rgba(8,8,8,.99));
-  border:1px solid rgba(229,9,20,.25);
-  border-radius:20px;padding:8px;
-  box-shadow:0 0 60px rgba(229,9,20,.10),inset 0 1px 0 rgba(255,255,255,.04)
+  border:1px solid rgba(255,0,35,.35);
+  background:linear-gradient(180deg,rgba(25,3,6,.92),rgba(8,8,8,.96));
+  border-radius:26px;
+  padding:28px;
+  box-shadow:0 0 60px rgba(255,0,35,.18);
 }
-.hc-row{
-  display:flex;align-items:center;
-  justify-content:space-between;
-  padding:14px 18px;border-radius:12px;
-  gap:12px;transition:.2s
-}
-.hc-row:hover{background:rgba(255,255,255,.03)}
-.hc-row+.hc-row{border-top:1px solid rgba(255,255,255,.05)}
-.hc-label{
-  font-family:'Oswald',sans-serif;
-  font-size:14px;font-weight:600;
-  letter-spacing:1px;color:#aaa
-}
-.hc-val{
-  display:flex;align-items:center;gap:7px;
-  font-size:12px;font-weight:900;letter-spacing:1px
-}
-.hc-green{color:#33ff78}
-.hc-orange{color:#ffb432}
-.hc-red{color:#E50914}
-
-/* ── PLATAFORMAS ── */
-.plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.plat-card{
-  background:linear-gradient(160deg,rgba(18,3,4,.98),rgba(8,8,8,.99));
-  border:1px solid rgba(229,9,20,.20);
-  border-radius:20px;padding:32px;
-  transition:border-color .25s,box-shadow .25s;
-  position:relative;overflow:hidden
-}
-.plat-card::before{
-  content:"";position:absolute;
-  top:-60px;right:-60px;
-  width:200px;height:200px;
-  background:radial-gradient(circle,rgba(229,9,20,.07),transparent 70%);
-  pointer-events:none
-}
-.plat-card:hover{
-  border-color:rgba(229,9,20,.42);
-  box-shadow:0 0 50px rgba(229,9,20,.12)
-}
-.plat-badge{
-  display:inline-flex;align-items:center;gap:7px;
-  padding:5px 13px;border-radius:999px;
-  font-size:10px;font-weight:900;letter-spacing:1.8px;
-  text-transform:uppercase;margin-bottom:18px
-}
-.badge-green{color:#33ff78;background:rgba(51,255,120,.08);border:1px solid rgba(51,255,120,.20)}
-.badge-orange{color:#ffb432;background:rgba(255,180,50,.08);border:1px solid rgba(255,180,50,.20)}
-.plat-title{
-  font-family:'Anton',sans-serif;
-  font-size:clamp(44px,5vw,62px);
-  letter-spacing:2px;line-height:1;margin-bottom:14px
-}
-.plat-desc{color:#b0b0b0;font-size:14px;font-weight:700;line-height:1.65;margin-bottom:22px}
-.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:24px}
-.spec-item{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:10px;padding:11px 14px
-}
-.spec-item small{
-  display:block;color:#555;
-  font-size:9px;font-weight:900;
-  letter-spacing:1.8px;text-transform:uppercase;margin-bottom:4px
-}
-.spec-item b{font-family:'Oswald',sans-serif;font-size:14px;color:#ddd}
-
-/* ── RECURSOS ── */
-.rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.rec-card{
-  background:linear-gradient(160deg,rgba(16,16,16,.97),rgba(8,8,8,.99));
-  border:1px solid rgba(229,9,20,.14);
-  border-radius:16px;padding:24px 22px;
-  transition:.25s;position:relative;overflow:hidden
-}
-.rec-card::after{
-  content:"";position:absolute;
-  bottom:-30px;left:-30px;
-  width:100px;height:100px;
-  background:radial-gradient(circle,rgba(229,9,20,.05),transparent 70%);
-  pointer-events:none
-}
-.rec-card:hover{
-  transform:translateY(-4px);
-  border-color:rgba(229,9,20,.38);
-  box-shadow:0 12px 40px rgba(229,9,20,.10)
-}
-.rec-icon{font-size:28px;margin-bottom:14px;display:block}
-.rec-title{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;margin-bottom:8px;letter-spacing:.5px}
-.rec-desc{color:#909090;font-size:13px;font-weight:600;line-height:1.6}
-
-/* ── DOWNLOAD ── */
-.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.dl-steps{
-  background:linear-gradient(160deg,rgba(16,16,16,.97),rgba(8,8,8,.99));
-  border:1px solid rgba(229,9,20,.18);
-  border-radius:20px;padding:28px
-}
-.dl-step{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.05)}
-.dl-step:last-child{border-bottom:0;padding-bottom:0}
-.dl-num{
-  font-family:'Anton',sans-serif;
-  font-size:24px;color:#E50914;
-  flex-shrink:0;line-height:1;
-  margin-top:2px
-}
-.dl-step-title{
-  font-family:'Oswald',sans-serif;
-  font-size:16px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px
-}
-.dl-step-sub{color:#888;font-size:13px;font-weight:600;line-height:1.5}
-.dl-card{
-  background:linear-gradient(160deg,rgba(18,3,4,.98),rgba(8,8,8,.99));
-  border:1px solid rgba(229,9,20,.28);
-  border-radius:20px;padding:32px;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  text-align:center;
-  box-shadow:0 0 50px rgba(229,9,20,.10)
-}
-.dl-title{font-family:'Anton',sans-serif;font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:10px}
-.dl-sub{color:#aaa;font-size:14px;font-weight:700;margin-bottom:20px;line-height:1.6}
-.chip-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:24px}
-.chip{
-  padding:6px 12px;border-radius:999px;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.09);
-  color:#bbb;font-size:11px;font-weight:800
-}
-
-/* ── CÓDIGO TV ── */
-.code-wrap{max-width:760px;margin:0 auto}
-.code-box{
-  background:linear-gradient(160deg,rgba(20,4,5,.98),rgba(8,8,8,.99));
-  border:1px solid rgba(229,9,20,.28);
-  border-radius:22px;padding:28px;
-  box-shadow:0 0 70px rgba(229,9,20,.12)
-}
-.code-status{
-  display:flex;align-items:center;justify-content:center;
-  gap:8px;margin-bottom:20px;
-  padding:8px 16px;
-  background:rgba(51,255,120,.06);
-  border:1px solid rgba(51,255,120,.15);
-  border-radius:999px;width:fit-content;margin-left:auto;margin-right:auto
-}
-.code-status span{color:#33ff78;font-size:11px;font-weight:900;letter-spacing:2px}
-.tab-bar{
+.status-line{
   display:flex;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:12px;padding:4px;gap:4px;
-  margin-bottom:22px
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:18px 0;
 }
-.tab-btn{
-  flex:1;height:42px;border:none;border-radius:9px;
-  cursor:pointer;font-family:'Oswald',sans-serif;
-  font-size:13px;font-weight:700;letter-spacing:1.5px;
-  text-transform:uppercase;transition:all .25s;
-  background:transparent;color:#555
+.status-line:first-child{padding-top:0}
+.status-line:last-child{border-bottom:0;padding-bottom:0}
+.status-line b{
+  font-family:'Oswald',sans-serif;
+  font-size:18px;
+  letter-spacing:1px;
 }
-.tab-btn.active{
-  background:linear-gradient(135deg,#E50914,#8B0000);
-  color:#fff;box-shadow:0 0 18px rgba(229,9,20,.28)
+.status-line span{
+  color:#ff1b2d;
+  font-weight:900;
 }
-.inp-wrap{position:relative;margin-bottom:10px}
-.inp-icon{
-  position:absolute;left:14px;top:50%;
-  transform:translateY(-50%);
-  color:#444;font-size:13px;pointer-events:none
-}
-.inp{
-  width:100%;height:50px;
-  border-radius:11px;
-  border:1px solid rgba(255,255,255,.09);
-  background:rgba(255,255,255,.05);
-  color:#fff;padding:0 16px 0 42px;outline:none;
-  font-family:'Montserrat',sans-serif;
-  font-weight:700;font-size:14px;
-  transition:border .2s,box-shadow .2s
-}
-.inp:focus{
-  border-color:rgba(229,9,20,.65);
-  box-shadow:0 0 0 3px rgba(229,9,20,.12)
-}
-.inp::placeholder{color:#444}
-.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.m3u-preview{
-  display:none;margin-top:10px;
-  padding:14px 16px;border-radius:12px;
-  background:rgba(229,9,20,.06);
-  border:1px solid rgba(229,9,20,.20)
-}
-.m3u-preview p{
-  color:#777;font-size:10px;
-  font-weight:900;letter-spacing:2px;
-  text-transform:uppercase;margin-bottom:10px
-}
-.m3u-preview-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
-.m3u-field{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:9px;padding:9px 12px
-}
-.m3u-field small{
-  display:block;color:#444;font-size:9px;
-  font-weight:900;letter-spacing:1.5px;margin-bottom:3px
-}
-.m3u-field b{font-family:'Oswald',sans-serif;font-size:12px;color:#ddd;word-break:break-all}
-.code-err{
-  display:none;margin-top:12px;
-  padding:13px 16px;border-radius:11px;
-  color:#ff6b6b;font-size:13px;font-weight:800;
-  background:rgba(229,9,20,.08);
-  border:1px solid rgba(229,9,20,.25);
-  text-align:center;line-height:1.5
-}
-.code-result{
-  display:none;margin-top:14px;
-  padding:26px 20px;border-radius:16px;
-  text-align:center;
-  background:rgba(229,9,20,.08);
-  border:1px solid rgba(229,9,20,.28)
-}
-.code-result small{
-  display:block;color:#666;
-  font-weight:900;letter-spacing:2.5px;
-  font-size:10px;margin-bottom:12px
-}
-.code-number{
-  font-family:'Anton',sans-serif;
-  font-size:60px;letter-spacing:10px;
-  color:#fff;line-height:1;
-  text-shadow:0 0 40px rgba(229,9,20,.70)
-}
-.code-hint{margin-top:14px;color:#888;font-size:13px;font-weight:700;line-height:1.7}
-.code-hint strong{color:#ddd}
 
-/* ── SUPORTE ── */
-.sup-box{
-  max-width:620px;margin:0 auto;
-  text-align:center;padding:44px;
-  background:linear-gradient(160deg,rgba(20,4,5,.98),rgba(8,8,8,.99));
-  border:1px solid rgba(229,9,20,.25);
-  border-radius:22px;
-  box-shadow:0 0 60px rgba(229,9,20,.10)
-}
-.sup-box h2{font-size:clamp(32px,5vw,52px)}
-.sup-box p{color:#bbb;font-size:14px;font-weight:700;line-height:1.7;margin:14px 0 26px}
-
-/* ── FOOTER ── */
-footer{
-  background:linear-gradient(180deg,rgba(8,8,8,1),#040404);
-  border-top:1px solid rgba(229,9,20,.12)
-}
-.foot-main{
+/* CARDS */
+.grid-3{
   display:grid;
-  grid-template-columns:1.6fr 1fr 1fr 1fr;
-  gap:40px;padding:56px 24px 40px;
-  max-width:1140px;margin:0 auto
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
 }
-.foot-logo{
+.card{
+  min-height:210px;
+  padding:28px;
+  border-radius:22px;
+  background:linear-gradient(180deg,rgba(22,22,22,.96),rgba(9,9,9,.98));
+  border:1px solid rgba(255,0,35,.22);
+  box-shadow:0 0 34px rgba(255,0,35,.08);
+  transition:.25s;
+}
+.card:hover{
+  transform:translateY(-5px);
+  border-color:rgba(255,0,35,.55);
+  box-shadow:0 0 48px rgba(255,0,35,.18);
+}
+.icon{
+  font-size:36px;
+  margin-bottom:18px;
+}
+.card h3{
+  font-family:'Oswald',sans-serif;
+  font-size:24px;
+  font-weight:900;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.card p{
+  color:#bdbdbd;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.55;
+}
+
+/* PLATAFORMAS */
+.platforms{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+.platform{
+  padding:38px;
+  border-radius:28px;
+  background:linear-gradient(145deg,rgba(30,3,7,.95),rgba(8,8,8,.98));
+  border:1px solid rgba(255,0,35,.30);
+  box-shadow:0 0 55px rgba(255,0,35,.13);
+}
+.platform h3{
   font-family:'Anton',sans-serif;
-  font-size:22px;letter-spacing:4px;
-  color:#fff;text-decoration:none;
-  text-shadow:0 0 24px rgba(229,9,20,.45);
-  display:inline-block;margin-bottom:14px
+  font-size:62px;
+  letter-spacing:2px;
+  line-height:1;
+  margin-bottom:16px;
 }
-.foot-logo span{color:#E50914}
-.foot-tagline{
-  color:#444;font-size:13px;
-  font-weight:600;line-height:1.7;
-  max-width:280px;margin-bottom:20px
+.platform .status{
+  display:inline-block;
+  margin-bottom:18px;
+  padding:7px 14px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:1.5px;
 }
-.foot-social a{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:9px 16px;border-radius:9px;
+.ok{
+  color:#33ff7a;
+  background:rgba(51,255,122,.10);
+  border:1px solid rgba(51,255,122,.25);
+}
+.dev{
+  color:#ffb13b;
+  background:rgba(255,177,59,.10);
+  border:1px solid rgba(255,177,59,.25);
+}
+.platform p{
+  color:#cfcfcf;
+  font-size:16px;
+  font-weight:700;
+  line-height:1.6;
+  margin-bottom:24px;
+}
+.specs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:24px 0;
+}
+.spec{
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.08);
-  color:#bbb;text-decoration:none;
+  border-radius:12px;
+  padding:14px;
+}
+.spec small{
+  display:block;
+  color:#777;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1.5px;
+  margin-bottom:5px;
+}
+.spec b{
   font-family:'Oswald',sans-serif;
-  font-size:12px;font-weight:700;letter-spacing:1px;
-  transition:.2s
-}
-.foot-social a:hover{
-  background:rgba(229,9,20,.10);
-  border-color:rgba(229,9,20,.30);color:#fff
-}
-.foot-col h5{
-  font-family:'Oswald',sans-serif;
-  font-size:11px;font-weight:700;
-  letter-spacing:2.5px;color:#333;
-  text-transform:uppercase;margin-bottom:16px
-}
-.foot-col a{
-  display:block;color:#555;
-  text-decoration:none;font-size:13px;
-  font-weight:600;padding:5px 0;
-  transition:color .2s
-}
-.foot-col a:hover{color:#E50914}
-.foot-bottom{
-  border-top:1px solid rgba(255,255,255,.05);
-  padding:18px 24px;max-width:1140px;margin:0 auto;
-  display:flex;justify-content:space-between;
-  align-items:center;flex-wrap:wrap;gap:10px
-}
-.foot-copy{color:#2a2a2a;font-size:12px;font-weight:700}
-.foot-copy strong{color:#E50914}
-.foot-live{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:5px 12px;border-radius:999px;
-  background:rgba(51,255,120,.07);
-  border:1px solid rgba(51,255,120,.16);
-  color:#33ff78;font-size:10px;font-weight:900;letter-spacing:1.5px
+  font-size:16px;
 }
 
-/* ── RESPONSIVE ── */
-@media(max-width:1024px){
-  .foot-main{grid-template-columns:1fr 1fr;gap:28px}
+/* DOWNLOAD */
+.download-box{
+  display:grid;
+  grid-template-columns:.9fr 1.1fr;
+  gap:18px;
 }
+.steps,.download-card{
+  border-radius:28px;
+  padding:34px;
+  background:linear-gradient(180deg,rgba(20,20,20,.96),rgba(8,8,8,.98));
+  border:1px solid rgba(255,0,35,.25);
+}
+.step{
+  display:flex;
+  gap:10px;
+  padding:18px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.step:last-child{border-bottom:0}
+.num{
+  font-family:'Anton',sans-serif;
+  font-size:22px;
+  color:#ff1b2d;
+  min-width:auto;
+}
+.step b{
+  font-family:'Oswald',sans-serif;
+  font-size:19px;
+  text-transform:uppercase;
+}
+.step p{
+  color:#aaa;
+  font-size:14px;
+  font-weight:700;
+  margin-top:5px;
+}
+.download-card{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  box-shadow:0 0 55px rgba(255,0,35,.16);
+}
+.download-card h3{
+  font-family:'Anton',sans-serif;
+  font-size:56px;
+  line-height:1;
+  margin-bottom:14px;
+}
+.download-card p{
+  color:#ccc;
+  font-size:16px;
+  font-weight:800;
+  margin-bottom:24px;
+}
+.chips{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:28px;
+}
+.chip{
+  padding:8px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  color:#ddd;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* SUPORTE */
+.support{
+  text-align:center;
+  max-width:720px;
+  margin:0 auto;
+  padding:46px;
+  border-radius:30px;
+  border:1px solid rgba(255,0,35,.35);
+  background:linear-gradient(180deg,rgba(24,4,7,.96),rgba(8,8,8,.98));
+  box-shadow:0 0 65px rgba(255,0,35,.18);
+}
+.support h2{font-size:58px}
+.support p{
+  color:#cfcfcf;
+  font-weight:800;
+  margin:18px 0 28px;
+}
+
+/* FOOTER */
+footer{
+  border-top:1px solid rgba(255,0,35,.20);
+  padding:34px 22px;
+  background:#050505;
+}
+footer .wrap{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+footer b{
+  font-family:'Anton',sans-serif;
+  letter-spacing:2px;
+}
+footer span{
+  color:#777;
+  font-size:13px;
+  font-weight:800;
+}
+
+/* =============================================
+   TABLET
+   ============================================= */
 @media(max-width:900px){
-  header{padding:0 20px}
   nav{display:none}
   .menu-btn{display:block}
-  .hero-grid{grid-template-columns:1fr}
-  .hero-card{display:none}
-  .plat-grid,.dl-grid{grid-template-columns:1fr}
-  .rec-grid{grid-template-columns:1fr 1fr}
+  .hero-inner,.platforms,.download-box{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){
-  section{padding:52px 16px}
-  header{height:58px;padding:0 16px}
-  .mob-nav{top:58px}
-  .logo{font-size:17px;letter-spacing:3px}
-  .hero{padding-top:80px;padding-bottom:40px;min-height:auto;align-items:flex-start}
-  .hero-eyebrow{font-size:9px;padding:6px 13px;margin-bottom:16px}
-  .hero-title{font-size:clamp(52px,15vw,80px)}
-  .hero-desc{font-size:14px;margin-top:14px}
-  .hero-btns{flex-direction:column;gap:9px;margin-top:20px}
-  .hero-btns .btn{width:100%;min-height:48px}
-  .sec-h{font-size:clamp(28px,9vw,40px)}
-  .rec-grid{grid-template-columns:1fr}
-  .plat-title{font-size:clamp(38px,10vw,52px)}
-  .plat-card{padding:22px 18px}
-  .spec-grid{grid-template-columns:1fr 1fr}
-  .dl-card{padding:24px 18px}
-  .dl-title{font-size:38px}
-  .dl-steps{padding:20px 16px}
-  .code-box{padding:20px 14px}
-  .code-number{font-size:48px;letter-spacing:7px}
-  .inp-row{grid-template-columns:1fr}
-  .m3u-preview-grid{grid-template-columns:1fr}
-  .sup-box{padding:26px 16px}
-  .foot-main{grid-template-columns:1fr;gap:24px;padding:32px 16px 24px}
-  .foot-bottom{flex-direction:column;align-items:flex-start;padding:14px 16px}
-  .foot-copy{font-size:11px}
+
+/* =============================================
+   MOBILE — corrigido
+   ============================================= */
+@media(max-width:560px){
+
+  /* HEADER */
+  header{
+    padding:0 16px;
+    height:62px;
+  }
+  .logo{
+    font-size:20px;
+    letter-spacing:2px;
+  }
+  .menu-btn{
+    font-size:24px;
+  }
+  .mobile-menu{
+    top:62px;
+    padding:12px;
+  }
+  .mobile-menu a{
+    padding:12px;
+    font-size:14px;
+    margin-bottom:6px;
+  }
+
+  /* SECTIONS */
+  section{
+    padding:56px 14px;
+  }
+
+  /* HERO */
+  .hero{
+    min-height:auto;
+    padding-top:80px;
+    padding-bottom:48px;
+    align-items:flex-start;
+  }
+  .hero-inner{
+    gap:24px;
+  }
+  .hero-badge{
+    font-size:9px;
+    letter-spacing:1px;
+    padding:8px 14px;
+    gap:8px;
+    margin-bottom:16px;
+    white-space:nowrap;
+  }
+  .pulse{
+    width:6px;
+    height:6px;
+  }
+
+  /* PROJETO X — escala fluida, sempre numa linha */
+  .hero h1{
+    font-size:clamp(46px,14.5vw,68px);
+    letter-spacing:2px;
+    line-height:.9;
+    white-space:nowrap;
+  }
+
+  .hero-text{
+    font-size:15px;
+    line-height:1.45;
+    margin-top:14px;
+    font-weight:700;
+  }
+  .hero-actions{
+    flex-direction:column;
+    gap:10px;
+    margin-top:22px;
+  }
+  .hero-actions .btn{
+    width:100%;
+    min-height:48px;
+    font-size:14px;
+    border-radius:10px;
+  }
+
+  /* STATUS CARD */
+  .hero-card{
+    padding:18px 16px;
+    border-radius:18px;
+  }
+  .status-line{
+    padding:12px 0;
+  }
+  .status-line b{
+    font-size:13px;
+  }
+  .status-line span{
+    font-size:11px;
+    text-align:right;
+  }
+
+  /* SECTION TITLES */
+  .section-title{
+    margin-bottom:28px;
+  }
+  .tag{
+    font-size:10px;
+    padding:6px 12px;
+    letter-spacing:1.5px;
+    margin-bottom:12px;
+  }
+  h2{
+    font-size:clamp(32px,9vw,44px);
+    letter-spacing:1px;
+  }
+  .sub{
+    font-size:13px;
+    margin-top:8px;
+  }
+
+  /* CARDS GRID */
+  .grid-3{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .card{
+    min-height:auto;
+    padding:20px 18px;
+    border-radius:16px;
+  }
+  .icon{
+    font-size:26px;
+    margin-bottom:10px;
+  }
+  .card h3{
+    font-size:17px;
+    margin-bottom:7px;
+  }
+  .card p{
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  /* PLATAFORMAS */
+  .platforms{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .platform{
+    padding:22px 18px;
+    border-radius:20px;
+  }
+  .platform h3{
+    font-size:clamp(34px,10vw,46px);
+    margin-bottom:12px;
+  }
+  .platform .status{
+    font-size:10px;
+    padding:6px 12px;
+    margin-bottom:12px;
+  }
+  .platform p{
+    font-size:13px;
+    line-height:1.5;
+    margin-bottom:16px;
+  }
+  .specs{
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    margin:14px 0;
+  }
+  .spec{
+    padding:10px 12px;
+    border-radius:10px;
+  }
+  .spec small{
+    font-size:9px;
+    margin-bottom:3px;
+  }
+  .spec b{
+    font-size:13px;
+  }
+  .platform .btn{
+    width:100%;
+    min-height:46px;
+    font-size:14px;
+    border-radius:10px;
+  }
+
+  /* DOWNLOAD */
+  .download-box{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .steps{
+    padding:18px 14px;
+    border-radius:18px;
+    overflow:hidden;
+  }
+  .step{
+    gap:8px;
+    padding:12px 0;
+    align-items:flex-start;
+  }
+  .num{
+    font-size:20px;
+    flex-shrink:0;
+    width:auto;
+    min-width:auto;
+  }
+  .step > div{
+    min-width:0;
+  }
+  .step b{
+    display:block;
+    font-size:13px;
+    font-weight:900;
+    color:#fff;
+    line-height:1.2;
+  }
+  .step p{
+    font-size:11px;
+    margin-top:2px;
+    color:#aaa;
+    font-weight:700;
+    line-height:1.3;
+  }
+  .download-card{
+    padding:24px 18px;
+    border-radius:18px;
+  }
+  .download-card h3{
+    font-size:clamp(30px,9vw,42px);
+    margin-bottom:10px;
+  }
+  .download-card p{
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .chips{
+    gap:6px;
+    margin-bottom:18px;
+  }
+  .chip{
+    font-size:11px;
+    padding:6px 11px;
+  }
+  .download-card .btn{
+    width:100%;
+    min-height:46px;
+    font-size:14px;
+    border-radius:10px;
+  }
+
+  /* SUPORTE */
+  .support{
+    padding:26px 16px;
+    border-radius:20px;
+  }
+  .support h2{
+    font-size:clamp(30px,9vw,40px);
+  }
+  .support p{
+    font-size:13px;
+    margin:12px 0 20px;
+  }
+  .support .btn{
+    width:100%;
+    min-height:46px;
+    font-size:14px;
+    border-radius:10px;
+  }
+
+  /* FOOTER */
+  footer{
+    padding:20px 14px;
+  }
+  footer .wrap{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:4px;
+  }
+  footer b{
+    font-size:15px;
+  }
+  footer span{
+    font-size:11px;
+  }
 }
 </style>
 </head>
+
 <body>
 
-<!-- HEADER -->
 <header>
   <a href="#home" class="logo">PROJETO <span>X</span></a>
   <nav>
     <a href="#home">Home</a>
-    <a href="#plataformas">Android & TV</a>
+    <a href="#android">Android</a>
+    <a href="#tv">TV</a>
     <a href="#recursos">Recursos</a>
-    <a href="#download">Download</a>
-    <a href="#codigo">Código TV</a>
-    <a href="#suporte" class="nav-cta">Suporte</a>
+    <a href="#download" class="nav-btn">Download</a>
   </nav>
   <div class="menu-btn" onclick="toggleMenu()">☰</div>
 </header>
 
-<div class="mob-nav" id="mobNav">
-  <a href="#home" onclick="closeMenu()">🏠 Home</a>
-  <a href="#plataformas" onclick="closeMenu()">📱 Android & TV</a>
-  <a href="#recursos" onclick="closeMenu()">⚡ Recursos</a>
-  <a href="#download" onclick="closeMenu()">⬇ Download</a>
-  <a href="#codigo" onclick="closeMenu()">📺 Código TV</a>
-  <a href="#suporte" onclick="closeMenu()">💬 Suporte</a>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home">Home</a>
+  <a href="#android">Android</a>
+  <a href="#tv">TV</a>
+  <a href="#recursos">Recursos</a>
+  <a href="#download">Download</a>
 </div>
 
-<!-- HOME -->
 <section class="hero" id="home">
-  <div class="wrap hero-grid">
+  <div class="wrap hero-inner">
     <div>
-      <div class="hero-eyebrow">
-        <span class="dot dot-g"></span>
-        PLATAFORMA OFICIAL &nbsp;·&nbsp; ANDROID BETA
-      </div>
-      <h1 class="hero-title">PROJETO <span>X</span></h1>
-      <p class="hero-desc">
-        Uma experiência <em>premium</em>, rápida e otimizada para quem usa IPTV, Xtream Codes ou listas M3U. Streaming sem complicação.
+      <div class="hero-badge"><span class="pulse"></span> PLATAFORMA OFICIAL • ANDROID BETA</div>
+      <h1>PROJETO <span>X</span></h1>
+      <p class="hero-text">
+        Uma experiência <span>premium</span>, rápida e otimizada para quem usa IPTV, Xtream Codes ou listas M3U.
       </p>
-      <div class="hero-btns">
+      <div class="hero-actions">
         <a class="btn btn-red" href="ProjetoX.apk">⬇ Baixar Android</a>
-        <a class="btn btn-ghost" href="#recursos">Ver Recursos</a>
+        <a class="btn btn-dark" href="#tv">📺 Versão TV</a>
       </div>
     </div>
+
     <div class="hero-card">
-      <div class="hc-row">
-        <span class="hc-label">ANDROID</span>
-        <span class="hc-val hc-green"><span class="dot dot-g"></span> DISPONÍVEL</span>
-      </div>
-      <div class="hc-row">
-        <span class="hc-label">SMART TV</span>
-        <span class="hc-val hc-orange"><span class="dot dot-o"></span> EM DESENVOLVIMENTO</span>
-      </div>
-      <div class="hc-row">
-        <span class="hc-label">OTA UPDATE</span>
-        <span class="hc-val hc-green"><span class="dot dot-g"></span> ATIVO</span>
-      </div>
-      <div class="hc-row">
-        <span class="hc-label">CÓDIGO TV</span>
-        <span class="hc-val hc-green"><span class="dot dot-g"></span> ONLINE</span>
-      </div>
-      <div class="hc-row">
-        <span class="hc-label">API</span>
-        <span class="hc-val hc-green"><span class="dot dot-g"></span> OPERACIONAL</span>
-      </div>
+      <div class="status-line"><b>ANDROID</b><span>DISPONÍVEL</span></div>
+      <div class="status-line"><b>SMART TV</b><span>EM DESENVOLVIMENTO</span></div>
+      <div class="status-line"><b>ATUALIZAÇÕES</b><span>OTA ATIVO</span></div>
+      <div class="status-line"><b>COMPATIBILIDADE</b><span>XTREAM + M3U</span></div>
     </div>
   </div>
 </section>
 
-<div class="div-line"></div>
-
-<!-- PLATAFORMAS -->
-<section id="plataformas">
-  <div class="wrap">
-    <div class="sec-head">
-      <div><span class="sec-label">PLATAFORMAS</span></div>
-      <h2 class="sec-h">Android & Smart TV</h2>
-      <p class="sec-sub">Dois aplicativos, uma experiência unificada. Premium em qualquer dispositivo.</p>
-    </div>
-    <div class="plat-grid">
-
-      <div class="plat-card" id="android">
-        <div class="plat-badge badge-green"><span class="dot dot-g"></span> DISPONÍVEL AGORA</div>
-        <h3 class="plat-title">ANDROID</h3>
-        <p class="plat-desc">Versão oficial para celulares e tablets. Instale por cima do app atual e mantenha login, listas e configurações salvos.</p>
-        <div class="spec-grid">
-          <div class="spec-item"><small>STATUS</small><b>Beta Ativo</b></div>
-          <div class="spec-item"><small>ARQUIVO</small><b>ProjetoX.apk</b></div>
-          <div class="spec-item"><small>SUPORTE</small><b>Xtream + M3U</b></div>
-          <div class="spec-item"><small>UPDATE</small><b>OTA Ativo</b></div>
-        </div>
-        <a class="btn btn-red" href="ProjetoX.apk">⬇ Download Oficial</a>
-      </div>
-
-      <div class="plat-card" id="tv">
-        <div class="plat-badge badge-orange"><span class="dot dot-o"></span> EM DESENVOLVIMENTO</div>
-        <h3 class="plat-title">SMART TV</h3>
-        <p class="plat-desc">Aplicativo dedicado para TV com foco total em controle remoto. Use o gerador de código para entrar sem digitar URL ou senha.</p>
-        <div class="spec-grid">
-          <div class="spec-item"><small>LOGIN</small><b>Código único</b></div>
-          <div class="spec-item"><small>FOCO</small><b>Controle remoto</b></div>
-          <div class="spec-item"><small>TV BOX</small><b>Compatível</b></div>
-          <div class="spec-item"><small>ANDROID TV</small><b>Compatível</b></div>
-        </div>
-        <a class="btn btn-ghost" href="#codigo">📺 Gerar Código TV</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<div class="div-line"></div>
-
-<!-- RECURSOS -->
 <section id="recursos">
   <div class="wrap">
-    <div class="sec-head">
-      <div><span class="sec-label">RECURSOS</span></div>
-      <h2 class="sec-h">Feito para ser rápido</h2>
-      <p class="sec-sub">Visual premium, desempenho leve e atualização automática pelo próprio app.</p>
+    <div class="section-title">
+      <span class="tag">RECURSOS</span>
+      <h2>Feito para ser rápido</h2>
+      <p class="sub">Visual premium, desempenho leve e atualização direta pelo app.</p>
     </div>
-    <div class="rec-grid">
-      <div class="rec-card">
-        <span class="rec-icon">⚡</span>
-        <h4 class="rec-title">Desempenho otimizado</h4>
-        <p class="rec-desc">Roda leve até em celulares simples, com navegação rápida e interface completamente fluida.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>Desempenho otimizado</h3>
+        <p>Rodando leve até em celulares simples, com navegação rápida e interface fluida.</p>
       </div>
-      <div class="rec-card">
-        <span class="rec-icon">🎬</span>
-        <h4 class="rec-title">Interface premium</h4>
-        <p class="rec-desc">Visual forte, escuro e cinematográfico para uma experiência de streaming mais moderna e elegante.</p>
+      <div class="card">
+        <div class="icon">🎬</div>
+        <h3>Interface premium</h3>
+        <p>Visual forte, escuro e cinematográfico para uma experiência mais moderna.</p>
       </div>
-      <div class="rec-card">
-        <span class="rec-icon">🔁</span>
-        <h4 class="rec-title">Atualizações OTA</h4>
-        <p class="rec-desc">O app avisa quando uma nova versão está disponível e atualiza automaticamente sem precisar procurar links.</p>
+      <div class="card">
+        <div class="icon">🔁</div>
+        <h3>Atualizações oficiais</h3>
+        <p>O app avisa quando tiver nova versão e atualiza sem precisar procurar links.</p>
       </div>
-      <div class="rec-card">
-        <span class="rec-icon">📱</span>
-        <h4 class="rec-title">Android Beta</h4>
-        <p class="rec-desc">Versão Android disponível para uso diário, com melhorias constantes e suporte ativo da equipe.</p>
+      <div class="card">
+        <div class="icon">📱</div>
+        <h3>Android Beta</h3>
+        <p>Versão Android disponível para testes, uso diário e melhorias constantes.</p>
       </div>
-      <div class="rec-card">
-        <span class="rec-icon">📺</span>
-        <h4 class="rec-title">Versão TV</h4>
-        <p class="rec-desc">App dedicado para TV Box e Android TV, otimizado para controle remoto e código de acesso seguro.</p>
+      <div class="card">
+        <div class="icon">📺</div>
+        <h3>Versão TV</h3>
+        <p>Aplicativo dedicado para TV em desenvolvimento, com foco em controle remoto.</p>
       </div>
-      <div class="rec-card">
-        <span class="rec-icon">🔐</span>
-        <h4 class="rec-title">Código seguro</h4>
-        <p class="rec-desc">Gere um código no site e entre na TV sem digitar URL, DNS ou lista M3U. Rápido e seguro.</p>
+      <div class="card">
+        <div class="icon">🔗</div>
+        <h3>Xtream + M3U</h3>
+        <p>Compatível com login Xtream Codes e listas M3U para uso flexível.</p>
       </div>
     </div>
   </div>
 </section>
 
-<div class="div-line"></div>
+<section>
+  <div class="wrap platforms">
+    <div class="platform" id="android">
+      <span class="status ok">● DISPONÍVEL AGORA</span>
+      <h3>ANDROID</h3>
+      <p>Versão oficial para celulares e tablets. Instale por cima do app atual e mantenha seus dados salvos.</p>
+      <div class="specs">
+        <div class="spec"><small>STATUS</small><b>Android Beta</b></div>
+        <div class="spec"><small>ARQUIVO</small><b>ProjetoX.apk</b></div>
+        <div class="spec"><small>SUPORTE</small><b>Xtream + M3U</b></div>
+        <div class="spec"><small>UPDATE</small><b>OTA Ativo</b></div>
+      </div>
+      <a class="btn btn-red" href="ProjetoX.apk">⬇ Download Oficial</a>
+    </div>
 
-<!-- DOWNLOAD -->
+    <div class="platform" id="tv">
+      <span class="status dev">● EM DESENVOLVIMENTO</span>
+      <h3>SMART TV</h3>
+      <p>Versão separada para TV Box, Smart TV e Android TV. Interface pensada para controle remoto.</p>
+      <div class="specs">
+        <div class="spec"><small>STATUS</small><b>Em breve</b></div>
+        <div class="spec"><small>FOCO</small><b>Controle remoto</b></div>
+        <div class="spec"><small>TV BOX</small><b>Planejado</b></div>
+        <div class="spec"><small>ANDROID TV</small><b>Planejado</b></div>
+      </div>
+      <button class="btn btn-dark" disabled>📺 Em breve</button>
+    </div>
+  </div>
+</section>
+
 <section id="download">
   <div class="wrap">
-    <div class="sec-head">
-      <div><span class="sec-label">DOWNLOAD</span></div>
-      <h2 class="sec-h">Instalação simples</h2>
-      <p class="sec-sub">Baixe o APK oficial e instale por cima. Seus dados continuam salvos.</p>
+    <div class="section-title">
+      <span class="tag">DOWNLOAD</span>
+      <h2>Instalação simples</h2>
+      <p class="sub">Baixe o APK oficial e instale por cima. Seus dados continuam salvos.</p>
     </div>
-    <div class="dl-grid">
-      <div class="dl-steps">
-        <div class="dl-step">
-          <div class="dl-num">01</div>
-          <div>
-            <div class="dl-step-title">Baixe o app</div>
-            <div class="dl-step-sub">Use somente o botão oficial desta página para garantir a versão correta.</div>
-          </div>
+
+    <div class="download-box">
+      <div class="steps">
+        <div class="step">
+          <div class="num">01</div>
+          <div><b>Baixe o app</b><p>Use somente o botão oficial desta página.</p></div>
         </div>
-        <div class="dl-step">
-          <div class="dl-num">02</div>
-          <div>
-            <div class="dl-step-title">Instale por cima</div>
-            <div class="dl-step-sub">Não precisa desinstalar o app anterior. Seus dados ficam preservados.</div>
-          </div>
+        <div class="step">
+          <div class="num">02</div>
+          <div><b>Instale por cima</b><p>Não precisa apagar o app antigo.</p></div>
         </div>
-        <div class="dl-step">
-          <div class="dl-num">03</div>
-          <div>
-            <div class="dl-step-title">Seus dados permanecem</div>
-            <div class="dl-step-sub">Login, listas e configurações continuam salvos após a atualização.</div>
-          </div>
+        <div class="step">
+          <div class="num">03</div>
+          <div><b>Mantenha seus dados</b><p>Login, listas e configurações permanecem salvos.</p></div>
         </div>
-        <div class="dl-step">
-          <div class="dl-num">04</div>
-          <div>
-            <div class="dl-step-title">Próximas atualizações via OTA</div>
-            <div class="dl-step-sub">Após instalar esta versão, futuras atualizações aparecerão automaticamente no app.</div>
-          </div>
+        <div class="step">
+          <div class="num">04</div>
+          <div><b>Próximas atualizações via OTA</b><p>Depois disso, novas versões aparecem automaticamente.</p></div>
         </div>
       </div>
-      <div class="dl-card">
-        <div class="dl-title">ANDROID<br>BETA</div>
-        <div class="dl-sub">Download oficial e seguro do<br>Projeto X para Android.</div>
-        <div class="chip-row">
+
+      <div class="download-card">
+        <h3>ANDROID BETA</h3>
+        <p>Download oficial do Projeto X para Android.</p>
+        <div class="chips">
           <span class="chip">Android</span>
           <span class="chip">Xtream Codes</span>
           <span class="chip">M3U</span>
           <span class="chip">OTA</span>
-          <span class="chip">TV Box</span>
         </div>
-        <a class="btn btn-red" href="ProjetoX.apk" style="width:100%;justify-content:center;">⬇ Baixar Projeto X</a>
+        <a class="btn btn-red" href="ProjetoX.apk">⬇ Baixar Projeto X</a>
       </div>
     </div>
   </div>
 </section>
 
-<div class="div-line"></div>
-
-<!-- CÓDIGO TV -->
-<section id="codigo">
-  <div class="wrap">
-    <div class="sec-head">
-      <div><span class="sec-label">CÓDIGO TV</span></div>
-      <h2 class="sec-h">Gerar código de acesso</h2>
-      <p class="sec-sub">Escolha como deseja entrar e gere seu código para o app TV em segundos.</p>
-    </div>
-
-    <div class="code-wrap">
-      <div class="code-box">
-
-        <div class="code-status">
-          <span class="dot dot-g"></span>
-          <span>SERVIÇO ONLINE</span>
-        </div>
-
-        <div class="tab-bar">
-          <button id="tabDns" class="tab-btn active" onclick="trocarModo('dns')">🌐 DNS / Xtream</button>
-          <button id="tabM3u" class="tab-btn" onclick="trocarModo('m3u')">📋 Lista M3U</button>
-        </div>
-
-        <!-- DNS -->
-        <div id="painelDns" style="opacity:1;transition:opacity .25s;">
-          <div class="inp-wrap">
-            <span class="inp-icon">🌐</span>
-            <input id="servidorTv" class="inp" type="text" placeholder="URL do servidor  —  ex: http://meuservidor.com">
-          </div>
-          <div class="inp-row">
-            <div class="inp-wrap" style="margin-bottom:0">
-              <span class="inp-icon">👤</span>
-              <input id="usuarioTv" class="inp" type="text" placeholder="Usuário">
-            </div>
-            <div class="inp-wrap" style="margin-bottom:0">
-              <span class="inp-icon">🔒</span>
-              <input id="senhaTv" class="inp" type="password" placeholder="Senha">
-            </div>
-          </div>
-        </div>
-
-        <!-- M3U -->
-        <div id="painelM3u" style="opacity:0;display:none;transition:opacity .25s;">
-          <div class="inp-wrap">
-            <span class="inp-icon">📋</span>
-            <input id="m3uTv" class="inp" type="text" placeholder="Cole sua M3U  —  ex: http://servidor.com/get.php?username=user&password=pass&type=m3u">
-          </div>
-          <div class="m3u-preview" id="m3uPreview">
-            <p>Dados extraídos da M3U</p>
-            <div class="m3u-preview-grid">
-              <div class="m3u-field"><small>Servidor</small><b id="previewServidor">—</b></div>
-              <div class="m3u-field"><small>Usuário</small><b id="previewUsuario">—</b></div>
-              <div class="m3u-field"><small>Senha</small><b id="previewSenha">—</b></div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top:16px;">
-          <button class="btn btn-red" id="btnGerar" onclick="gerarCodigoTV()" style="width:100%;min-height:50px;font-size:14px;border-radius:11px;letter-spacing:1.6px;">
-            📺 Gerar Código TV
-          </button>
-        </div>
-
-        <div class="code-err" id="codigoErro"></div>
-
-        <div class="code-result" id="codigoResultado">
-          <small>SEU CÓDIGO DE ACESSO</small>
-          <div class="code-number" id="codigoNumero">000000</div>
-          <div class="code-hint">
-            Digite este código no app <strong>Projeto X TV</strong>.<br>
-            O código será usado apenas uma vez.
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="div-line"></div>
-
-<!-- SUPORTE -->
 <section id="suporte">
   <div class="wrap">
-    <div class="sup-box">
-      <span class="sec-label">SUPORTE</span>
-      <h2 class="sec-h" style="margin-top:10px;">Precisa de ajuda?</h2>
-      <p>Nossa equipe está disponível para garantir a melhor experiência com o Projeto X. Atendimento via WhatsApp ou Telegram, rápido e direto.</p>
-      <a class="btn btn-red" href="#">💬 Falar com Suporte</a>
+    <div class="support">
+      <span class="tag">SUPORTE</span>
+      <h2>Precisa de ajuda?</h2>
+      <p>Fale pelo WhatsApp para suporte de instalação, atualização ou configuração.</p>
+      <a class="btn btn-red" href="https://wa.me/5592991669391?text=Olá,%20preciso%20de%20suporte%20no%20Projeto%20X.">💬 Abrir WhatsApp</a>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
-  <div class="foot-main">
-    <div>
-      <a href="#home" class="foot-logo">PROJETO <span>X</span></a>
-      <p class="foot-tagline">
-        Desenvolvido para uma experiência premium.<br>
-        Plataforma otimizada para clientes exigentes que buscam o melhor em streaming com qualidade cinematográfica.
-      </p>
-      <div class="foot-social">
-        <a href="https://instagram.com/playboyx7x" target="_blank">
-          📸 &nbsp;@playboyx7x
-        </a>
-      </div>
-    </div>
-
-    <div class="foot-col">
-      <h5>Plataforma</h5>
-      <a href="#home">Home</a>
-      <a href="#plataformas">Android</a>
-      <a href="#plataformas">Smart TV</a>
-      <a href="#recursos">Recursos</a>
-    </div>
-
-    <div class="foot-col">
-      <h5>Acesso</h5>
-      <a href="#download">Download APK</a>
-      <a href="#codigo">Código TV</a>
-      <a href="#suporte">Suporte</a>
-    </div>
-
-    <div class="foot-col">
-      <h5>Status</h5>
-      <a href="#home" style="color:#33ff78;">● Android Online</a>
-      <a href="#home" style="color:#ffb432;">● TV Em desenvolvimento</a>
-      <a href="#home" style="color:#33ff78;">● API Online</a>
-      <a href="#home" style="color:#33ff78;">● OTA Ativo</a>
-    </div>
-  </div>
-
-  <div style="border-top:1px solid rgba(255,255,255,.05);">
-    <div class="foot-bottom">
-      <span class="foot-copy">
-        © 2025 Projeto X — Todos os direitos reservados.
-        Desenvolvido por <strong>Playboy</strong>.
-      </span>
-      <div class="foot-live">
-        <span class="dot dot-g"></span>
-        PLATAFORMA ONLINE
-      </div>
-    </div>
+  <div class="wrap">
+    <b>PROJETO X</b>
+    <span>Android Beta • OTA Ativo • Plataforma oficial</span>
   </div>
 </footer>
 
 <script>
-const API_PROJETO_X = "https://royal-shadow-2220.arllison001.workers.dev";
-let modoAtual = 'dns';
-
 function toggleMenu(){
-  const m = document.getElementById('mobNav');
-  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+  const menu=document.getElementById("mobileMenu");
+  menu.style.display = menu.style.display==="block" ? "none" : "block";
 }
-function closeMenu(){
-  document.getElementById('mobNav').style.display = 'none';
-}
-
-function trocarModo(modo){
-  modoAtual = modo;
-  const pDns = document.getElementById('painelDns');
-  const pM3u = document.getElementById('painelM3u');
-  const tDns = document.getElementById('tabDns');
-  const tM3u = document.getElementById('tabM3u');
-
-  limparErro();
-  document.getElementById('codigoResultado').style.display = 'none';
-
-  if(modo === 'dns'){
-    pM3u.style.opacity = '0';
-    setTimeout(() => { pM3u.style.display = 'none'; }, 240);
-    pDns.style.display = 'block';
-    setTimeout(() => { pDns.style.opacity = '1'; }, 10);
-    tDns.classList.add('active');
-    tM3u.classList.remove('active');
-  } else {
-    pDns.style.opacity = '0';
-    setTimeout(() => { pDns.style.display = 'none'; }, 240);
-    pM3u.style.display = 'block';
-    setTimeout(() => { pM3u.style.opacity = '1'; }, 10);
-    tM3u.classList.add('active');
-    tDns.classList.remove('active');
-  }
-}
-
-function extrairM3U(url){
-  try{
-    const u = new URL(url);
-    return {
-      servidor: u.origin,
-      username: u.searchParams.get('username') || u.searchParams.get('user') || '',
-      password: u.searchParams.get('password') || u.searchParams.get('pass') || ''
-    };
-  } catch(e){ return null; }
-}
-
-document.getElementById('m3uTv').addEventListener('input', function(){
-  const preview = document.getElementById('m3uPreview');
-  const dados   = extrairM3U(this.value.trim());
-  if(dados && dados.username && dados.password){
-    document.getElementById('previewServidor').innerText = dados.servidor || '—';
-    document.getElementById('previewUsuario').innerText  = dados.username || '—';
-    document.getElementById('previewSenha').innerText    = dados.password || '—';
-    preview.style.display = 'block';
-  } else {
-    preview.style.display = 'none';
-  }
+document.querySelectorAll('.mobile-menu a').forEach(a=>{
+  a.onclick=()=>document.getElementById("mobileMenu").style.display="none";
 });
-
-function mostrarErro(msg){
-  const e = document.getElementById('codigoErro');
-  e.innerHTML = '⚠ ' + msg;
-  e.style.display = 'block';
-  document.getElementById('codigoResultado').style.display = 'none';
-}
-function limparErro(){
-  const e = document.getElementById('codigoErro');
-  e.innerHTML = '';
-  e.style.display = 'none';
-}
-
-async function gerarCodigoTV(){
-  limparErro();
-  document.getElementById('codigoResultado').style.display = 'none';
-
-  let servidor='', usuario='', senha='', m3u='';
-
-  if(modoAtual === 'dns'){
-    servidor = document.getElementById('servidorTv').value.trim();
-    usuario  = document.getElementById('usuarioTv').value.trim();
-    senha    = document.getElementById('senhaTv').value.trim();
-    if(!servidor){ mostrarErro('Informe a URL do servidor.'); return; }
-    if(!usuario) { mostrarErro('Informe o usuário.'); return; }
-    if(!senha)   { mostrarErro('Informe a senha.'); return; }
-  } else {
-    m3u = document.getElementById('m3uTv').value.trim();
-    if(!m3u){ mostrarErro('Cole sua M3U completa no campo acima.'); return; }
-    const d = extrairM3U(m3u);
-    if(!d || !d.username || !d.password){
-      mostrarErro('Não foi possível extrair os dados da M3U. Verifique o link.');
-      return;
-    }
-    servidor = d.servidor;
-    usuario  = d.username;
-    senha    = d.password;
-  }
-
-  const btn = document.getElementById('btnGerar');
-  const txt = btn.innerText;
-  btn.innerText = 'GERANDO...';
-  btn.disabled  = true;
-
-  try{
-    const r = await fetch(API_PROJETO_X + '/gerar', {
-      method:  'POST',
-      headers: {'Content-Type':'application/json'},
-      body:    JSON.stringify({ m3u, servidor, usuario, senha })
-    });
-    const d = await r.json();
-    if(!d.success){ mostrarErro(d.erro || 'Não foi possível gerar o código.'); return; }
-    document.getElementById('codigoNumero').innerText        = d.codigo;
-    document.getElementById('codigoResultado').style.display = 'block';
-  } catch(e){
-    mostrarErro('Erro ao conectar com a API. Verifique sua conexão.');
-  } finally {
-    btn.innerText = txt;
-    btn.disabled  = false;
-  }
-}
 </script>
+
 </body>
 </html>
