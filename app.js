@@ -377,16 +377,26 @@ function showLogin() {
 }
 
 function showCadastro() {
-  const fl = $('formLogin');
-  const fc = $('formCadastro');
-  if (fl) fl.style.display = 'none';
-  if (fc) fc.style.display = 'block';
-  const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
-  if (s1) s1.style.display = 'block';
-  if (s2) s2.style.display = 'none';
-  if (s3) s3.style.display = 'none';
-  setStep(1);
-  preencherSelectCategorias();
+    const fl = $('formLogin');
+    const fc = $('formCadastro');
+
+    if (fl) fl.style.display = 'none';
+
+    if (fc) {
+        fc.style.display = 'block';
+        fc.innerHTML = fc.innerHTML;
+    }
+
+    const s1 = $('step1'),
+          s2 = $('step2'),
+          s3 = $('step3');
+
+    if (s1) s1.style.display = 'block';
+    if (s2) s2.style.display = 'none';
+    if (s3) s3.style.display = 'none';
+
+    setStep(1);
+    preencherSelectCategorias();
 }
 
 function setStep(n) {
