@@ -1,717 +1,824 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AgendaPro — Plataforma Premium de Agendamentos</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>" />
 </head>
 <body>
 
-  <!-- CURSOR -->
-  <div class="cursor" id="cursor"></div>
-  <div class="cursor-follower" id="cursorFollower"></div>
+<!-- ============================
+     TOAST CONTAINER
+============================= -->
+<div id="toastContainer"></div>
 
-  <!-- PARTICLES -->
-  <canvas id="particles"></canvas>
+<!-- ============================
+     SIDEBAR OVERLAY (mobile)
+============================= -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-  <!-- NAV -->
-  <nav id="navbar">
-    <div class="nav-inner">
-      <div class="nav-logo">
-        <span class="logo-icon"><i class="fa-solid fa-calendar-check"></i></span>
-        Agenda<span class="logo-accent">Pro</span>
+<!-- ============================
+     LOGIN PAGE
+============================= -->
+<div id="loginPage">
+  <div class="login-bg-grid"></div>
+  <div class="login-container">
+    <div class="login-logo">
+      <div class="login-logo-icon">📅</div>
+      <div class="login-brand-name">AgendaPro</div>
+      <div class="login-brand-tagline">Plataforma Premium de Agendamentos</div>
+    </div>
+    <div class="login-card">
+      <div class="login-title">Bem-vindo de volta</div>
+      <div class="login-subtitle">Entre com suas credenciais para acessar o painel</div>
+
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">✉️</span>
+          <input id="loginEmail" type="email" class="form-input" placeholder="seu@email.com" />
+        </div>
       </div>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="#features">Recursos</a></li>
-        <li><a href="#como-funciona">Como funciona</a></li>
-        <li><a href="#painel">Painel</a></li>
-        <li><a href="#planos">Planos</a></li>
-        <li><a href="#depoimentos">Depoimentos</a></li>
-      </ul>
-      <div class="nav-actions">
-        <button class="btn-nav-login" id="btnLogin">Entrar</button>
-        <button class="btn-nav-cta" id="btnCadastro">Começar grátis</button>
-        <button class="nav-hamburger" id="hamburger" aria-label="Menu">
-          <span></span><span></span><span></span>
+
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">🔒</span>
+          <input id="loginPassword" type="password" class="form-input" placeholder="••••••••" />
+        </div>
+      </div>
+
+      <div class="remember-row">
+        <label class="checkbox-wrap">
+          <input type="checkbox" id="rememberMe" />
+          <span class="checkbox-label">Lembrar de mim</span>
+        </label>
+        <a href="#" class="forgot-link">Esqueceu a senha?</a>
+      </div>
+
+      <button class="btn-primary" onclick="doLogin()">
+        <span id="loginBtnText">Entrar no Painel</span>
+      </button>
+
+      <div class="login-divider">ou</div>
+
+      <button class="btn-primary" style="background: linear-gradient(135deg, #1a1a2e, #0f0f1a); border: 1px solid rgba(139,92,246,0.3);" onclick="viewPublicPage()">
+        🌐 Ver Página de Agendamento
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================
+     PUBLIC BOOKING PAGE
+============================= -->
+<div id="publicPage" class="hidden">
+  <div class="pub-hero">
+    <div class="pub-logo">
+      <div class="pub-logo-icon">📅</div>
+      <div class="pub-logo-name">AgendaPro</div>
+    </div>
+    <h1 class="pub-title">Agende seu <span>horário</span></h1>
+    <p class="pub-desc">Escolha o serviço, profissional e horário de sua preferência de forma simples e rápida.</p>
+  </div>
+
+  <div class="pub-body">
+
+    <!-- Step 1: Service -->
+    <div class="pub-section">
+      <div class="pub-section-title">
+        <div class="pub-section-num">1</div>
+        Escolha o Serviço
+      </div>
+      <div id="pubServicos" class="pub-services-grid">
+        <div class="flex-center" style="grid-column: 1/-1; padding: 40px;">
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Professional -->
+    <div class="pub-section" id="pubStepProfissional" style="display:none;">
+      <div class="pub-section-title">
+        <div class="pub-section-num">2</div>
+        Escolha o Profissional
+      </div>
+      <div id="pubProfissionais" class="pub-services-grid"></div>
+    </div>
+
+    <!-- Step 3: Date & Time -->
+    <div class="pub-section" id="pubStepData" style="display:none;">
+      <div class="pub-section-title">
+        <div class="pub-section-num">3</div>
+        Data e Horário
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div class="calendar-wrap">
+          <div class="calendar-header-row">
+            <button class="cal-nav-btn" onclick="pubCalPrev()">‹</button>
+            <span class="calendar-month-title" id="pubCalTitle"></span>
+            <button class="cal-nav-btn" onclick="pubCalNext()">›</button>
+          </div>
+          <div class="calendar-grid" id="pubCalendarGrid"></div>
+        </div>
+        <div>
+          <div style="margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted);">Horários Disponíveis</div>
+          <div id="pubTimeSlots" class="pub-time-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Client Info -->
+    <div class="pub-section" id="pubStepCliente" style="display:none;">
+      <div class="pub-section-title">
+        <div class="pub-section-num">4</div>
+        Seus Dados
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="input-row mb-16">
+            <div class="form-group">
+              <label class="form-label">Nome completo</label>
+              <input id="agCliente" type="text" class="form-input" placeholder="Seu nome" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone / WhatsApp</label>
+              <input id="agTelefone" type="tel" class="form-input" placeholder="(00) 00000-0000" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">E-mail (opcional)</label>
+            <input id="agEmail" type="email" class="form-input" placeholder="seu@email.com" />
+          </div>
+          <div class="form-group mt-16">
+            <label class="form-label">Observações</label>
+            <textarea id="agObs" class="form-textarea" placeholder="Alguma observação para o profissional..."></textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Summary -->
+          <div id="agendaSummary" style="margin-bottom:20px;"></div>
+
+          <button class="btn btn-purple w-full" style="justify-content:center; padding:16px;" onclick="confirmarAgendamento()">
+            ✅ Confirmar Agendamento
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center; padding: 24px; border-top: 1px solid var(--border); margin-top: 40px;">
+    <button class="btn btn-outline" onclick="backToLogin()">← Área do Profissional</button>
+  </div>
+</div>
+
+<!-- ============================
+     APP LAYOUT (Dashboard)
+============================= -->
+<div id="appLayout" class="hidden">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">📅</div>
+      <div>
+        <div class="sidebar-brand">AgendaPro</div>
+        <div class="sidebar-brand-sub">Premium</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+
+      <button class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
+        <span class="nav-icon">🏠</span> Dashboard
+      </button>
+      <button class="nav-item" id="nav-agenda" onclick="navigate('agenda')">
+        <span class="nav-icon">📅</span> Agenda
+        <span class="nav-badge" id="agendaBadge">0</span>
+      </button>
+      <button class="nav-item" id="nav-calendario" onclick="navigate('calendario')">
+        <span class="nav-icon">🗓️</span> Calendário
+      </button>
+
+      <div class="nav-section-title">Cadastros</div>
+
+      <button class="nav-item" id="nav-clientes" onclick="navigate('clientes')">
+        <span class="nav-icon">👥</span> Clientes
+      </button>
+      <button class="nav-item" id="nav-servicos" onclick="navigate('servicos')">
+        <span class="nav-icon">⚡</span> Serviços
+      </button>
+      <button class="nav-item" id="nav-profissionais" onclick="navigate('profissionais')">
+        <span class="nav-icon">👤</span> Profissionais
+      </button>
+
+      <div class="nav-section-title">Financeiro</div>
+
+      <button class="nav-item" id="nav-financeiro" onclick="navigate('financeiro')">
+        <span class="nav-icon">💰</span> Financeiro
+      </button>
+
+      <div class="nav-section-title">Comunicação</div>
+
+      <button class="nav-item" id="nav-mensagens" onclick="navigate('mensagens')">
+        <span class="nav-icon">💬</span> Mensagens
+        <span class="nav-badge" id="msgBadge" style="background:#25d366;">0</span>
+      </button>
+      <button class="nav-item" id="nav-publico" onclick="viewPublicPage()">
+        <span class="nav-icon">🌐</span> Pág. Pública
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="navigate('configuracoes')">
+        <div class="sidebar-avatar" id="sidebarAvatarInitial">A</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarUserName">Admin</div>
+          <div class="sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost w-full mt-16" style="justify-content:center;" onclick="doLogout()">
+        🚪 Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div id="mainContent">
+
+    <!-- TOPBAR -->
+    <header id="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-subtitle" id="topbarSubtitle">Visão geral do sistema</div>
+      </div>
+      <div class="topbar-right">
+        <!-- Mobile menu -->
+        <button class="topbar-btn" id="mobileMenuBtn" style="display:none;" onclick="openMobileSidebar()">☰</button>
+
+        <div class="topbar-search">
+          <span class="topbar-search-icon">🔍</span>
+          <input type="text" placeholder="Buscar..." id="topbarSearch" oninput="globalSearch(this.value)" />
+        </div>
+        <button class="topbar-btn" onclick="navigate('mensagens')" title="Mensagens">
+          💬
+          <span class="notif-dot" id="msgDot" style="display:none;"></span>
         </button>
+        <button class="topbar-btn" onclick="showToast('Sem novas notificações', 'info')" title="Notificações">🔔</button>
+        <button class="topbar-btn" onclick="navigate('publico')" title="Ver página pública">🌐</button>
       </div>
-    </div>
-  </nav>
+    </header>
 
-  <!-- MOBILE MENU -->
-  <div class="mobile-menu" id="mobileMenu">
-    <ul>
-      <li><a href="#features" onclick="closeMobile()">Recursos</a></li>
-      <li><a href="#como-funciona" onclick="closeMobile()">Como funciona</a></li>
-      <li><a href="#painel" onclick="closeMobile()">Painel</a></li>
-      <li><a href="#planos" onclick="closeMobile()">Planos</a></li>
-      <li><a href="#depoimentos" onclick="closeMobile()">Depoimentos</a></li>
-    </ul>
-    <button class="btn-nav-cta" style="width:100%;margin-top:1rem;" onclick="closeMobile();document.getElementById('btnCadastro').click()">Começar grátis</button>
-  </div>
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
 
-  <!-- HERO -->
-  <section class="hero" id="home">
-    <div class="hero-bg-glow glow-1"></div>
-    <div class="hero-bg-glow glow-2"></div>
-    <div class="hero-bg-glow glow-3"></div>
-    <div class="hero-content">
-      <div class="hero-badge animate-fade-up" style="animation-delay:0.1s">
-        <span class="badge-dot"></span>
-        Plataforma #1 em Agendamentos Premium
-      </div>
-      <h1 class="hero-title animate-fade-up" style="animation-delay:0.2s">
-        Transforme sua<br/>
-        <span class="gradient-text">agenda</span> em uma<br/>
-        máquina de crescimento
-      </h1>
-      <p class="hero-sub animate-fade-up" style="animation-delay:0.3s">
-        O AgendaPro reúne agendamento online, gestão de clientes, controle financeiro e automações com WhatsApp — tudo sincronizado em tempo real com Supabase.
-      </p>
-      <div class="hero-btns animate-fade-up" style="animation-delay:0.4s">
-        <button class="btn-primary glow-btn" id="btnHeroCta">
-          <i class="fa-solid fa-rocket"></i>
-          Começar gratuitamente
-        </button>
-        <button class="btn-ghost" id="btnHeroDemo">
-          <i class="fa-solid fa-play"></i>
-          Ver demonstração
-        </button>
-      </div>
-      <div class="hero-stats animate-fade-up" style="animation-delay:0.5s">
-        <div class="hero-stat">
-          <strong id="statAgend">0</strong>
-          <span>Agendamentos</span>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <strong id="statClients">0</strong>
-          <span>Profissionais</span>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <strong id="statSatisf">0%</strong>
-          <span>Satisfação</span>
-        </div>
-      </div>
-    </div>
-    <div class="hero-visual animate-fade-left" style="animation-delay:0.4s">
-      <div class="dashboard-preview">
-        <div class="dp-header">
-          <div class="dp-dots"><span></span><span></span><span></span></div>
-          <span class="dp-title">AgendaPro Dashboard</span>
-          <span class="dp-live"><span class="live-dot"></span>Live</span>
-        </div>
-        <div class="dp-metrics">
-          <div class="dp-metric">
-            <span class="dp-metric-val accent-gold" id="dashAgend">24</span>
-            <span class="dp-metric-label">Hoje</span>
-          </div>
-          <div class="dp-metric">
-            <span class="dp-metric-val accent-green" id="dashFat">R$8.740</span>
-            <span class="dp-metric-label">Este mês</span>
-          </div>
-          <div class="dp-metric">
-            <span class="dp-metric-val accent-blue" id="dashClients">318</span>
-            <span class="dp-metric-label">Clientes</span>
-          </div>
-        </div>
-        <div class="dp-agenda-list" id="dpAgendaList">
-          <div class="dp-agenda-item">
-            <div class="dp-avatar" style="background:linear-gradient(135deg,#a855f7,#ec4899)">AS</div>
-            <div class="dp-info">
-              <span class="dp-name">Arllison Santos</span>
-              <span class="dp-service">Designer · 14:00</span>
+      <!-- DASHBOARD PAGE -->
+      <div id="page-dashboard" class="page active">
+        <div class="stats-grid">
+          <div class="stat-card purple">
+            <div class="stat-header">
+              <div class="stat-icon purple">📅</div>
+              <span class="stat-trend up" id="statTrendAgendamentos">+0%</span>
             </div>
-            <span class="dp-badge confirmed">Confirmado</span>
+            <div class="stat-value" id="statAgendamentos">0</div>
+            <div class="stat-label">Agendamentos Hoje</div>
           </div>
-          <div class="dp-agenda-item">
-            <div class="dp-avatar" style="background:linear-gradient(135deg,#3b82f6,#06b6d4)">MC</div>
-            <div class="dp-info">
-              <span class="dp-name">Marina Costa</span>
-              <span class="dp-service">Consultoria · 15:30</span>
+          <div class="stat-card green">
+            <div class="stat-header">
+              <div class="stat-icon green">👥</div>
+              <span class="stat-trend up" id="statTrendClientes">+0%</span>
             </div>
-            <span class="dp-badge pending">Pendente</span>
+            <div class="stat-value" id="statClientes">0</div>
+            <div class="stat-label">Total de Clientes</div>
           </div>
-          <div class="dp-agenda-item">
-            <div class="dp-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">LF</div>
-            <div class="dp-info">
-              <span class="dp-name">Lucas Ferreira</span>
-              <span class="dp-service">Corte · 16:00</span>
+          <div class="stat-card yellow">
+            <div class="stat-header">
+              <div class="stat-icon yellow">⏳</div>
+              <span class="stat-trend up">Hoje</span>
             </div>
-            <span class="dp-badge confirmed">Confirmado</span>
+            <div class="stat-value" id="statPendentes">0</div>
+            <div class="stat-label">Pendentes</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-header">
+              <div class="stat-icon red">💰</div>
+              <span class="stat-trend up" id="statTrendReceita">Mês</span>
+            </div>
+            <div class="stat-value" id="statReceita">R$0</div>
+            <div class="stat-label">Receita do Mês</div>
           </div>
         </div>
-        <div class="dp-bar-chart">
-          <div class="dp-bar-row">
-            <span>Seg</span>
-            <div class="dp-bar-track"><div class="dp-bar-fill" style="width:75%"></div></div>
-          </div>
-          <div class="dp-bar-row">
-            <span>Ter</span>
-            <div class="dp-bar-track"><div class="dp-bar-fill" style="width:90%"></div></div>
-          </div>
-          <div class="dp-bar-row">
-            <span>Qua</span>
-            <div class="dp-bar-track"><div class="dp-bar-fill" style="width:60%"></div></div>
-          </div>
-          <div class="dp-bar-row">
-            <span>Qui</span>
-            <div class="dp-bar-track"><div class="dp-bar-fill" style="width:85%"></div></div>
-          </div>
-          <div class="dp-bar-row">
-            <span>Sex</span>
-            <div class="dp-bar-track"><div class="dp-bar-fill" style="width:100%"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- LOGOS BAND -->
-  <div class="logos-band">
-    <div class="logos-inner">
-      <span><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>
-      <span><i class="fa-solid fa-database"></i> Supabase</span>
-      <span><i class="fa-brands fa-google"></i> Google Calendar</span>
-      <span><i class="fa-solid fa-credit-card"></i> Stripe / Pix</span>
-      <span><i class="fa-brands fa-telegram"></i> Telegram</span>
-      <span><i class="fa-solid fa-envelope"></i> E-mail</span>
-      <span><i class="fa-solid fa-link"></i> API REST</span>
-    </div>
-  </div>
-
-  <!-- FEATURES -->
-  <section class="section" id="features">
-    <div class="section-label">Funcionalidades</div>
-    <h2 class="section-title">Tudo que você precisa.<br/><span class="gradient-text">Nada que você não precisa.</span></h2>
-    <p class="section-sub">Uma plataforma completa para profissionais que levam seu negócio a sério.</p>
-    <div class="features-grid">
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-solid fa-calendar-days"></i></div>
-        <h3>Calendário Premium</h3>
-        <p>Visualize, filtre e gerencie agendamentos em tempo real com um calendário visual intuitivo.</p>
-      </div>
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-solid fa-users"></i></div>
-        <h3>Gestão de Clientes</h3>
-        <p>Cadastro completo com histórico, preferências, anotações e score de fidelidade por cliente.</p>
-      </div>
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-solid fa-briefcase"></i></div>
-        <h3>Cadastro de Serviços</h3>
-        <p>Crie serviços com duração, valor e profissional responsável. Controle total do cardápio.</p>
-      </div>
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-brands fa-whatsapp"></i></div>
-        <h3>Integração WhatsApp</h3>
-        <p>Confirmações e lembretes automáticos via WhatsApp. Reduza faltas em até 80%.</p>
-      </div>
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-solid fa-chart-line"></i></div>
-        <h3>Controle Financeiro</h3>
-        <p>Acompanhe faturamento, recebimentos e relatórios de desempenho em tempo real.</p>
-      </div>
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-solid fa-bell"></i></div>
-        <h3>Notificações Automáticas</h3>
-        <p>Sistema de alertas inteligente para clientes e profissionais. Nunca mais perca um horário.</p>
-      </div>
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-solid fa-user-tie"></i></div>
-        <h3>Multi-Profissionais</h3>
-        <p>Gerencie equipes inteiras com controle de agenda individual por profissional.</p>
-      </div>
-      <div class="feature-card" data-aos>
-        <div class="feature-glow"></div>
-        <div class="feature-icon-wrap"><i class="fa-solid fa-bolt"></i></div>
-        <h3>Tempo Real — Supabase</h3>
-        <p>Backend poderoso com sincronização instantânea. Painel atualiza automaticamente a cada evento.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- COMO FUNCIONA -->
-  <section class="section section-dark" id="como-funciona">
-    <div class="glow-blob blob-left"></div>
-    <div class="glow-blob blob-right"></div>
-    <div class="section-label">Como funciona</div>
-    <h2 class="section-title">Do agendamento ao<br/><span class="gradient-text">pagamento em 4 passos</span></h2>
-    <div class="steps-container">
-      <div class="step-line"></div>
-      <div class="steps-grid">
-        <div class="step-card" data-aos>
-          <div class="step-num">01</div>
-          <div class="step-icon"><i class="fa-solid fa-mobile-screen"></i></div>
-          <h3>Cliente acessa</h3>
-          <p>Entra na sua página pública, escolhe o serviço, profissional e horário disponível com facilidade.</p>
-        </div>
-        <div class="step-card" data-aos>
-          <div class="step-num">02</div>
-          <div class="step-icon"><i class="fa-solid fa-database"></i></div>
-          <h3>Supabase salva</h3>
-          <p>Dados enviados ao Supabase instantaneamente. Banco de dados atualizado sem intervenção manual.</p>
-        </div>
-        <div class="step-card" data-aos>
-          <div class="step-num">03</div>
-          <div class="step-icon"><i class="fa-solid fa-gauge-high"></i></div>
-          <h3>Painel atualiza</h3>
-          <p>O painel administrativo reflete o novo agendamento em tempo real com status e detalhes completos.</p>
-        </div>
-        <div class="step-card" data-aos>
-          <div class="step-num">04</div>
-          <div class="step-icon"><i class="fa-brands fa-whatsapp"></i></div>
-          <h3>Notificação enviada</h3>
-          <p>Cliente e profissional recebem confirmação automática via WhatsApp com todos os detalhes.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PAINEL MOCKUP -->
-  <section class="section" id="painel">
-    <div class="section-label">Painel Administrativo</div>
-    <h2 class="section-title">Controle total na<br/><span class="gradient-text">palma da mão</span></h2>
-    <p class="section-sub">Interface premium com métricas, agenda, clientes e finanças — integrado ao Supabase em tempo real.</p>
-    <div class="full-dashboard" id="fullDashboard">
-      <!-- SIDEBAR -->
-      <div class="fd-sidebar">
-        <div class="fd-logo">Agenda<span>Pro</span></div>
-        <nav class="fd-nav">
-          <a href="#" class="fd-nav-item active" data-tab="dashboard"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
-          <a href="#" class="fd-nav-item" data-tab="agenda"><i class="fa-solid fa-calendar-days"></i><span>Agenda</span></a>
-          <a href="#" class="fd-nav-item" data-tab="clientes"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
-          <a href="#" class="fd-nav-item" data-tab="servicos"><i class="fa-solid fa-briefcase"></i><span>Serviços</span></a>
-          <a href="#" class="fd-nav-item" data-tab="profissionais"><i class="fa-solid fa-user-tie"></i><span>Profissionais</span></a>
-          <a href="#" class="fd-nav-item" data-tab="financeiro"><i class="fa-solid fa-chart-line"></i><span>Financeiro</span></a>
-          <a href="#" class="fd-nav-item" data-tab="mensagens"><i class="fa-solid fa-message"></i><span>Mensagens</span></a>
-        </nav>
-        <div class="fd-user">
-          <div class="fd-avatar">AP</div>
-          <div class="fd-user-info">
-            <span>Admin</span>
-            <span class="fd-user-role">Proprietário</span>
-          </div>
-        </div>
-      </div>
-      <!-- MAIN -->
-      <div class="fd-main">
-        <div class="fd-topbar">
-          <div class="fd-topbar-title">Dashboard</div>
-          <div class="fd-topbar-right">
-            <span class="fd-supabase-status"><span class="live-dot"></span> Supabase conectado</span>
-            <button class="fd-notif-btn"><i class="fa-solid fa-bell"></i><span class="notif-badge">3</span></button>
-          </div>
-        </div>
-        <!-- METRICS ROW -->
-        <div class="fd-metrics-row">
-          <div class="fd-metric-card gold">
-            <div class="fd-metric-icon"><i class="fa-solid fa-calendar-check"></i></div>
-            <div class="fd-metric-data">
-              <span class="fd-metric-val" id="fdAgend">24</span>
-              <span class="fd-metric-label">Agendamentos Hoje</span>
-            </div>
-          </div>
-          <div class="fd-metric-card blue">
-            <div class="fd-metric-icon"><i class="fa-solid fa-users"></i></div>
-            <div class="fd-metric-data">
-              <span class="fd-metric-val" id="fdClients">318</span>
-              <span class="fd-metric-label">Clientes Ativos</span>
-            </div>
-          </div>
-          <div class="fd-metric-card green">
-            <div class="fd-metric-icon"><i class="fa-solid fa-dollar-sign"></i></div>
-            <div class="fd-metric-data">
-              <span class="fd-metric-val" id="fdFat">R$8.740</span>
-              <span class="fd-metric-label">Faturamento Mês</span>
-            </div>
-          </div>
-          <div class="fd-metric-card red">
-            <div class="fd-metric-icon"><i class="fa-solid fa-xmark"></i></div>
-            <div class="fd-metric-data">
-              <span class="fd-metric-val" id="fdCancel">3</span>
-              <span class="fd-metric-label">Cancelamentos</span>
-            </div>
-          </div>
-        </div>
-        <!-- CONTENT ROW -->
-        <div class="fd-content-row">
-          <div class="fd-card fd-agenda-card">
-            <div class="fd-card-header">
-              <span>Próximos Agendamentos</span>
-              <button class="fd-card-btn">Ver todos</button>
-            </div>
-            <div class="fd-agenda-table" id="fdAgendaTable">
-              <div class="fda-row fda-header">
-                <span>Cliente</span><span>Serviço</span><span>Hora</span><span>Status</span>
-              </div>
-              <div class="fda-row">
-                <span class="fda-client"><div class="fda-av" style="background:linear-gradient(135deg,#a855f7,#ec4899)">AS</div>Arllison Santos</span>
-                <span>Designer</span><span>14:00</span><span class="dp-badge confirmed">Confirmado</span>
-              </div>
-              <div class="fda-row">
-                <span class="fda-client"><div class="fda-av" style="background:linear-gradient(135deg,#3b82f6,#06b6d4)">MC</div>Marina Costa</span>
-                <span>Consultoria</span><span>15:30</span><span class="dp-badge pending">Pendente</span>
-              </div>
-              <div class="fda-row">
-                <span class="fda-client"><div class="fda-av" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">LF</div>Lucas Ferreira</span>
-                <span>Corte</span><span>16:00</span><span class="dp-badge confirmed">Confirmado</span>
-              </div>
-              <div class="fda-row">
-                <span class="fda-client"><div class="fda-av" style="background:linear-gradient(135deg,#10b981,#06b6d4)">AB</div>Ana Beatriz</span>
-                <span>Manicure</span><span>17:00</span><span class="dp-badge cancelled">Cancelado</span>
-              </div>
-              <div class="fda-row">
-                <span class="fda-client"><div class="fda-av" style="background:linear-gradient(135deg,#f97316,#eab308)">JR</div>João Ricardo</span>
-                <span>Barba</span><span>17:30</span><span class="dp-badge confirmed">Confirmado</span>
-              </div>
-            </div>
-          </div>
-          <div class="fd-right-col">
-            <div class="fd-card fd-services-card">
-              <div class="fd-card-header"><span>Serviços Populares</span></div>
-              <div class="fd-service-list">
-                <div class="fd-service-item">
-                  <span>Designer</span>
-                  <div class="fd-prog-track"><div class="fd-prog-fill" style="width:87%"></div></div>
-                  <span class="fd-prog-val">87</span>
+        <div class="dashboard-grid">
+          <div class="dashboard-col">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Agendamentos de Hoje</div>
+                  <div class="card-subtitle" id="dashTodayDate"></div>
                 </div>
-                <div class="fd-service-item">
-                  <span>Corte</span>
-                  <div class="fd-prog-track"><div class="fd-prog-fill" style="width:64%"></div></div>
-                  <span class="fd-prog-val">64</span>
-                </div>
-                <div class="fd-service-item">
-                  <span>Manicure</span>
-                  <div class="fd-prog-track"><div class="fd-prog-fill" style="width:51%"></div></div>
-                  <span class="fd-prog-val">51</span>
-                </div>
-                <div class="fd-service-item">
-                  <span>Consultoria</span>
-                  <div class="fd-prog-track"><div class="fd-prog-fill" style="width:39%"></div></div>
-                  <span class="fd-prog-val">39</span>
+                <button class="btn btn-outline btn-sm" onclick="navigate('agenda')">Ver todos →</button>
+              </div>
+              <div class="card-body">
+                <div id="agendaTimeline">
+                  <div class="flex-center" style="padding:40px;">
+                    <div class="loading-spinner"></div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="fd-card fd-quick-card">
-              <div class="fd-card-header"><span>Ações Rápidas</span></div>
-              <div class="fd-quick-btns">
-                <button class="fd-quick-btn" onclick="App.openModal('novoAgendamento')"><i class="fa-solid fa-plus"></i> Novo Agendamento</button>
-                <button class="fd-quick-btn" onclick="App.openModal('novoCliente')"><i class="fa-solid fa-user-plus"></i> Novo Cliente</button>
-                <button class="fd-quick-btn" onclick="App.openModal('novoServico')"><i class="fa-solid fa-briefcase"></i> Novo Serviço</button>
+          </div>
+
+          <div class="dashboard-col">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Atividades Recentes</div>
+                  <div class="card-subtitle">Últimas ações no sistema</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="activity-list" id="activityList">
+                  <div class="flex-center" style="padding:30px;">
+                    <div class="loading-spinner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Próximos Agendamentos</div>
+              </div>
+              <div class="card-body">
+                <div id="proximosAgendamentos">
+                  <div class="flex-center" style="padding:30px;">
+                    <div class="loading-spinner"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- PLANOS -->
-  <section class="section section-dark" id="planos">
-    <div class="glow-blob blob-center"></div>
-    <div class="section-label">Planos</div>
-    <h2 class="section-title">Invista no seu<br/><span class="gradient-text">crescimento</span></h2>
-    <p class="section-sub">Sem taxas escondidas. Cancele quando quiser. Comece grátis.</p>
-    <div class="pricing-grid">
-      <div class="pricing-card" data-aos>
-        <div class="plan-name">Starter</div>
-        <div class="plan-price-wrap">
-          <sup>R$</sup><span class="plan-price">0</span><sub>/mês</sub>
-        </div>
-        <p class="plan-desc">Ideal para autônomos que estão começando.</p>
-        <ul class="plan-feats">
-          <li><i class="fa-solid fa-check"></i> 50 agendamentos/mês</li>
-          <li><i class="fa-solid fa-check"></i> 1 profissional</li>
-          <li><i class="fa-solid fa-check"></i> Página pública</li>
-          <li><i class="fa-solid fa-check"></i> Notificações por e-mail</li>
-          <li><i class="fa-solid fa-xmark muted"></i> WhatsApp</li>
-          <li><i class="fa-solid fa-xmark muted"></i> Controle financeiro</li>
-        </ul>
-        <button class="plan-btn plan-btn-outline">Começar grátis</button>
-      </div>
-      <div class="pricing-card pricing-featured" data-aos>
-        <div class="pricing-badge"><i class="fa-solid fa-star"></i> Mais popular</div>
-        <div class="plan-name">Pro</div>
-        <div class="plan-price-wrap">
-          <sup>R$</sup><span class="plan-price">97</span><sub>/mês</sub>
-        </div>
-        <p class="plan-desc">Para profissionais que querem controle total.</p>
-        <ul class="plan-feats">
-          <li><i class="fa-solid fa-check"></i> Agendamentos ilimitados</li>
-          <li><i class="fa-solid fa-check"></i> Até 5 profissionais</li>
-          <li><i class="fa-solid fa-check"></i> Integração WhatsApp</li>
-          <li><i class="fa-solid fa-check"></i> Controle financeiro</li>
-          <li><i class="fa-solid fa-check"></i> Relatórios detalhados</li>
-          <li><i class="fa-solid fa-check"></i> Suporte prioritário</li>
-        </ul>
-        <button class="plan-btn plan-btn-glow">Assinar Pro</button>
-      </div>
-      <div class="pricing-card" data-aos>
-        <div class="plan-name">Business</div>
-        <div class="plan-price-wrap">
-          <sup>R$</sup><span class="plan-price">247</span><sub>/mês</sub>
-        </div>
-        <p class="plan-desc">Para empresas com múltiplas unidades e equipes.</p>
-        <ul class="plan-feats">
-          <li><i class="fa-solid fa-check"></i> Tudo do Pro</li>
-          <li><i class="fa-solid fa-check"></i> Profissionais ilimitados</li>
-          <li><i class="fa-solid fa-check"></i> Multi-unidades</li>
-          <li><i class="fa-solid fa-check"></i> API personalizada</li>
-          <li><i class="fa-solid fa-check"></i> Gestor dedicado</li>
-          <li><i class="fa-solid fa-check"></i> SLA garantido 99.9%</li>
-        </ul>
-        <button class="plan-btn plan-btn-outline">Falar com vendas</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- DEPOIMENTOS -->
-  <section class="section" id="depoimentos">
-    <div class="section-label">Depoimentos</div>
-    <h2 class="section-title">Quem usa,<br/><span class="gradient-text">aprova</span></h2>
-    <div class="testimonials-grid">
-      <div class="testimonial-card" data-aos>
-        <div class="test-stars">★★★★★</div>
-        <p class="test-text">"O AgendaPro transformou meu salão. Antes perdia clientes por esquecer horários, agora tudo é automático. Meu faturamento cresceu 40% em 3 meses."</p>
-        <div class="test-author">
-          <div class="test-av" style="background:linear-gradient(135deg,#a855f7,#ec4899)">CM</div>
+      <!-- AGENDA PAGE -->
+      <div id="page-agenda" class="page">
+        <div class="page-header">
           <div>
-            <div class="test-name">Camila Moura</div>
-            <div class="test-role">Proprietária de Salão · São Paulo</div>
+            <div class="page-header-title">Agenda</div>
+            <div class="page-header-sub">Gerencie todos os agendamentos</div>
+          </div>
+          <button class="btn btn-purple" onclick="openModalNovoAgendamento()">+ Novo Agendamento</button>
+        </div>
+
+        <div class="filter-row">
+          <select class="filter-select" id="agendaFilterStatus" onchange="loadAgenda()">
+            <option value="">Todos os status</option>
+            <option value="pendente">Pendente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <input type="date" class="filter-input" id="agendaFilterData" onchange="loadAgenda()" />
+          <select class="filter-select" id="agendaFilterProfissional" onchange="loadAgenda()">
+            <option value="">Todos os profissionais</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="clearAgendaFilters()">Limpar filtros</button>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Serviço</th>
+                  <th>Profissional</th>
+                  <th>Data</th>
+                  <th>Hora</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="agendaTableBody">
+                <tr><td colspan="7" style="text-align:center; padding:40px;">
+                  <div class="loading-spinner"></div>
+                </td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-      <div class="testimonial-card" data-aos>
-        <div class="test-stars">★★★★★</div>
-        <p class="test-text">"A integração com WhatsApp é sensacional. Meus clientes recebem lembrete automático e as faltas caíram quase a zero. Vale cada centavo."</p>
-        <div class="test-author">
-          <div class="test-av" style="background:linear-gradient(135deg,#3b82f6,#06b6d4)">RL</div>
+
+      <!-- CALENDARIO PAGE -->
+      <div id="page-calendario" class="page">
+        <div class="page-header">
           <div>
-            <div class="test-name">Rafael Lima</div>
-            <div class="test-role">Personal Trainer · Rio de Janeiro</div>
+            <div class="page-header-title">Calendário</div>
+            <div class="page-header-sub">Visualização mensal de agendamentos</div>
+          </div>
+          <div class="flex gap-8">
+            <button class="btn btn-outline" onclick="calPrev()">‹ Anterior</button>
+            <button class="btn btn-outline" onclick="calToday()">Hoje</button>
+            <button class="btn btn-outline" onclick="calNext()">Próximo ›</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="calTitle"></div>
+          </div>
+          <div class="card-body">
+            <div class="calendar-wrap" style="background: transparent; padding: 0;">
+              <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card mt-24">
+          <div class="card-header">
+            <div class="card-title">Agendamentos do Dia Selecionado</div>
+          </div>
+          <div class="card-body">
+            <div id="calDayDetail">
+              <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <div class="empty-title">Selecione um dia</div>
+                <div class="empty-desc">Clique em um dia do calendário para ver os agendamentos</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="testimonial-card" data-aos>
-        <div class="test-stars">★★★★★</div>
-        <p class="test-text">"Gerencio 3 clínicas com o Business. O controle financeiro e os relatórios me deram clareza total. A sincronização em tempo real é incrível."</p>
-        <div class="test-author">
-          <div class="test-av" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">JA</div>
+
+      <!-- CLIENTES PAGE -->
+      <div id="page-clientes" class="page">
+        <div class="page-header">
           <div>
-            <div class="test-name">Juliana Andrade</div>
-            <div class="test-role">Diretora de Clínicas · Brasília</div>
+            <div class="page-header-title">Clientes</div>
+            <div class="page-header-sub" id="clientesCount">Carregando...</div>
+          </div>
+          <button class="btn btn-purple" onclick="openModalNovoCliente()">+ Novo Cliente</button>
+        </div>
+        <div class="filter-row">
+          <input type="text" class="filter-input" placeholder="Buscar cliente..." id="clienteSearch" oninput="filterClientes(this.value)" style="flex:1; max-width:300px;" />
+        </div>
+        <div id="clientesCards"></div>
+      </div>
+
+      <!-- SERVIÇOS PAGE -->
+      <div id="page-servicos" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-header-title">Serviços</div>
+            <div class="page-header-sub">Gerencie os serviços oferecidos</div>
+          </div>
+          <button class="btn btn-purple" onclick="openModalNovoServico()">+ Novo Serviço</button>
+        </div>
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Serviço</th>
+                  <th>Duração</th>
+                  <th>Categoria</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="servicosTableBody">
+                <tr><td colspan="4" style="text-align:center; padding:40px;">
+                  <div class="loading-spinner"></div>
+                </td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- CTA FINAL -->
-  <section class="cta-final">
-    <div class="glow-blob blob-center"></div>
-    <h2 class="animate-fade-up">Pronto para transformar<br/><span class="gradient-text">sua agenda?</span></h2>
-    <p class="animate-fade-up">Comece gratuitamente hoje. Sem cartão de crédito, sem compromisso.</p>
-    <div class="cta-btns animate-fade-up">
-      <button class="btn-primary glow-btn" onclick="App.openModal('cadastro')">
-        <i class="fa-solid fa-rocket"></i> Criar conta grátis
-      </button>
-      <button class="btn-ghost" onclick="App.openModal('login')">
-        <i class="fa-solid fa-arrow-right-to-bracket"></i> Já tenho conta
-      </button>
-    </div>
-  </section>
+      <!-- PROFISSIONAIS PAGE -->
+      <div id="page-profissionais" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-header-title">Profissionais</div>
+            <div class="page-header-sub">Gerencie sua equipe</div>
+          </div>
+          <button class="btn btn-purple" onclick="openModalNovoProfissional()">+ Novo Profissional</button>
+        </div>
+        <div id="profissionaisCards"></div>
+      </div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <div class="footer-logo">Agenda<span>Pro</span></div>
-        <p>A plataforma premium de agendamentos para profissionais e empresas que levam o negócio a sério.</p>
-        <div class="footer-social">
-          <a href="#"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#"><i class="fa-brands fa-linkedin"></i></a>
-          <a href="#"><i class="fa-brands fa-youtube"></i></a>
+      <!-- FINANCEIRO PAGE -->
+      <div id="page-financeiro" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-header-title">Financeiro</div>
+            <div class="page-header-sub">Controle de receitas e despesas</div>
+          </div>
+          <div class="flex gap-8">
+            <select class="filter-select" id="finMes" onchange="loadFinanceiro()">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+              <option value="3">Março</option><option value="4">Abril</option>
+              <option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option>
+              <option value="9">Setembro</option><option value="10">Outubro</option>
+              <option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select class="filter-select" id="finAno" onchange="loadFinanceiro()">
+              <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="finance-header">
+          <div class="finance-card">
+            <div class="finance-value receita" id="finReceita">R$ 0,00</div>
+            <div class="finance-label">💰 Receita Total</div>
+          </div>
+          <div class="finance-card">
+            <div class="finance-value despesa" id="finDespesa">R$ 0,00</div>
+            <div class="finance-label">📉 Despesas</div>
+          </div>
+          <div class="finance-card">
+            <div class="finance-value lucro" id="finLucro">R$ 0,00</div>
+            <div class="finance-label">✨ Lucro Líquido</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Transações</div>
+            <button class="btn btn-purple btn-sm" onclick="openModalTransacao()">+ Lançamento</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Tipo</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="finTableBody">
+                <tr><td colspan="5" style="text-align:center; padding:40px;">
+                  <div class="loading-spinner"></div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-      <div class="footer-links-col">
-        <h4>Produto</h4>
-        <a href="#features">Funcionalidades</a>
-        <a href="#planos">Planos</a>
-        <a href="#painel">Painel</a>
-        <a href="#">API Docs</a>
+
+      <!-- MENSAGENS PAGE -->
+      <div id="page-mensagens" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-header-title">Mensagens</div>
+            <div class="page-header-sub">Comunicação com clientes</div>
+          </div>
+          <button class="btn btn-whatsapp btn-sm" onclick="openWhatsApp()">
+            <span>📱</span> WhatsApp Business
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Mensagem</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="mensagensTableBody">
+                <tr><td colspan="5" style="text-align:center; padding:40px;">
+                  <div class="loading-spinner"></div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="footer-links-col">
-        <h4>Empresa</h4>
-        <a href="#">Sobre nós</a>
-        <a href="#">Blog</a>
-        <a href="#">Carreiras</a>
-        <a href="#">Contato</a>
+
+    </div><!-- end page-content -->
+  </div><!-- end mainContent -->
+</div><!-- end appLayout -->
+
+<!-- ============================
+     MODALS
+============================= -->
+
+<!-- MODAL: Novo Agendamento -->
+<div class="modal-overlay" id="modalNovoAgendamento">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Novo Agendamento</div>
+      <button class="modal-close" onclick="closeModal('modalNovoAgendamento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-row">
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <select id="agCliente" class="form-input">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Serviço</label>
+          <select id="agServico" class="form-input">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
       </div>
-      <div class="footer-links-col">
-        <h4>Legal</h4>
-        <a href="#">Privacidade</a>
-        <a href="#">Termos de Uso</a>
-        <a href="#">Cookies</a>
-        <a href="#">LGPD</a>
+      <div class="input-row mt-16">
+        <div class="form-group">
+          <label class="form-label">Profissional</label>
+          <select id="agProfissional" class="form-input">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="agStatus" class="form-input">
+            <option value="pendente">Pendente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-row mt-16">
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input id="agData" type="date" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora</label>
+          <input id="agHora" type="time" class="form-input" />
+        </div>
+      </div>
+      <div class="form-group mt-16">
+        <label class="form-label">Observações</label>
+        <textarea id="agObservacoes" class="form-textarea" placeholder="Observações do agendamento..."></textarea>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span>© 2026 AgendaPro. Todos os direitos reservados.</span>
-      <span>Construído com <i class="fa-solid fa-heart" style="color:#f43f5e"></i> e Supabase</span>
-    </div>
-  </footer>
-
-  <!-- MODAL OVERLAY -->
-  <div class="modal-overlay" id="modalOverlay" onclick="App.closeModal()"></div>
-
-  <!-- MODAL LOGIN -->
-  <div class="modal" id="modalLogin">
-    <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    <div class="modal-logo">Agenda<span>Pro</span></div>
-    <h2>Bem-vindo de volta</h2>
-    <p class="modal-sub">Entre na sua conta</p>
-    <div class="modal-form">
-      <div class="form-group">
-        <label>E-mail</label>
-        <input type="email" id="loginEmail" placeholder="seu@email.com"/>
-      </div>
-      <div class="form-group">
-        <label>Senha</label>
-        <input type="password" id="loginPassword" placeholder="••••••••"/>
-      </div>
-      <div id="loginError" class="form-error"></div>
-      <button class="btn-primary btn-full" id="btnLoginSubmit" onclick="App.login()">
-        <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar
-      </button>
-      <p class="modal-switch">Não tem conta? <a href="#" onclick="App.switchModal('cadastro')">Criar agora</a></p>
-    </div>
-  </div>
-
-  <!-- MODAL CADASTRO -->
-  <div class="modal" id="modalCadastro">
-    <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    <div class="modal-logo">Agenda<span>Pro</span></div>
-    <h2>Criar conta grátis</h2>
-    <p class="modal-sub">Comece em menos de 1 minuto</p>
-    <div class="modal-form">
-      <div class="form-group">
-        <label>Nome completo</label>
-        <input type="text" id="cadNome" placeholder="Seu nome"/>
-      </div>
-      <div class="form-group">
-        <label>E-mail</label>
-        <input type="email" id="cadEmail" placeholder="seu@email.com"/>
-      </div>
-      <div class="form-group">
-        <label>Senha</label>
-        <input type="password" id="cadSenha" placeholder="Mínimo 6 caracteres"/>
-      </div>
-      <div id="cadError" class="form-error"></div>
-      <button class="btn-primary btn-full" id="btnCadSubmit" onclick="App.cadastro()">
-        <i class="fa-solid fa-rocket"></i> Criar conta grátis
-      </button>
-      <p class="modal-switch">Já tem conta? <a href="#" onclick="App.switchModal('login')">Entrar</a></p>
-    </div>
-  </div>
-
-  <!-- MODAL NOVO AGENDAMENTO -->
-  <div class="modal" id="modalNovoAgendamento">
-    <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    <h2>Novo Agendamento</h2>
-    <div class="modal-form">
-      <div class="form-group">
-        <label>Cliente</label>
-        <input type="text" id="agCliente" placeholder="Nome do cliente"/>
-      </div>
-      <div class="form-group">
-        <label>Serviço</label>
-        <select id="agServico">
-          <option value="">Selecione o serviço</option>
-          <option>Designer</option>
-          <option>Corte de Cabelo</option>
-          <option>Manicure</option>
-          <option>Consultoria</option>
-          <option>Barba</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Data e Hora</label>
-        <input type="datetime-local" id="agDataHora"/>
-      </div>
-      <div class="form-group">
-        <label>Observações</label>
-        <textarea id="agObs" placeholder="Observações opcionais..." rows="3"></textarea>
-      </div>
-      <div id="agError" class="form-error"></div>
-      <button class="btn-primary btn-full" onclick="App.salvarAgendamento()">
-        <i class="fa-solid fa-calendar-plus"></i> Salvar Agendamento
-      </button>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalNovoAgendamento')">Cancelar</button>
+      <button class="btn btn-purple" onclick="salvarAgendamento()">Salvar Agendamento</button>
     </div>
   </div>
+</div>
 
-  <!-- MODAL NOVO CLIENTE -->
-  <div class="modal" id="modalNovoCliente">
-    <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    <h2>Novo Cliente</h2>
-    <div class="modal-form">
-      <div class="form-group">
-        <label>Nome completo</label>
-        <input type="text" id="cliNome" placeholder="Nome do cliente"/>
+<!-- MODAL: Novo Cliente -->
+<div class="modal-overlay" id="modalNovoCliente">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalClienteTitle">Novo Cliente</div>
+      <button class="modal-close" onclick="closeModal('modalNovoCliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="clienteId" />
+      <div class="input-row">
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input id="clienteNome" type="text" class="form-input" placeholder="Nome do cliente" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input id="clienteTelefone" type="tel" class="form-input" placeholder="(00) 00000-0000" />
+        </div>
       </div>
-      <div class="form-group">
-        <label>Telefone / WhatsApp</label>
-        <input type="text" id="cliTel" placeholder="(00) 00000-0000"/>
+      <div class="form-group mt-16">
+        <label class="form-label">E-mail</label>
+        <input id="clienteEmail" type="email" class="form-input" placeholder="email@cliente.com" />
       </div>
-      <div class="form-group">
-        <label>E-mail</label>
-        <input type="email" id="cliEmail" placeholder="email@cliente.com"/>
+      <div class="form-group mt-16">
+        <label class="form-label">Observações</label>
+        <textarea id="clienteObs" class="form-textarea" placeholder="Observações sobre o cliente..."></textarea>
       </div>
-      <div id="cliError" class="form-error"></div>
-      <button class="btn-primary btn-full" onclick="App.salvarCliente()">
-        <i class="fa-solid fa-user-plus"></i> Salvar Cliente
-      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalNovoCliente')">Cancelar</button>
+      <button class="btn btn-purple" onclick="salvarCliente()">Salvar Cliente</button>
     </div>
   </div>
+</div>
 
-  <!-- MODAL NOVO SERVIÇO -->
-  <div class="modal" id="modalNovoServico">
-    <button class="modal-close" onclick="App.closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    <h2>Novo Serviço</h2>
-    <div class="modal-form">
+<!-- MODAL: Novo Serviço -->
+<div class="modal-overlay" id="modalNovoServico">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalServicoTitle">Novo Serviço</div>
+      <button class="modal-close" onclick="closeModal('modalNovoServico')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="servicoId" />
       <div class="form-group">
-        <label>Nome do serviço</label>
-        <input type="text" id="svcNome" placeholder="Ex: Corte de Cabelo"/>
+        <label class="form-label">Nome do serviço</label>
+        <input id="servicoNome" type="text" class="form-input" placeholder="Ex: Corte de cabelo" />
       </div>
-      <div class="form-group">
-        <label>Duração (minutos)</label>
-        <input type="number" id="svcDuracao" placeholder="Ex: 60"/>
+      <div class="input-row mt-16">
+        <div class="form-group">
+          <label class="form-label">Duração (minutos)</label>
+          <input id="servicoDuracao" type="number" class="form-input" placeholder="60" min="5" step="5" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <input id="servicoCategoria" type="text" class="form-input" placeholder="Ex: Cabelo" />
+        </div>
       </div>
-      <div class="form-group">
-        <label>Valor (R$)</label>
-        <input type="number" id="svcValor" placeholder="Ex: 80"/>
+      <div class="form-group mt-16">
+        <label class="form-label">Descrição</label>
+        <textarea id="servicoDesc" class="form-textarea" placeholder="Descreva o serviço..."></textarea>
       </div>
-      <div id="svcError" class="form-error"></div>
-      <button class="btn-primary btn-full" onclick="App.salvarServico()">
-        <i class="fa-solid fa-briefcase"></i> Salvar Serviço
-      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalNovoServico')">Cancelar</button>
+      <button class="btn btn-purple" onclick="salvarServico()">Salvar Serviço</button>
     </div>
   </div>
+</div>
 
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
+<!-- MODAL: Novo Profissional -->
+<div class="modal-overlay" id="modalNovoProfissional">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalProfissionalTitle">Novo Profissional</div>
+      <button class="modal-close" onclick="closeModal('modalNovoProfissional')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="profissionalId" />
+      <div class="input-row">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input id="profissionalNome" type="text" class="form-input" placeholder="Nome" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Especialidade</label>
+          <input id="profissionalEspecialidade" type="text" class="form-input" placeholder="Ex: Cabeleireiro" />
+        </div>
+      </div>
+      <div class="form-group mt-16">
+        <label class="form-label">Telefone</label>
+        <input id="profissionalTelefone" type="tel" class="form-input" placeholder="(00) 00000-0000" />
+      </div>
+      <div class="form-group mt-16">
+        <label class="form-label">E-mail</label>
+        <input id="profissionalEmail" type="email" class="form-input" placeholder="email@profissional.com" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalNovoProfissional')">Cancelar</button>
+      <button class="btn btn-purple" onclick="salvarProfissional()">Salvar</button>
+    </div>
+  </div>
+</div>
 
-  <script src="app.js"></script>
+<!-- MODAL: Transação Financeira -->
+<div class="modal-overlay" id="modalTransacao">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Novo Lançamento</div>
+      <button class="modal-close" onclick="closeModal('modalTransacao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <input id="transDesc" type="text" class="form-input" placeholder="Descrição do lançamento" />
+      </div>
+      <div class="input-row mt-16">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select id="transTipo" class="form-input">
+            <option value="receita">Receita</option>
+            <option value="despesa">Despesa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor (R$)</label>
+          <input id="transValor" type="number" class="form-input" placeholder="0,00" step="0.01" min="0" />
+        </div>
+      </div>
+      <div class="form-group mt-16">
+        <label class="form-label">Data</label>
+        <input id="transData" type="date" class="form-input" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalTransacao')">Cancelar</button>
+      <button class="btn btn-purple" onclick="salvarTransacao()">Salvar Lançamento</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
