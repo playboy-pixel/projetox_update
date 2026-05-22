@@ -1,1357 +1,2005 @@
-// ============================================================
-// AGENDAPRO - APP.JS
-// Supabase Backend + Full Premium Dashboard Logic
-// ============================================================
+/* ═══════════════════════════════════════════════
+   AGENDAPRO — app.js CORRIGIDO COMPLETO
+═══════════════════════════════════════════════ */
 
-// ============================================================
-// SUPABASE CONFIG
-// ============================================================
-const SUPABASE_URL = 'https://wyjrjioipqfltdyupfna.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PkDkt5S-_rdrT0HhANoPAw_ZWluV2_H';
-
-const sb = {
-  headers: {
-    'Content-Type': 'application/json',
-    'apikey': SUPABASE_KEY,
-    'Authorization': `Bearer ${SUPABASE_KEY}`
-  },
-
-  async get(table, params = '') {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${params}`, {
-        headers: { ...this.headers, 'Prefer': 'return=representation' }
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return await res.json();
-    } catch (e) { console.error('GET error:', e); return []; }
-  },
-
-  async post(table, data) {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-        method: 'POST',
-        headers: { ...this.headers, 'Prefer': 'return=representation' },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return await res.json();
-    } catch (e) { console.error('POST error:', e); return null; }
-  },
-
-  async patch(table, id, data) {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-        method: 'PATCH',
-        headers: { ...this.headers, 'Prefer': 'return=representation' },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return await res.json();
-    } catch (e) { console.error('PATCH error:', e); return null; }
-  },
-
-  async delete(table, id) {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-        method: 'DELETE',
-        headers: this.headers
-      });
-      return res.ok;
-    } catch (e) { console.error('DELETE error:', e); return false; }
-  },
-
-  async auth(email, password) {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
-        body: JSON.stringify({ email, password })
-      });
-      return await res.json();
-    } catch (e) { console.error('AUTH error:', e); return null; }
-  }
+// ── STATE ──
+let state = {
+  user: null, empresa: null, perfil: null,
+  categorias: [], clientes: [], servicos: [],
+  profissionais: [], agendamentos: [], pagamentos: [],
+  pubEmpresa: null, pubServico: null, pubProfissional: null
 };
 
-// ============================================================
-// APP STATE
-// ============================================================
-const STATE = {
-  user: null,
-  clientes: [],
-  servicos: [],
-  profissionais: [],
-  agendamentos: [],
-  financeiro: [],
-  mensagens: [],
-  calDate: new Date(),
-  pubCalDate: new Date(),
-  pubSelectedDate: null,
-  pubSelectedTime: null,
-  pubSelectedServico: null,
-  pubSelectedProfissional: null,
-  editingId: null
-};
+let _agendaFilter = 'todos';
+let _confirmCb = null;
+let _editSaveCb = null;
+let _recusaId = null;
+let _recusaMotivo = null;
+let _reagendarId = null;
+let _openMenu = null;
+let _openMenuBtn = null;
+let autoSyncTimer = null;
+let lastIds = new Set();
+let realtimeChannel = null;
 
-// ============================================================
-// INIT
-// ============================================================
-window.addEventListener('DOMContentLoaded', () => {
-  checkSession();
-  renderMobileBtn();
-  document.getElementById('dashTodayDate').textContent = formatDateBR(new Date());
-  setDefaultFinMes();
+// ── UTILS ──
+function $(id) { return document.getElementById(id); }
+
+function setText(id, v) {
+  const el = $(id);
+  if (el) el.textContent = v;
+}
+
+function money(v) {
+  return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function slugify(s) {
+  return (s || '').toString()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '').substring(0, 60);
+}
+
+function hojeISO() { return new Date().toISOString().slice(0, 10); }
+function mesPrefixo() { return new Date().toISOString().slice(0, 7); }
+function publicUrl(slug) { return location.origin + location.pathname + '#agendar/' + slug; }
+function initial(name) { return (name || '?').trim().substring(0, 1).toUpperCase(); }
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y, m, dd] = d.split('-');
+  return `${dd}/${m}/${y}`;
+}
+
+function buildWaLink(tel, msg) {
+  const n = (tel || '').replace(/\D/g, '');
+  if (!n) return null;
+  const f = n.startsWith('55') ? n : '55' + n;
+  return 'https://wa.me/' + f + '?text=' + encodeURIComponent(msg);
+}
+
+function normStatus(s) {
+  const r = (s || 'pendente').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (r === 'confirmado' || r === 'confirmada') return 'Confirmado';
+  if (r === 'pendente') return 'Pendente';
+  if (r === 'concluido' || r === 'concluida') return 'Concluído';
+  if (r === 'recusado' || r === 'recusada' || r === 'cancelado') return 'Recusado';
+  if (r === 'reagendado' || r === 'reagendada') return 'Reagendado';
+  if (r === 'excluido' || r === 'excluida') return 'Excluído';
+  return s || 'Pendente';
+}
+
+function badgeClass(s) {
+  const n = normStatus(s);
+  const m = {
+    Confirmado: 'badge-green', Pendente: 'badge-yellow',
+    'Concluído': 'badge-blue', Recusado: 'badge-red',
+    Reagendado: 'badge-purple', 'Excluído': 'badge-gray'
+  };
+  return m[n] || 'badge-gray';
+}
+
+function isFinanceiro(a) {
+  if (normStatus(a.status) === 'Concluído') return true;
+  if (normStatus(a.status) === 'Excluído' && a.financeiro_status === 'Concluído') return true;
+  return false;
+}
+
+function isAtivoCliente(c) {
+  const st = (c?.status || '').toLowerCase().trim();
+  if (st === 'inativo' || st === 'excluido' || st === 'excluído') return false;
+  if (c?.ativo === false) return false;
+  return true;
+}
+
+function podeTerAcoes(a) {
+  return !['Excluído', 'Recusado', 'Concluído'].includes(normStatus(a.status));
+}
+
+// ── TOAST / NOTIF ──
+function toast(msg, type = 'info') {
+  const typeMap = { ok: 'ok', err: 'err', warn: 'info', info: 'info' };
+  showNotif(msg, '', typeMap[type] || 'info');
+}
+
+function showNotif(title, msg = '', type = 'info', duration = 5000) {
+  const stack = $('notifStack');
+  if (!stack) return;
+  const item = document.createElement('div');
+  item.className = 'notif-item';
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+  const icons = { new: '📅', ok: '✅', err: '⚠️', info: '💬' };
+  item.innerHTML = `
+    <div class="notif-icon ${type}">${icons[type] || '🔔'}</div>
+    <div class="notif-body">
+      <div class="notif-title">${title}</div>
+      ${msg ? `<div class="notif-msg">${msg}</div>` : ''}
+      <div class="notif-time">${t}</div>
+    </div>
+    <button class="notif-close" onclick="this.parentElement.remove()">✕</button>
+  `;
+  stack.prepend(item);
+  while (stack.children.length > 4) stack.lastChild.remove();
+  setTimeout(() => {
+    item.classList.add('out');
+    setTimeout(() => { if (item.parentElement) item.remove(); }, 450);
+  }, duration);
+  const dot = $('notifDot');
+  if (dot) dot.classList.add('on');
+}
+
+function clearNotifDot() {
+  const dot = $('notifDot');
+  if (dot) dot.classList.remove('on');
+}
+
+// ── SCROLL NAV ──
+window.addEventListener('scroll', () => {
+  const nav = $('landNav');
+  if (nav) nav.classList.toggle('scrolled', scrollY > 40);
 });
 
-function setDefaultFinMes() {
-  const now = new Date();
-  const mesEl = document.getElementById('finMes');
-  if (mesEl) mesEl.value = now.getMonth() + 1;
-}
+// ── HASH ROUTING ──
+window.addEventListener('hashchange', () => {
+  const slug = getPublicSlug();
+  if (slug) loadPublic(slug);
+});
 
-function checkSession() {
-  const token = localStorage.getItem('agendapro_token');
-  const user = localStorage.getItem('agendapro_user');
-  if (token && user) {
-    STATE.user = JSON.parse(user);
-    showApp();
+// ── FECHAR MENUS AO CLICAR FORA ──
+// FIX: só fecha se o clique NÃO foi dentro do dropdown aberto
+document.addEventListener('click', function(e) {
+  if (_openMenu) {
+    // Se clicou no próprio botão que abriu — o handler do btn já trata
+    if (_openMenuBtn && _openMenuBtn.contains(e.target)) return;
+    // Se clicou dentro do dropdown — não fecha
+    if (_openMenu.contains(e.target)) return;
+    closeAllMenus();
   }
-}
+});
 
-function renderMobileBtn() {
-  const btn = document.getElementById('mobileMenuBtn');
-  if (window.innerWidth <= 768) btn.style.display = 'flex';
-  window.addEventListener('resize', () => {
-    btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
-  });
-}
+// Fecha menus ao rolar (evita dropdown desalinhado)
+// PATCH: scroll não fecha menu automaticamente
 
-// ============================================================
-// AUTH
-// ============================================================
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtnText');
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', init);
 
-  if (!email || !pass) { showToast('Preencha todos os campos', 'error'); return; }
+async function init() {
+  await loadCategorias();
 
-  btn.textContent = 'Entrando...';
-
-  const result = await sb.auth(email, pass);
-
-  if (result && result.access_token) {
-    localStorage.setItem('agendapro_token', result.access_token);
-    localStorage.setItem('agendapro_user', JSON.stringify(result.user));
-    STATE.user = result.user;
-    showToast('Bem-vindo ao AgendaPro! 🎉', 'success');
-    showApp();
-  } else {
-    showToast('E-mail ou senha inválidos', 'error');
-    btn.textContent = 'Entrar no Painel';
-  }
-}
-
-function doLogout() {
-  localStorage.removeItem('agendapro_token');
-  localStorage.removeItem('agendapro_user');
-  STATE.user = null;
-  document.getElementById('appLayout').classList.add('hidden');
-  document.getElementById('loginPage').classList.remove('hidden');
-  showToast('Sessão encerrada', 'info');
-}
-
-function showApp() {
-  document.getElementById('loginPage').classList.add('hidden');
-  document.getElementById('publicPage').classList.add('hidden');
-  document.getElementById('appLayout').classList.remove('hidden');
-
-  const name = STATE.user?.email?.split('@')[0] || 'Admin';
-  document.getElementById('sidebarUserName').textContent = name;
-  document.getElementById('sidebarAvatarInitial').textContent = name[0].toUpperCase();
-
-  loadAllData();
-  navigate('dashboard');
-}
-
-function backToLogin() {
-  document.getElementById('publicPage').classList.add('hidden');
-  document.getElementById('loginPage').classList.remove('hidden');
-}
-
-// ============================================================
-// LOAD ALL DATA
-// ============================================================
-async function loadAllData() {
-  await Promise.all([
-    loadClientes(),
-    loadServicos(),
-    loadProfissionais(),
-    loadAgenda(),
-    loadMensagens()
-  ]);
-  renderDashboard();
-  populateSelects();
-}
-
-async function loadClientes() {
-  STATE.clientes = await sb.get('clientes', '?order=nome.asc');
-  renderClientes();
-  document.getElementById('clientesCount').textContent = `${STATE.clientes.length} clientes cadastrados`;
-}
-
-async function loadServicos() {
-  STATE.servicos = await sb.get('servicos', '?order=nome.asc');
-  renderServicos();
-  renderPublicServicos();
-}
-
-async function loadProfissionais() {
-  STATE.profissionais = await sb.get('profissionais', '?order=nome.asc');
-  renderProfissionais();
-  renderPublicProfissionais();
-}
-
-async function loadAgenda() {
-  let params = '?order=data.asc,hora.asc';
-  const status = document.getElementById('agendaFilterStatus')?.value;
-  const data = document.getElementById('agendaFilterData')?.value;
-  const prof = document.getElementById('agendaFilterProfissional')?.value;
-
-  const filters = [];
-  if (status) filters.push(`status=eq.${status}`);
-  if (data) filters.push(`data=eq.${data}`);
-  if (prof) filters.push(`profissional_id=eq.${prof}`);
-  if (filters.length) params += '&' + filters.join('&');
-
-  STATE.agendamentos = await sb.get('agendamentos', params);
-  renderAgendaTable();
-  renderDashboardTimeline();
-  updateBadges();
-}
-
-async function loadMensagens() {
-  STATE.mensagens = await sb.get('mensagens', '?order=created_at.desc');
-  renderMensagens();
-  updateMsgBadge();
-}
-
-async function loadFinanceiro() {
-  const mes = document.getElementById('finMes')?.value || (new Date().getMonth() + 1);
-  const ano = document.getElementById('finAno')?.value || new Date().getFullYear();
-  STATE.financeiro = await sb.get('financeiro', `?order=data.desc`);
-  const filtered = STATE.financeiro.filter(t => {
-    const d = new Date(t.data);
-    return d.getMonth() + 1 == mes && d.getFullYear() == ano;
-  });
-  renderFinanceiro(filtered);
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function navigate(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-  const el = document.getElementById(`page-${page}`);
-  if (el) el.classList.add('active');
-
-  const navEl = document.getElementById(`nav-${page}`);
-  if (navEl) navEl.classList.add('active');
-
-  const titles = {
-    dashboard: ['Dashboard', 'Visão geral do sistema'],
-    agenda: ['Agenda', 'Gerencie agendamentos'],
-    calendario: ['Calendário', 'Visualização mensal'],
-    clientes: ['Clientes', 'Gerencie sua base de clientes'],
-    servicos: ['Serviços', 'Serviços oferecidos'],
-    profissionais: ['Profissionais', 'Sua equipe'],
-    financeiro: ['Financeiro', 'Controle financeiro'],
-    mensagens: ['Mensagens', 'Comunicação com clientes'],
-  };
-
-  const [title, subtitle] = titles[page] || ['AgendaPro', ''];
-  document.getElementById('topbarTitle').textContent = title;
-  document.getElementById('topbarSubtitle').textContent = subtitle;
-
-  closeMobileSidebar();
-
-  if (page === 'agenda') loadAgenda();
-  if (page === 'calendario') renderCalendario();
-  if (page === 'financeiro') loadFinanceiro();
-  if (page === 'clientes') loadClientes();
-  if (page === 'servicos') loadServicos();
-  if (page === 'profissionais') loadProfissionais();
-  if (page === 'mensagens') loadMensagens();
-}
-
-// ============================================================
-// MOBILE SIDEBAR
-// ============================================================
-function openMobileSidebar() {
-  document.getElementById('sidebar').classList.add('mobile-open');
-  document.getElementById('sidebarOverlay').classList.add('show');
-}
-
-function closeMobileSidebar() {
-  document.getElementById('sidebar').classList.remove('mobile-open');
-  document.getElementById('sidebarOverlay').classList.remove('show');
-}
-
-// ============================================================
-// DASHBOARD
-// ============================================================
-function renderDashboard() {
-  const hoje = new Date().toISOString().split('T')[0];
-  const agHoje = STATE.agendamentos.filter(a => a.data === hoje);
-  const pendentes = agHoje.filter(a => a.status === 'pendente');
-
-  document.getElementById('statAgendamentos').textContent = agHoje.length;
-  document.getElementById('statClientes').textContent = STATE.clientes.length;
-  document.getElementById('statPendentes').textContent = pendentes.length;
-
-  const now = new Date();
-  const mes = now.getMonth() + 1;
-  const ano = now.getFullYear();
-  const transacoesMes = STATE.financeiro.filter(t => {
-    const d = new Date(t.data);
-    return d.getMonth() + 1 === mes && d.getFullYear() === ano;
-  });
-  const receita = transacoesMes.filter(t => t.tipo === 'receita').reduce((s, t) => s + Number(t.valor), 0);
-  document.getElementById('statReceita').textContent = formatMoney(receita);
-
-  renderDashboardTimeline();
-  renderProximosAgendamentos();
-  renderActivity();
-}
-
-function renderDashboardTimeline() {
-  const container = document.getElementById('agendaTimeline');
-  const hoje = new Date().toISOString().split('T')[0];
-  const agHoje = STATE.agendamentos.filter(a => a.data === hoje);
-
-  if (!agHoje.length) {
-    container.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📅</div>
-      <div class="empty-title">Nenhum agendamento hoje</div>
-      <div class="empty-desc">Sua agenda está livre por hoje</div>
-    </div>`;
+  const slug = getPublicSlug();
+  if (slug) {
+    await loadPublic(slug);
     return;
   }
 
-  container.innerHTML = agHoje.map(ag => {
-    const cliente = STATE.clientes.find(c => c.id == ag.cliente_id);
-    const servico = STATE.servicos.find(s => s.id == ag.servico_id);
-    return `<div class="timeline-item" onclick="openEditAgendamento(${ag.id})">
-      <div class="timeline-time">${ag.hora || '--:--'}</div>
-      <div class="timeline-dot ${ag.status || 'pendente'}"></div>
-      <div class="timeline-info">
-        <div class="timeline-client">${cliente?.nome || ag.nome_cliente || 'Cliente'}</div>
-        <div class="timeline-service">${servico?.nome || ag.nome_servico || 'Serviço'}</div>
-      </div>
-      <span class="timeline-status status-${ag.status || 'pendente'}">${capitalize(ag.status || 'pendente')}</span>
-    </div>`;
-  }).join('');
-}
-
-function renderProximosAgendamentos() {
-  const container = document.getElementById('proximosAgendamentos');
-  const hoje = new Date().toISOString().split('T')[0];
-  const proximos = STATE.agendamentos
-    .filter(a => a.data > hoje)
-    .slice(0, 5);
-
-  if (!proximos.length) {
-    container.innerHTML = `<div class="empty-state" style="padding:30px 0;">
-      <div class="empty-icon">🗓️</div>
-      <div class="empty-title">Sem próximos agendamentos</div>
-    </div>`;
-    return;
-  }
-
-  container.innerHTML = proximos.map(ag => {
-    const cliente = STATE.clientes.find(c => c.id == ag.cliente_id);
-    return `<div class="timeline-item" style="margin-bottom:8px;" onclick="openEditAgendamento(${ag.id})">
-      <div class="timeline-time" style="min-width:70px;">${formatDateShort(ag.data)}</div>
-      <div class="timeline-dot ${ag.status || 'pendente'}"></div>
-      <div class="timeline-info">
-        <div class="timeline-client">${cliente?.nome || ag.nome_cliente || 'Cliente'}</div>
-        <div class="timeline-service">${ag.hora || ''}</div>
-      </div>
-      <span class="timeline-status status-${ag.status || 'pendente'}">${capitalize(ag.status || 'pendente')}</span>
-    </div>`;
-  }).join('');
-}
-
-function renderActivity() {
-  const container = document.getElementById('activityList');
-  const recent = STATE.agendamentos.slice(0, 6);
-  if (!recent.length) {
-    container.innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📋</div><div class="empty-title">Nenhuma atividade</div></div>';
-    return;
-  }
-  container.innerHTML = recent.map(ag => {
-    const cliente = STATE.clientes.find(c => c.id == ag.cliente_id);
-    const icon = ag.status === 'confirmado' ? '✅' : ag.status === 'cancelado' ? '❌' : '📅';
-    const cls = ag.status === 'confirmado' ? 'green' : ag.status === 'cancelado' ? 'red' : 'purple';
-    return `<div class="activity-item">
-      <div class="activity-icon ${cls}">${icon}</div>
-      <div>
-        <div class="activity-text">Agendamento ${ag.status || 'criado'} — ${cliente?.nome || 'Cliente'}</div>
-        <div class="activity-time">${formatDateBR(new Date(ag.data || Date.now()))} ${ag.hora || ''}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function updateBadges() {
-  const pendentes = STATE.agendamentos.filter(a => a.status === 'pendente').length;
-  document.getElementById('agendaBadge').textContent = pendentes;
-}
-
-function updateMsgBadge() {
-  const naoLidas = STATE.mensagens.filter(m => !m.lida).length;
-  document.getElementById('msgBadge').textContent = naoLidas;
-  document.getElementById('msgDot').style.display = naoLidas > 0 ? 'block' : 'none';
-}
-
-// ============================================================
-// AGENDA TABLE
-// ============================================================
-function renderAgendaTable() {
-  const tbody = document.getElementById('agendaTableBody');
-  if (!STATE.agendamentos.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
-      <div class="empty-icon">📅</div>
-      <div class="empty-title">Nenhum agendamento encontrado</div>
-    </div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = STATE.agendamentos.map(ag => {
-    const cliente = STATE.clientes.find(c => c.id == ag.cliente_id);
-    const servico = STATE.servicos.find(s => s.id == ag.servico_id);
-    const prof = STATE.profissionais.find(p => p.id == ag.profissional_id);
-    return `<tr>
-      <td>
-        <div class="avatar-td">
-          <div class="mini-avatar">${(cliente?.nome || ag.nome_cliente || 'C')[0].toUpperCase()}</div>
-          <span>${cliente?.nome || ag.nome_cliente || '—'}</span>
-        </div>
-      </td>
-      <td>${servico?.nome || ag.nome_servico || '—'}</td>
-      <td>${prof?.nome || '—'}</td>
-      <td class="font-mono">${formatDateBR(new Date(ag.data))}</td>
-      <td class="font-mono">${ag.hora || '—'}</td>
-      <td><span class="timeline-status status-${ag.status || 'pendente'}">${capitalize(ag.status || 'pendente')}</span></td>
-      <td>
-        <div class="flex gap-8">
-          <button class="btn btn-outline btn-sm" onclick="openEditAgendamento(${ag.id})">✏️</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteAgendamento(${ag.id})">🗑️</button>
-          ${cliente?.telefone ? `<button class="btn btn-whatsapp btn-sm" onclick="openWhatsAppCliente('${cliente.telefone}', '${cliente.nome}')">📱</button>` : ''}
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-// ============================================================
-// CLIENTES
-// ============================================================
-function renderClientes() {
-  const container = document.getElementById('clientesCards');
-  if (!STATE.clientes.length) {
-    container.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">👥</div>
-      <div class="empty-title">Nenhum cliente cadastrado</div>
-      <div class="empty-desc">Clique em "Novo Cliente" para começar</div>
-    </div>`;
-    return;
-  }
-  container.innerHTML = STATE.clientes.map(c => {
-    const agCount = STATE.agendamentos.filter(a => a.cliente_id == c.id).length;
-    return `<div class="client-card">
-      <div class="client-avatar">${c.nome[0].toUpperCase()}</div>
-      <div class="client-name">${c.nome}</div>
-      <div class="client-phone">${c.telefone || 'Sem telefone'}</div>
-      <div class="client-footer">
-        <div>
-          <div class="client-stat-label">Agendamentos</div>
-          <div class="client-stat-val">${agCount}</div>
-        </div>
-        <div class="flex gap-8">
-          <button class="btn btn-outline btn-sm" onclick="openEditCliente(${c.id})">✏️</button>
-          ${c.telefone ? `<button class="btn btn-whatsapp btn-sm" onclick="openWhatsAppCliente('${c.telefone}', '${c.nome}')">📱</button>` : ''}
-          <button class="btn btn-danger btn-sm" onclick="deleteCliente(${c.id})">🗑️</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function filterClientes(q) {
-  const filtered = q
-    ? STATE.clientes.filter(c =>
-        c.nome?.toLowerCase().includes(q.toLowerCase()) ||
-        c.telefone?.includes(q) ||
-        c.email?.toLowerCase().includes(q.toLowerCase())
-      )
-    : STATE.clientes;
-  const container = document.getElementById('clientesCards');
-  container.innerHTML = filtered.map(c => {
-    const agCount = STATE.agendamentos.filter(a => a.cliente_id == c.id).length;
-    return `<div class="client-card">
-      <div class="client-avatar">${c.nome[0].toUpperCase()}</div>
-      <div class="client-name">${c.nome}</div>
-      <div class="client-phone">${c.telefone || 'Sem telefone'}</div>
-      <div class="client-footer">
-        <div><div class="client-stat-label">Agendamentos</div><div class="client-stat-val">${agCount}</div></div>
-        <div class="flex gap-8">
-          <button class="btn btn-outline btn-sm" onclick="openEditCliente(${c.id})">✏️</button>
-          ${c.telefone ? `<button class="btn btn-whatsapp btn-sm" onclick="openWhatsAppCliente('${c.telefone}', '${c.nome}')">📱</button>` : ''}
-          <button class="btn btn-danger btn-sm" onclick="deleteCliente(${c.id})">🗑️</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ============================================================
-// SERVIÇOS
-// ============================================================
-function renderServicos() {
-  const tbody = document.getElementById('servicosTableBody');
-  if (!STATE.servicos.length) {
-    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">
-      <div class="empty-icon">⚡</div>
-      <div class="empty-title">Nenhum serviço cadastrado</div>
-    </div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = STATE.servicos.map(s => `<tr>
-    <td><strong>${s.nome}</strong>${s.descricao ? `<div class="td-muted">${s.descricao}</div>` : ''}</td>
-    <td class="font-mono">${s.duracao || '—'} min</td>
-    <td>${s.categoria ? `<span class="badge badge-purple">${s.categoria}</span>` : '—'}</td>
-    <td>
-      <div class="flex gap-8">
-        <button class="btn btn-outline btn-sm" onclick="openEditServico(${s.id})">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteServico(${s.id})">🗑️</button>
-      </div>
-    </td>
-  </tr>`).join('');
-}
-
-// ============================================================
-// PROFISSIONAIS
-// ============================================================
-function renderProfissionais() {
-  const container = document.getElementById('profissionaisCards');
-  if (!STATE.profissionais.length) {
-    container.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">👤</div>
-      <div class="empty-title">Nenhum profissional cadastrado</div>
-    </div>`;
-    return;
-  }
-  container.innerHTML = STATE.profissionais.map(p => `<div class="pro-card">
-    <div class="pro-avatar">${p.nome[0].toUpperCase()}</div>
-    <div>
-      <div class="pro-name">${p.nome}</div>
-      <div class="pro-role">${p.especialidade || 'Profissional'}</div>
-    </div>
-    <div class="pro-actions">
-      ${p.telefone ? `<button class="btn btn-whatsapp btn-sm" onclick="openWhatsAppCliente('${p.telefone}', '${p.nome}')">📱</button>` : ''}
-      <button class="btn btn-outline btn-sm" onclick="openEditProfissional(${p.id})">✏️</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteProfissional(${p.id})">🗑️</button>
-    </div>
-  </div>`).join('');
-}
-
-// ============================================================
-// FINANCEIRO
-// ============================================================
-function renderFinanceiro(data) {
-  const receita = data.filter(t => t.tipo === 'receita').reduce((s, t) => s + Number(t.valor), 0);
-  const despesa = data.filter(t => t.tipo === 'despesa').reduce((s, t) => s + Number(t.valor), 0);
-  const lucro = receita - despesa;
-
-  document.getElementById('finReceita').textContent = formatMoney(receita);
-  document.getElementById('finDespesa').textContent = formatMoney(despesa);
-  document.getElementById('finLucro').textContent = formatMoney(lucro);
-
-  const tbody = document.getElementById('finTableBody');
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">Sem lançamentos neste período</div></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = data.map(t => `<tr>
-    <td class="font-mono">${formatDateBR(new Date(t.data))}</td>
-    <td>${t.descricao || '—'}</td>
-    <td>${t.tipo === 'receita'
-      ? '<span class="badge badge-green">Receita</span>'
-      : '<span class="badge badge-red">Despesa</span>'}</td>
-    <td style="color: ${t.tipo === 'receita' ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">
-      ${t.tipo === 'receita' ? '+' : '-'}${formatMoney(t.valor)}
-    </td>
-    <td><button class="btn btn-danger btn-sm" onclick="deleteTransacao(${t.id})">🗑️</button></td>
-  </tr>`).join('');
-}
-
-// ============================================================
-// MENSAGENS
-// ============================================================
-function renderMensagens() {
-  const tbody = document.getElementById('mensagensTableBody');
-  if (!STATE.mensagens.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💬</div><div class="empty-title">Nenhuma mensagem</div></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = STATE.mensagens.map(m => {
-    const cliente = STATE.clientes.find(c => c.id == m.cliente_id);
-    return `<tr>
-      <td>${cliente?.nome || m.nome_cliente || '—'}</td>
-      <td>${m.mensagem || '—'}</td>
-      <td>${m.created_at ? formatDateBR(new Date(m.created_at)) : '—'}</td>
-      <td>${m.lida ? '<span class="badge badge-green">Lida</span>' : '<span class="badge badge-yellow">Não lida</span>'}</td>
-      <td>
-        <div class="flex gap-8">
-          ${cliente?.telefone ? `<button class="btn btn-whatsapp btn-sm" onclick="openWhatsAppCliente('${cliente.telefone}', '${cliente.nome}')">📱</button>` : ''}
-          <button class="btn btn-danger btn-sm" onclick="deleteMensagem(${m.id})">🗑️</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-// ============================================================
-// CALENDARIO
-// ============================================================
-function renderCalendario() {
-  const d = STATE.calDate;
-  const year = d.getFullYear();
-  const month = d.getMonth();
-  const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('calTitle').textContent = `${monthNames[month]} ${year}`;
-  buildCalendarGrid('calendarGrid', year, month, handleCalDayClick);
-}
-
-function buildCalendarGrid(containerId, year, month, onDayClick) {
-  const grid = document.getElementById(containerId);
-  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const today = new Date();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const daysInPrev = new Date(year, month, 0).getDate();
-
-  let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDay; i++) {
-    const day = daysInPrev - firstDay + 1 + i;
-    html += `<div class="cal-day other-month">${day}</div>`;
-  }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
-    const hasAg = STATE.agendamentos.some(a => a.data === dateStr);
-    html += `<div class="cal-day${isToday ? ' today' : ''}${hasAg ? ' has-event' : ''}" onclick="${onDayClick.name}('${dateStr}')">${d}</div>`;
-  }
-
-  const remaining = 42 - firstDay - daysInMonth;
-  for (let d = 1; d <= remaining; d++) {
-    html += `<div class="cal-day other-month">${d}</div>`;
-  }
-
-  grid.innerHTML = html;
-}
-
-function handleCalDayClick(date) {
-  document.querySelectorAll('#calendarGrid .cal-day').forEach(el => el.classList.remove('selected'));
-  event.target.classList.add('selected');
-
-  const ags = STATE.agendamentos.filter(a => a.data === date);
-  const container = document.getElementById('calDayDetail');
-
-  if (!ags.length) {
-    container.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📅</div>
-      <div class="empty-title">Sem agendamentos em ${formatDateBR(new Date(date + 'T12:00:00'))}</div>
-    </div>`;
-    return;
-  }
-
-  container.innerHTML = `<div id="calDayTimeline">` + ags.map(ag => {
-    const cliente = STATE.clientes.find(c => c.id == ag.cliente_id);
-    const servico = STATE.servicos.find(s => s.id == ag.servico_id);
-    return `<div class="timeline-item">
-      <div class="timeline-time">${ag.hora || '—'}</div>
-      <div class="timeline-dot ${ag.status || 'pendente'}"></div>
-      <div class="timeline-info">
-        <div class="timeline-client">${cliente?.nome || ag.nome_cliente || 'Cliente'}</div>
-        <div class="timeline-service">${servico?.nome || ag.nome_servico || 'Serviço'}</div>
-      </div>
-      <span class="timeline-status status-${ag.status || 'pendente'}">${capitalize(ag.status || 'pendente')}</span>
-    </div>`;
-  }).join('') + `</div>`;
-}
-
-function calPrev() { STATE.calDate.setMonth(STATE.calDate.getMonth() - 1); renderCalendario(); }
-function calNext() { STATE.calDate.setMonth(STATE.calDate.getMonth() + 1); renderCalendario(); }
-function calToday() { STATE.calDate = new Date(); renderCalendario(); }
-
-// ============================================================
-// PUBLIC PAGE
-// ============================================================
-function viewPublicPage() {
-  document.getElementById('loginPage').classList.add('hidden');
-  document.getElementById('appLayout').classList.add('hidden');
-  document.getElementById('publicPage').classList.remove('hidden');
-  renderPublicServicos();
-  renderPublicCalendar();
-}
-
-function renderPublicServicos() {
-  const container = document.getElementById('pubServicos');
-  if (!STATE.servicos.length) {
-    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-      <div class="empty-icon">⚡</div>
-      <div class="empty-title">Nenhum serviço disponível</div>
-    </div>`;
-    return;
-  }
-  const icons = ['✂️','💅','🧴','💇','🧖','💆','🎨','💈'];
-  container.innerHTML = STATE.servicos.map((s, i) => `<div class="pub-service-card" onclick="selectPubServico(${s.id}, this)">
-    <div class="pub-service-icon">${icons[i % icons.length]}</div>
-    <div class="pub-service-name">${s.nome}</div>
-    <div class="pub-service-duration">${s.duracao || 60} minutos</div>
-  </div>`).join('');
-}
-
-function selectPubServico(id, el) {
-  document.querySelectorAll('.pub-service-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  STATE.pubSelectedServico = id;
-  document.getElementById('pubStepProfissional').style.display = 'block';
-  renderPublicProfissionais();
-  document.getElementById('pubStepProfissional').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function renderPublicProfissionais() {
-  const container = document.getElementById('pubProfissionais');
-  if (!STATE.profissionais.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div><div class="empty-title">Sem profissionais disponíveis</div></div>';
-    return;
-  }
-  container.innerHTML = STATE.profissionais.map(p => `<div class="pub-service-card" onclick="selectPubProfissional(${p.id}, this)">
-    <div class="pub-service-icon" style="font-size:36px;">${p.nome[0].toUpperCase()}</div>
-    <div class="pub-service-name">${p.nome}</div>
-    <div class="pub-service-duration">${p.especialidade || 'Profissional'}</div>
-  </div>`).join('');
-}
-
-function selectPubProfissional(id, el) {
-  document.querySelectorAll('#pubProfissionais .pub-service-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  STATE.pubSelectedProfissional = id;
-  document.getElementById('pubStepData').style.display = 'block';
-  renderPublicCalendar();
-  document.getElementById('pubStepData').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function renderPublicCalendar() {
-  const d = STATE.pubCalDate;
-  const year = d.getFullYear();
-  const month = d.getMonth();
-  const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('pubCalTitle').textContent = `${monthNames[month]} ${year}`;
-
-  const grid = document.getElementById('pubCalendarGrid');
-  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const today = new Date();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const daysInPrev = new Date(year, month, 0).getDate();
-
-  let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDay; i++) {
-    html += `<div class="cal-day other-month">${daysInPrev - firstDay + 1 + i}</div>`;
-  }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
-    const isPast = new Date(dateStr) < new Date(today.toISOString().split('T')[0]);
-    html += `<div class="cal-day${isToday ? ' today' : ''}${isPast ? ' other-month' : ''}" onclick="${isPast ? '' : `selectPubDate('${dateStr}', this)`}">${d}</div>`;
-  }
-
-  grid.innerHTML = html;
-}
-
-function selectPubDate(date, el) {
-  document.querySelectorAll('#pubCalendarGrid .cal-day').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  STATE.pubSelectedDate = date;
-  renderPubTimeSlots();
-}
-
-function renderPubTimeSlots() {
-  const container = document.getElementById('pubTimeSlots');
-  const servico = STATE.servicos.find(s => s.id == STATE.pubSelectedServico);
-  const duration = servico?.duracao || 60;
-
-  const horariosOcupados = STATE.agendamentos
-    .filter(a => a.data === STATE.pubSelectedDate)
-    .map(a => a.hora);
-
-  const horarios = [];
-  for (let h = 8; h < 19; h++) {
-    for (let m = 0; m < 60; m += duration) {
-      if (h === 12) continue;
-      const time = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-      horarios.push(time);
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (session?.user) {
+      const ok = await carregarConta(session.user);
+      if (!ok) {
+        await db.auth.signOut();
+      }
     }
+  } catch (e) {
+    console.error('Erro ao verificar sessão:', e);
   }
-
-  container.innerHTML = horarios.map(t => {
-    const busy = horariosOcupados.includes(t);
-    return `<div class="pub-time-slot${busy ? ' unavailable' : ''}" onclick="${busy ? '' : `selectPubTime('${t}', this)`}">${t}</div>`;
-  }).join('');
 }
 
-function selectPubTime(time, el) {
-  document.querySelectorAll('.pub-time-slot').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  STATE.pubSelectedTime = time;
-  document.getElementById('pubStepCliente').style.display = 'block';
-  updatePubSummary();
-  document.getElementById('pubStepCliente').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function updatePubSummary() {
-  const servico = STATE.servicos.find(s => s.id == STATE.pubSelectedServico);
-  const prof = STATE.profissionais.find(p => p.id == STATE.pubSelectedProfissional);
-  document.getElementById('agendaSummary').innerHTML = `
-    <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
-      <div style="font-size:13px; font-weight:700; color:var(--text-muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:1px;">Resumo do Agendamento</div>
-      <div class="flex gap-8" style="margin-bottom:8px;"><span>⚡</span><span>${servico?.nome || '—'}</span></div>
-      <div class="flex gap-8" style="margin-bottom:8px;"><span>👤</span><span>${prof?.nome || '—'}</span></div>
-      <div class="flex gap-8" style="margin-bottom:8px;"><span>📅</span><span>${STATE.pubSelectedDate ? formatDateBR(new Date(STATE.pubSelectedDate + 'T12:00:00')) : '—'}</span></div>
-      <div class="flex gap-8"><span>🕐</span><span>${STATE.pubSelectedTime || '—'}</span></div>
-    </div>`;
-}
-
-function pubCalPrev() { STATE.pubCalDate.setMonth(STATE.pubCalDate.getMonth() - 1); renderPublicCalendar(); }
-function pubCalNext() { STATE.pubCalDate.setMonth(STATE.pubCalDate.getMonth() + 1); renderPublicCalendar(); }
-
-async function confirmarAgendamento() {
-  const nome = document.getElementById('agCliente')?.value?.trim() ||
-               document.querySelector('#pubStepCliente #agCliente')?.value?.trim();
-
-  // Use IDs corretos da página pública
-  const pubNome = document.getElementById('agCliente') ? document.getElementById('agCliente').value.trim() : '';
-  const pubTel = document.getElementById('agTelefone') ? document.getElementById('agTelefone').value.trim() : '';
-
-  if (!STATE.pubSelectedServico || !STATE.pubSelectedDate || !STATE.pubSelectedTime || !pubNome || !pubTel) {
-    showToast('Preencha todos os campos obrigatórios', 'error');
-    return;
+function getPublicSlug() {
+  if (location.hash.startsWith('#agendar/')) {
+    return location.hash.replace('#agendar/', '').trim();
   }
+  return null;
+}
 
-  let clienteId = null;
-  const clienteExistente = STATE.clientes.find(c => c.telefone === pubTel);
-  if (clienteExistente) {
-    clienteId = clienteExistente.id;
+async function carregarConta(user) {
+  try {
+    const { data: perfil, error: pe } = await db.from('agenda_perfis')
+      .select('*').eq('auth_user_id', user.id).single();
+    if (pe || !perfil) { console.warn('Perfil não encontrado para', user.id); return false; }
+
+    const { data: empresa, error: ee } = await db.from('agenda_empresas')
+      .select('*').eq('id', perfil.empresa_id).single();
+    if (ee || !empresa) { console.warn('Empresa não encontrada para perfil', perfil.id); return false; }
+
+    state.user = user;
+    state.perfil = perfil;
+    state.empresa = empresa;
+    showDashboard();
+    await loadAll();
+    return true;
+  } catch (e) {
+    console.error('Erro em carregarConta:', e);
+    return false;
+  }
+}
+
+// ── CARREGAR CATEGORIAS ──
+async function loadCategorias() {
+  try {
+    const { data, error } = await db.from('agenda_categorias').select('*').order('nome');
+    if (error) {
+      console.warn('Erro ao carregar categorias:', error.message);
+      state.categorias = [];
+    } else {
+      state.categorias = data || [];
+    }
+  } catch (e) {
+    console.warn('Exceção ao carregar categorias:', e);
+    state.categorias = [];
+  }
+  preencherSelectCategorias();
+}
+
+function preencherSelectCategorias() {
+  const sel = $('empCategoria');
+  if (!sel) return;
+
+  if (!state.categorias || state.categorias.length === 0) {
+    const fallback = [
+      { id: 'beleza', nome: 'Beleza & Estética', icone: '💅' },
+      { id: 'saude', nome: 'Saúde', icone: '🏥' },
+      { id: 'barbearia', nome: 'Barbearia', icone: '✂️' },
+      { id: 'fitness', nome: 'Fitness & Bem-estar', icone: '🏋️' },
+      { id: 'tatuagem', nome: 'Tatuagem & Piercing', icone: '🎨' },
+      { id: 'pet', nome: 'Pet Shop', icone: '🐾' },
+      { id: 'educacao', nome: 'Educação', icone: '📚' },
+      { id: 'consultoria', nome: 'Consultoria', icone: '💼' },
+      { id: 'fotografia', nome: 'Fotografia', icone: '📸' },
+      { id: 'outro', nome: 'Outro', icone: '✦' }
+    ];
+    sel.innerHTML = fallback.map(c =>
+      `<option value="${c.id}">${c.icone} ${c.nome}</option>`
+    ).join('');
   } else {
-    const novoCliente = await sb.post('clientes', {
-      nome: pubNome,
-      telefone: pubTel,
-      email: document.getElementById('agEmail')?.value || ''
-    });
-    if (novoCliente?.[0]) clienteId = novoCliente[0].id;
+    sel.innerHTML = state.categorias.map(c =>
+      `<option value="${c.id}">${c.icone || ''} ${c.nome}</option>`
+    ).join('');
+  }
+}
+
+// ── SHOW DASHBOARD ──
+function showDashboard() {
+  const lv = $('landingView');
+  const dv = $('dashboardView');
+  const pv = $('publicView');
+  if (lv) lv.style.display = 'none';
+  if (dv) dv.style.display = 'block';
+  if (pv) pv.style.display = 'none';
+
+  closeAuth();
+
+  if (state.empresa) {
+    setText('sideAvatar', initial(state.empresa.nome));
+    setText('sideNome', state.empresa.nome);
+    setText('sidePlan', state.empresa.plano || 'Grátis');
+    const lb = $('sideLinkBox');
+    if (lb) lb.textContent = publicUrl(state.empresa.slug);
   }
 
-  const data = {
-    cliente_id: clienteId,
-    nome_cliente: pubNome,
-    servico_id: STATE.pubSelectedServico,
-    profissional_id: STATE.pubSelectedProfissional,
-    data: STATE.pubSelectedDate,
-    hora: STATE.pubSelectedTime,
-    status: 'pendente',
-    observacoes: document.getElementById('agObs')?.value || ''
+  document.body.style.overflow = '';
+  setView('dashboard');
+  setupRealtime();
+  startAutoSync();
+}
+
+function openMobileMenu() {
+  const overlay = $('mobileMenuOverlay');
+  const drawer = $('mobileMenuDrawer');
+  if (overlay) overlay.classList.add('open');
+  if (drawer) drawer.classList.add('open');
+  document.body.classList.add('menu-open');
+}
+
+function closeMobileMenu() {
+  const overlay = $('mobileMenuOverlay');
+  const drawer = $('mobileMenuDrawer');
+  if (overlay) overlay.classList.remove('open');
+  if (drawer) drawer.classList.remove('open');
+  document.body.classList.remove('menu-open');
+}
+
+function menuOpenPublic() { closeMobileMenu(); openPublic(); }
+function menuCopyPublicLink() { closeMobileMenu(); copyPublicLink(); }
+function menuNotifications() {
+  closeMobileMenu(); clearNotifDot();
+  const stack = $('notifStack');
+  if (stack) stack.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── VIEW NAVIGATION ──
+function setView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = $('view-' + view);
+  if (target) target.classList.add('active');
+
+  const navMap = {
+    dashboard: ['Dashboard', 'Controle completo do seu negócio.'],
+    agenda: ['Agenda', 'Criar e acompanhar horários.'],
+    clientes: ['Clientes', 'Cadastro de clientes.'],
+    servicos: ['Serviços', 'Catálogo e preços.'],
+    profissionais: ['Profissionais', 'Equipe de atendimento.'],
+    financeiro: ['Financeiro', 'Valores e resultados.'],
+    relatorios: ['Relatórios', 'Dados e métricas.'],
+    config: ['Configurações', 'Dados do negócio.']
   };
+  const info = navMap[view] || ['', ''];
+  setText('pageTitle', info[0]);
+  setText('pageSub', info[1]);
 
-  const result = await sb.post('agendamentos', data);
-  if (result) {
-    showToast('Agendamento realizado com sucesso! ✅', 'success');
-    STATE.pubSelectedDate = null;
-    STATE.pubSelectedTime = null;
-    STATE.pubSelectedServico = null;
-    STATE.pubSelectedProfissional = null;
-    document.getElementById('pubStepProfissional').style.display = 'none';
-    document.getElementById('pubStepData').style.display = 'none';
-    document.getElementById('pubStepCliente').style.display = 'none';
-    document.querySelectorAll('.pub-service-card').forEach(c => c.classList.remove('selected'));
-    ['agCliente','agTelefone','agEmail','agObs'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else {
-    showToast('Erro ao confirmar agendamento. Tente novamente.', 'error');
-  }
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', (b.getAttribute('onclick') || '').includes(`'${view}'`));
+  });
+  document.querySelectorAll('.mob-nav-btn').forEach(b => {
+    b.classList.toggle('active', (b.getAttribute('onclick') || '').includes(`'${view}'`));
+  });
 }
 
-// ============================================================
-// MODALS
-// ============================================================
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
+// ── AUTH ──
+function openAuth(mode) {
+  const overlay = $('authOverlay');
+  if (!overlay) return;
+  overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (mode === 'login') showLogin();
+  else showCadastro();
 }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+function closeAuth() {
+  const overlay = $('authOverlay');
+  if (overlay) overlay.classList.remove('open');
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.open').forEach(m => {
-      m.classList.remove('open');
-      document.body.style.overflow = '';
+function showLogin() {
+  const fl = $('formLogin');
+  const fc = $('formCadastro');
+  if (fl) fl.style.display = 'block';
+  if (fc) fc.style.display = 'none';
+}
+
+function showCadastro() {
+  const fl = $('formLogin');
+  const fc = $('formCadastro');
+  if (fl) fl.style.display = 'none';
+  if (fc) fc.style.display = 'block';
+  const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
+  if (s1) s1.style.display = 'block';
+  if (s2) s2.style.display = 'none';
+  if (s3) s3.style.display = 'none';
+  setStep(1);
+  preencherSelectCategorias();
+}
+
+function setStep(n) {
+  ['st1', 'st2', 'st3'].forEach((id, i) => {
+    const el = $(id);
+    if (!el) return;
+    el.className = 'step-dot' + (i + 1 === n ? ' active' : i + 1 < n ? ' done' : '');
+  });
+}
+
+function goStep2() {
+  const nome = $('cadNome')?.value?.trim();
+  const email = $('cadEmail')?.value?.trim();
+  const senha = $('cadSenha')?.value?.trim();
+  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
+  if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
+  const s1 = $('step1'), s2 = $('step2');
+  if (s1) s1.style.display = 'none';
+  if (s2) s2.style.display = 'block';
+  setStep(2);
+  preencherSelectCategorias();
+}
+
+function goStep1() {
+  const s1 = $('step1'), s2 = $('step2');
+  if (s2) s2.style.display = 'none';
+  if (s1) s1.style.display = 'block';
+  setStep(1);
+}
+
+function goStep3() {
+  const empNome = $('empNome')?.value?.trim();
+  const empSlug = $('empSlug')?.value?.trim();
+  const empWhatsapp = $('empWhatsapp')?.value?.trim();
+  if (!empNome || !empSlug || !empWhatsapp) {
+    return toast('Preencha nome, link e WhatsApp.', 'err');
+  }
+  const s2 = $('step2'), s3 = $('step3');
+  if (s2) s2.style.display = 'none';
+  if (s3) s3.style.display = 'block';
+  setStep(3);
+}
+
+function autoSlug() {
+  const el = $('empSlug');
+  if (!el || el.dataset.manual === '1') return;
+  const nomeEl = $('empNome');
+  if (nomeEl) el.value = slugify(nomeEl.value || '');
+}
+
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id === 'empSlug') {
+    e.target.dataset.manual = '1';
+  }
+});
+
+// ── LOGIN ──
+async function loginComSenha() {
+  const email = ($('loginEmail')?.value || '').trim();
+  const senha = ($('loginSenha')?.value || '').trim();
+  if (!email || !senha) return toast('Digite e-mail e senha.', 'err');
+
+  try {
+    const { data, error } = await db.auth.signInWithPassword({ email, password: senha });
+    if (error || !data.user) return toast(error?.message || 'E-mail ou senha incorretos.', 'err');
+
+    const ok = await carregarConta(data.user);
+    if (!ok) {
+      await db.auth.signOut();
+      return toast('Perfil ou empresa não encontrado. Refaça o cadastro.', 'err');
+    }
+    showNotif('Login realizado!', 'Bem-vindo de volta.', 'ok', 4000);
+  } catch (e) {
+    console.error('Erro no login:', e);
+    toast('Erro ao fazer login. Tente novamente.', 'err');
+  }
+}
+
+// ── CADASTRO ──
+async function finalizarCadastro() {
+  const servNome = $('servNome')?.value?.trim();
+  const servPreco = $('servPreco')?.value;
+  const servDuracao = $('servDuracao')?.value;
+  const profNomeVal = $('profNome')?.value?.trim();
+
+  if (!servNome || !servPreco || !servDuracao || !profNomeVal) {
+    return toast('Preencha serviço, preço, duração e profissional.', 'err');
+  }
+
+  const email = ($('cadEmail')?.value || '').trim();
+  const senha = ($('cadSenha')?.value || '').trim();
+  const nomeUser = ($('cadNome')?.value || '').trim();
+  const empNomeVal = ($('empNome')?.value || '').trim();
+  const empSlugVal = slugify($('empSlug')?.value || empNomeVal);
+  const empWhatsappVal = ($('empWhatsapp')?.value || '').trim();
+
+  const catSelect = $('empCategoria');
+  const areaAtuacao = catSelect
+    ? (catSelect.options[catSelect.selectedIndex]?.textContent?.trim() || 'Outro')
+    : 'Outro';
+
+  const btnFin = $('btnFinalizar');
+  if (btnFin) { btnFin.disabled = true; btnFin.textContent = 'Criando...'; }
+
+  try {
+    const { data: authData, error: authErr } = await db.auth.signUp({
+      email,
+      password: senha,
+      options: { data: { nome: nomeUser } }
+    });
+
+    if (authErr) {
+      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
+      if (authErr.message && authErr.message.toLowerCase().includes('already registered')) {
+        return toast('Este e-mail já está cadastrado. Faça login.', 'err');
+      }
+      return toast('Erro ao criar conta: ' + authErr.message, 'err');
+    }
+
+    if (!authData?.user) {
+      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
+      return toast('Erro ao criar conta. Tente novamente.', 'err');
+    }
+
+    const user = authData.user;
+
+    const { data: slugExiste } = await db.from('agenda_empresas')
+      .select('id').eq('slug', empSlugVal).maybeSingle();
+    const slugFinal = slugExiste ? empSlugVal + '-' + Date.now().toString().slice(-4) : empSlugVal;
+
+    const { data: empresa, error: errEmp } = await db.from('agenda_empresas').insert({
+      nome: empNomeVal,
+      slug: slugFinal,
+      area_atuacao: areaAtuacao,
+      whatsapp: empWhatsappVal,
+      email: email,
+      plano: 'Grátis',
+      onboarding_finalizado: true
+    }).select('*').single();
+
+    if (errEmp || !empresa) {
+      console.error('Erro ao criar empresa:', errEmp);
+      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
+      return toast('Erro ao criar empresa: ' + (errEmp?.message || 'tente novamente.'), 'err');
+    }
+
+    const { error: perfilErr } = await db.from('agenda_perfis').insert({
+      auth_user_id: user.id,
+      empresa_id: empresa.id,
+      nome: nomeUser,
+      email: email,
+      whatsapp: empWhatsappVal,
+      cargo: 'Administrador'
+    });
+
+    if (perfilErr) {
+      console.error('Erro ao criar perfil:', perfilErr);
+    }
+
+    await db.from('agenda_servicos').insert({
+      empresa_id: empresa.id,
+      nome: servNome,
+      preco: Number(servPreco || 0),
+      duracao_minutos: Number(servDuracao || 60),
+      status: 'ativo',
+      descricao: 'Serviço inicial.'
+    });
+
+    await db.from('agenda_profissionais').insert({
+      empresa_id: empresa.id,
+      nome: profNomeVal,
+      especialidade: ($('profEsp')?.value || 'Profissional').trim(),
+      telefone: empWhatsappVal,
+      status: 'ativo'
+    });
+
+    const { data: loginData, error: loginErr } = await db.auth.signInWithPassword({
+      email,
+      password: senha
+    });
+
+    if (loginErr || !loginData?.user) {
+      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
+      closeAuth();
+      toast('Conta criada! Faça login para acessar.', 'ok');
+      setTimeout(() => openAuth('login'), 1500);
+      return;
+    }
+
+    state.user = loginData.user;
+    state.perfil = { auth_user_id: loginData.user.id, empresa_id: empresa.id, nome: nomeUser, email };
+    state.empresa = empresa;
+    showDashboard();
+    await loadAll();
+    showNotif('Bem-vindo ao AgendaPro!', empresa.nome + ' — painel criado com sucesso.', 'ok', 7000);
+
+  } catch (e) {
+    console.error('Erro em finalizarCadastro:', e);
+    if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
+    toast('Erro inesperado. Verifique o console e tente novamente.', 'err');
+  }
+}
+
+async function logout() {
+  try {
+    if (autoSyncTimer) { clearInterval(autoSyncTimer); autoSyncTimer = null; }
+    if (realtimeChannel) {
+      try { db.removeChannel(realtimeChannel); } catch(e) {}
+      realtimeChannel = null;
+    }
+    await db.auth.signOut();
+  } catch(e) {}
+  state.user = null; state.perfil = null; state.empresa = null;
+  state.clientes = []; state.servicos = []; state.profissionais = [];
+  state.agendamentos = []; state.pagamentos = [];
+  location.href = location.pathname;
+}
+
+// ── REALTIME ──
+function setupRealtime() {
+  if (!state?.empresa?.id || !db?.channel) return;
+  if (realtimeChannel) {
+    try { db.removeChannel(realtimeChannel); } catch(e) {}
+    realtimeChannel = null;
+  }
+  const id = state.empresa.id;
+  const tables = ['agenda_agendamentos', 'agenda_clientes', 'agenda_servicos', 'agenda_profissionais'];
+  let ch = db.channel('ap-realtime-' + id);
+  tables.forEach(table => {
+    ch = ch.on('postgres_changes', {
+      event: '*', schema: 'public', table,
+      filter: `empresa_id=eq.${id}`
+    }, payload => {
+      if (table === 'agenda_agendamentos' && payload.eventType === 'INSERT') {
+        showNotif('Novo agendamento!', `${payload.new?.cliente_nome || 'Cliente'} acabou de agendar.`, 'new', 6000);
+      }
+      scheduleReload();
+    });
+  });
+  realtimeChannel = ch.subscribe();
+}
+
+let _reloadTimer = null;
+function scheduleReload() {
+  if (_reloadTimer) clearTimeout(_reloadTimer);
+  _reloadTimer = setTimeout(async () => {
+    if (state?.empresa?.id) await loadAll();
+  }, 400);
+}
+
+function startAutoSync() {
+  if (autoSyncTimer) clearInterval(autoSyncTimer);
+  lastIds = new Set((state.agendamentos || []).map(a => String(a.id)));
+  autoSyncTimer = setInterval(async () => {
+    if (!state?.empresa?.id) return;
+    try {
+      const { data } = await db.from('agenda_agendamentos').select('*')
+        .eq('empresa_id', state.empresa.id)
+        .order('data', { ascending: true })
+        .order('hora', { ascending: true });
+      const novos = (data || []).filter(a => !lastIds.has(String(a.id)));
+      state.agendamentos = data || [];
+      if (novos.length) {
+        novos.forEach(a => showNotif('Novo agendamento!', `${a.cliente_nome || 'Cliente'} agendou.`, 'new', 6000));
+      }
+      lastIds = new Set(state.agendamentos.map(a => String(a.id)));
+      renderAll();
+    } catch (e) {}
+  }, 5000);
+}
+
+function preserveAgendaFormValues(callback) {
+  const values = {
+    cliente: $('agCliente')?.value || '',
+    telefone: $('agTelefone')?.value || '',
+    servico: $('agServico')?.value || '',
+    profissional: $('agProfissional')?.value || '',
+    data: $('agData')?.value || '',
+    hora: $('agHora')?.value || '',
+    status: $('agStatus')?.value || ''
+  };
+
+  if (typeof callback === 'function') callback();
+
+  if ($('agCliente') && values.cliente) $('agCliente').value = values.cliente;
+  if ($('agTelefone') && values.telefone) $('agTelefone').value = values.telefone;
+  if ($('agServico') && values.servico && [...$('agServico').options].some(o => o.value === values.servico)) $('agServico').value = values.servico;
+  if ($('agProfissional') && values.profissional && [...$('agProfissional').options].some(o => o.value === values.profissional)) $('agProfissional').value = values.profissional;
+  if ($('agData') && values.data) $('agData').value = values.data;
+  if ($('agHora') && values.hora) $('agHora').value = values.hora;
+  if ($('agStatus') && values.status) $('agStatus').value = values.status;
+}
+
+// ── LOAD ALL ──
+async function loadAll() {
+  if (!state.empresa) return;
+  const id = state.empresa.id;
+  try {
+    const [cli, svc, prof, ag, pag] = await Promise.all([
+      db.from('agenda_clientes').select('*').eq('empresa_id', id).order('criado_em', { ascending: false }),
+      db.from('agenda_servicos').select('*').eq('empresa_id', id).order('criado_em', { ascending: false }),
+      db.from('agenda_profissionais').select('*').eq('empresa_id', id).order('criado_em', { ascending: false }),
+      db.from('agenda_agendamentos').select('*').eq('empresa_id', id).order('data', { ascending: true }).order('hora', { ascending: true }),
+      db.from('agenda_pagamentos').select('*').eq('empresa_id', id).order('criado_em', { ascending: false })
+    ]);
+    state.clientes = cli.data || [];
+    state.servicos = svc.data || [];
+    state.profissionais = prof.data || [];
+    state.agendamentos = ag.data || [];
+    state.pagamentos = pag.data || [];
+    lastIds = new Set(state.agendamentos.map(a => String(a.id)));
+    renderAll();
+  } catch (e) {
+    console.error('Erro ao carregar dados:', e);
+  }
+}
+
+function isEditingConfig() {
+  const active = document.activeElement;
+  if (!active) return false;
+  return !!active.closest('#view-config');
+}
+
+function renderAll() {
+  preserveAgendaFormValues(() => {
+    renderStats();
+    renderDashList();
+    renderCalendar();
+    renderSelects();
+    renderTimeline();
+    renderClientes();
+    renderServicos();
+    renderProfissionais();
+    renderFinanceiro();
+
+    const active = document.activeElement;
+    const editingConfig = active && active.closest && active.closest('#view-config');
+    if (!editingConfig) renderConfig();
+  });
+}
+
+// ── STATS ──
+function renderStats() {
+  const hoje = hojeISO(), mes = mesPrefixo(), ags = state.agendamentos || [];
+  const ativos = ags.filter(a => normStatus(a.status) !== 'Excluído');
+  const st = s => ativos.filter(a => normStatus(a.status) === s).length;
+  const stAll = s => ags.filter(a => normStatus(a.status) === s).length;
+  const concluidos = st('Concluído');
+  const base = ativos.filter(a => normStatus(a.status) !== 'Recusado').length;
+  const taxa = base > 0 ? Math.round(concluidos / base * 100) : 0;
+  const fin = ags.filter(isFinanceiro);
+  const fatHoje = fin.filter(a => a.data === hoje).reduce((s, a) => s + Number(a.valor || 0), 0);
+  const fatMes = fin.filter(a => (a.data || '').startsWith(mes)).reduce((s, a) => s + Number(a.valor || 0), 0);
+
+  setText('statHoje', ativos.filter(a => a.data === hoje).length);
+  setText('statPendentes', st('Pendente'));
+  setText('statConfirmados', st('Confirmado'));
+  setText('statReagendados', st('Reagendado'));
+  setText('statConcluidos', concluidos);
+  setText('statRecusados', st('Recusado'));
+  setText('statExcluidos', stAll('Excluído'));
+  setText('statTaxa', taxa + '%');
+  setText('statFatHoje', money(fatHoje).replace(',00', ''));
+  setText('statFatMes', money(fatMes).replace(',00', ''));
+  setText('statClientes', (state.clientes || []).filter(isAtivoCliente).length);
+  setText('statServicos', (state.servicos || []).filter(s => s.status === 'ativo').length);
+  setText('statProfissionais', (state.profissionais || []).filter(p => p.status === 'ativo').length);
+  setText('statTotal', ativos.length);
+  setText('fc-todos', ativos.length);
+  setText('fc-pendente', st('Pendente'));
+  setText('fc-confirmado', st('Confirmado'));
+  setText('fc-reagendado', st('Reagendado'));
+  setText('fc-concluido', concluidos);
+  setText('fc-recusado', st('Recusado'));
+  setText('fc-excluido', stAll('Excluído'));
+}
+
+// ── DASHBOARD LIST ──
+function renderDashList() {
+  const el = $('dashAptList');
+  if (!el) return;
+  const visibles = (state.agendamentos || [])
+    .filter(a => ['Pendente', 'Confirmado', 'Reagendado'].includes(normStatus(a.status)))
+    .slice(0, 6);
+  if (!visibles.length) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento pendente.</p></div>';
+    return;
+  }
+  el.innerHTML = visibles.map(a => `
+    <div class="apt-item">
+      <div class="apt-row">
+        <div class="apt-av">${initial(a.cliente_nome)}</div>
+        <div class="apt-info">
+          <div class="apt-name">${a.cliente_nome || 'Cliente'}</div>
+          <div class="apt-meta">${a.servico_nome || '—'} · ${a.profissional_nome || '—'} · ${formatDate(a.data)} ${a.hora || ''}</div>
+        </div>
+        <span class="badge ${badgeClass(a.status)}">${normStatus(a.status)}</span>
+      </div>
+      ${renderAcoes(a)}
+    </div>`).join('');
+}
+
+// ── CALENDAR ──
+function renderCalendar() {
+  const el = $('calGrid');
+  if (!el) return;
+  const days = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
+  const busy = new Set(
+    (state.agendamentos || [])
+      .filter(a => normStatus(a.status) !== 'Excluído')
+      .map(a => String(new Date((a.data || '') + 'T00:00:00').getDate()))
+  );
+  const today = String(new Date().getDate());
+  let html = days.map(d => `<div class="cal-label">${d}</div>`).join('');
+  for (let i = 1; i <= 28; i++) {
+    const d = String(i);
+    html += `<div class="cal-day${busy.has(d) ? ' busy' : ''}${d === today ? ' today' : ''}">${i}</div>`;
+  }
+  el.innerHTML = html;
+}
+
+// ── SELECTS ──
+function renderSelects() {
+  const agS = $('agServico');
+  const agP = $('agProfissional');
+  const selectedServico = agS ? agS.value : '';
+  const selectedProfissional = agP ? agP.value : '';
+
+  if (agS) {
+    agS.innerHTML =
+      '<option value="">Escolha serviço</option>' +
+      (state.servicos || [])
+        .filter(s => (s.status || 'ativo') === 'ativo')
+        .map(s => `<option value="${s.id}">${s.nome} — ${money(s.preco).replace(',00','')}</option>`)
+        .join('');
+
+    if (selectedServico && [...agS.options].some(o => o.value === selectedServico)) {
+      agS.value = selectedServico;
+    }
+  }
+
+  if (agP) {
+    agP.innerHTML =
+      '<option value="">Escolha profissional</option>' +
+      (state.profissionais || [])
+        .filter(p => (p.status || 'ativo') === 'ativo')
+        .map(p => `<option value="${p.id}">${p.nome}</option>`)
+        .join('');
+
+    if (selectedProfissional && [...agP.options].some(o => o.value === selectedProfissional)) {
+      agP.value = selectedProfissional;
+    }
+  }
+}
+
+// ── FILTER ──
+function setFilter(filter, btn) {
+  _agendaFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderTimeline();
+}
+
+// ── TIMELINE ──
+function renderTimeline() {
+  const el = $('agendaTimeline');
+  if (!el) return;
+  const ags = state.agendamentos || [];
+  if (!ags.length) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento ainda.</p></div>';
+    return;
+  }
+  const statusMap = {
+    pendente: 'Pendente', confirmado: 'Confirmado', reagendado: 'Reagendado',
+    concluido: 'Concluído', recusado: 'Recusado', excluido: 'Excluído'
+  };
+  let filtered;
+  if (_agendaFilter === 'excluido') {
+    filtered = ags.filter(a => normStatus(a.status) === 'Excluído');
+  } else if (_agendaFilter !== 'todos') {
+    const target = statusMap[_agendaFilter];
+    filtered = ags.filter(a => normStatus(a.status) === target);
+  } else {
+    filtered = ags.filter(a => normStatus(a.status) !== 'Excluído');
+  }
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento neste filtro.</p></div>';
+    return;
+  }
+  el.innerHTML = '';
+  filtered.forEach(a => {
+    const block = document.createElement('div');
+    block.className = 'tl-block';
+    block.id = 'ag-' + a.id;
+    block.innerHTML = `
+      <div class="tl-time">${a.hora || '—'}</div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <div class="tl-card">
+          <div class="tl-card-top">
+            <div class="apt-av" style="width:34px;height:34px;border-radius:9px;flex-shrink:0">${initial(a.cliente_nome)}</div>
+            <div class="tl-card-info">
+              <div class="tl-card-name">${a.cliente_nome || 'Cliente'}</div>
+              <div class="tl-card-meta">${a.servico_nome || '—'} · ${a.profissional_nome || '—'} · ${formatDate(a.data)}${a.cliente_telefone ? ' · ' + a.cliente_telefone : ''}</div>
+            </div>
+            <div class="tl-card-status"><span class="badge ${badgeClass(a.status)}">${normStatus(a.status)}</span></div>
+          </div>
+          ${renderAcoes(a)}
+        </div>
+      </div>`;
+    const card = block.querySelector('.tl-card');
+    const cardTop = block.querySelector('.tl-card-top');
+    const menu = buildActionMenu(a.id, [
+      { icon: '✏️', label: 'Editar', action: () => editAgendamento(a.id) },
+      { icon: '📋', label: 'Duplicar', action: () => duplicarAgendamento(a.id) },
+      'sep',
+      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirAgendamento(a.id) }
+    ]);
+    if (card) card.appendChild(menu);
+    el.appendChild(block);
+  });
+}
+
+// ── RENDER ACOES ──
+function renderAcoes(a) {
+  const tel = (a.cliente_telefone || a.telefone || '').replace(/\D/g, '');
+  const s = normStatus(a.status);
+  if (s === 'Excluído') {
+    return `<div class="apt-actions muted-actions"><span class="badge badge-gray">🗑 Excluído</span></div>`;
+  }
+  if (s === 'Recusado') {
+    return `<div class="apt-actions muted-actions"><span class="badge badge-red">✕ Recusado</span></div>`;
+  }
+  if (s === 'Concluído') {
+    return `<div class="apt-actions muted-actions">
+      <span class="badge badge-blue">✓ Concluído</span>
+      ${tel ? `<button class="act-btn whatsapp" onclick="abrirWA('${a.id}')">💬 WA</button>` : ''}
+      <button class="act-btn refuse" onclick="excluirAgendamento('${a.id}')">🗑 Arquivar</button>
+    </div>`;
+  }
+  return `<div class="apt-actions">
+    ${s !== 'Confirmado' ? `<button class="act-btn confirm" onclick="confirmarAg('${a.id}')">✅ Confirmar</button>` : ''}
+    <button class="act-btn refuse" onclick="openModalRecusa('${a.id}')">✕ Recusar</button>
+    <button class="act-btn reschedule" onclick="openModalReagendar('${a.id}')">📅 Reagendar</button>
+    <button class="act-btn conclude" onclick="concluirAg('${a.id}')">✓ Concluir</button>
+    ${tel ? `<button class="act-btn whatsapp" onclick="abrirWA('${a.id}')">💬 WA</button>` : ''}
+  </div>`;
+}
+
+// ── ACTION MENU — FIX COMPLETO ──
+// Usa position:fixed com coordenadas calculadas do getBoundingClientRect
+// para que o dropdown nunca seja cortado por qualquer overflow:hidden do pai
+function buildActionMenu(id, items) {
+  const wrap = document.createElement('div');
+  wrap.className = 'action-menu';
+
+  const btn = document.createElement('button');
+  btn.className = 'action-menu-btn';
+  btn.innerHTML = '⋮';
+  btn.type = 'button';
+
+  const drop = document.createElement('div');
+  drop.className = 'action-dropdown';
+
+  items.forEach(item => {
+    if (item === 'sep') {
+      const s = document.createElement('div');
+      s.className = 'action-sep';
+      drop.appendChild(s);
+      return;
+    }
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'action-item' + (item.cls ? ' ' + item.cls : '');
+    el.innerHTML = `<span class="action-item-icon">${item.icon}</span>${item.label}`;
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      closeAllMenus();
+      // Pequeno delay para garantir que o menu fechou antes da ação
+      setTimeout(() => item.action(), 50);
+    });
+    drop.appendChild(el);
+  });
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (_openMenu === drop) {
+      closeAllMenus();
+      return;
+    }
+
+    closeAllMenus();
+
+    // FIX CRÍTICO: posiciona o dropdown via fixed usando coordenadas reais do botão
+    const rect = btn.getBoundingClientRect();
+    const dropW = 200;
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+
+    // Calcula posição: tenta abrir à direita do botão, alinhado pela direita
+    let left = rect.right - dropW;
+    let top = rect.bottom + 6;
+
+    // Se sair pela esquerda, abre pela esquerda do botão
+    if (left < 8) left = rect.left;
+    // Se sair pela direita, recua
+    if (left + dropW > viewportW - 8) left = viewportW - dropW - 8;
+    // Se sair por baixo, abre para cima
+    if (top + 200 > viewportH - 8) top = rect.top - 210;
+
+    drop.style.top = top + 'px';
+    drop.style.left = left + 'px';
+    drop.style.minWidth = dropW + 'px';
+
+    // Adiciona ao body para escapar de qualquer overflow:hidden
+    document.body.appendChild(drop);
+    drop.classList.add('open');
+    _openMenu = drop;
+    _openMenuBtn = btn;
+  });
+
+  wrap.appendChild(btn);
+  // drop fica no body quando aberto, não dentro do wrap
+  // mas começa dentro para não poluir o DOM
+  wrap.appendChild(drop);
+  return wrap;
+}
+
+function closeAllMenus() {
+  document.querySelectorAll('.action-dropdown.open, .action-menu-dropdown.open').forEach(d => d.classList.remove('open'));
+  _openMenu = null;
+  _openMenuBtn = null;
+}
+
+// ── CLIENTES ──
+function renderClientes() {
+  const el = $('clientesGrid');
+  if (!el) return;
+  const clientes = state.clientes || [];
+  if (!clientes.length) {
+    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">👥</div><p>Nenhum cliente ainda.</p></div>';
+    return;
+  }
+  el.innerHTML = '';
+  clientes.forEach(c => {
+    const agts = (state.agendamentos || []).filter(a => a.cliente_nome === c.nome && normStatus(a.status) !== 'Excluído').length;
+    const gasto = (state.agendamentos || []).filter(a => a.cliente_nome === c.nome && isFinanceiro(a)).reduce((s, a) => s + Number(a.valor || 0), 0);
+    const ativo = isAtivoCliente(c);
+    const card = document.createElement('div');
+    card.className = 'client-card' + (ativo ? '' : ' inactive');
+    card.innerHTML = `
+      <div class="cc-top">
+        <div class="cc-av">${initial(c.nome)}</div>
+        <div style="flex:1;min-width:0"><div class="cc-name">${c.nome}</div><div class="cc-phone">${c.telefone || '—'}</div></div>
+      </div>
+      ${c.email ? `<div style="font-size:11.5px;color:var(--text4);margin-bottom:8px;word-break:break-all">✉ ${c.email}</div>` : ''}
+      <div style="margin-bottom:9px"><span class="badge ${ativo ? 'badge-green' : 'badge-gray'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
+      <div class="cc-stats">
+        <div class="cc-stat"><div class="cc-sl">Atendimentos</div><div class="cc-sv">${agts}</div></div>
+        <div class="cc-stat"><div class="cc-sl">Total gasto</div><div class="cc-sv" style="font-size:14px">${money(gasto).replace(',00', '')}</div></div>
+      </div>`;
+    const menu = buildActionMenu(c.id, [
+      { icon: '✏️', label: 'Editar', action: () => editCliente(c.id) },
+      { icon: '📋', label: 'Duplicar', action: () => duplicarCliente(c.id) },
+      'sep',
+      ativo
+        ? { icon: '⏸', label: 'Desativar', cls: 'danger', action: () => toggleCliente(c.id, false) }
+        : { icon: '▶️', label: 'Ativar', cls: 'success', action: () => toggleCliente(c.id, true) },
+      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirCliente(c.id) }
+    ]);
+    card.appendChild(menu);
+    el.appendChild(card);
+  });
+}
+
+// ── SERVIÇOS ──
+function renderServicos() {
+  const el = $('servicosGrid');
+  if (!el) return;
+  const vis = (state.servicos || []).filter(s => s.status !== 'excluido');
+  if (!vis.length) {
+    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">✦</div><p>Nenhum serviço ainda.</p></div>';
+    return;
+  }
+  el.innerHTML = '';
+  vis.forEach(s => {
+    const ativo = s.status === 'ativo';
+    const card = document.createElement('div');
+    card.className = 'svc-card' + (ativo ? '' : ' inactive');
+    card.innerHTML = `
+      <div class="svc-price">${money(s.preco).replace(',00', '')}</div>
+      <div class="svc-name">${s.nome}</div>
+      <div class="svc-dur">⏱ ${s.duracao_minutos || 60} min</div>
+      <div class="svc-status"><span class="badge ${ativo ? 'badge-green' : 'badge-gray'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>`;
+    const menu = buildActionMenu(s.id, [
+      { icon: '✏️', label: 'Editar', action: () => editServico(s.id) },
+      { icon: '📋', label: 'Duplicar', action: () => duplicarServico(s.id) },
+      'sep',
+      ativo
+        ? { icon: '⏸', label: 'Desativar', cls: 'danger', action: () => toggleServico(s.id, 'inativo') }
+        : { icon: '▶️', label: 'Ativar', cls: 'success', action: () => toggleServico(s.id, 'ativo') },
+      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirServico(s.id) }
+    ]);
+    card.appendChild(menu);
+    el.appendChild(card);
+  });
+}
+
+// ── PROFISSIONAIS ──
+function renderProfissionais() {
+  const el = $('profGrid');
+  if (!el) return;
+  const vis = (state.profissionais || []).filter(p => p.status !== 'excluido');
+  if (!vis.length) {
+    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">👤</div><p>Nenhum profissional ainda.</p></div>';
+    return;
+  }
+  el.innerHTML = '';
+  vis.forEach(p => {
+    const ativo = p.status === 'ativo';
+    const card = document.createElement('div');
+    card.className = 'prof-card' + (ativo ? '' : ' inactive');
+    card.innerHTML = `
+      <div class="prof-av">${initial(p.nome)}</div>
+      <div class="prof-name">${p.nome}</div>
+      <div class="prof-esp">${p.especialidade || 'Profissional'}</div>
+      ${p.telefone ? `<div class="prof-phone">📱 ${p.telefone}</div>` : ''}
+      <div class="online-dot${ativo ? '' : ' off'}">${ativo ? 'Online' : 'Offline'}</div>`;
+    const menu = buildActionMenu(p.id, [
+      { icon: '✏️', label: 'Editar', action: () => editProfissional(p.id) },
+      { icon: '📋', label: 'Duplicar', action: () => duplicarProfissional(p.id) },
+      'sep',
+      ativo
+        ? { icon: '⏸', label: 'Desativar', cls: 'danger', action: () => toggleProfissional(p.id, 'inativo') }
+        : { icon: '▶️', label: 'Ativar', cls: 'success', action: () => toggleProfissional(p.id, 'ativo') },
+      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirProfissional(p.id) }
+    ]);
+    card.appendChild(menu);
+    el.appendChild(card);
+  });
+}
+
+// ── FINANCEIRO ──
+function renderFinanceiro() {
+  const fin = (state.agendamentos || []).filter(isFinanceiro);
+  const total = fin.reduce((s, a) => s + Number(a.valor || 0), 0);
+  const ticket = fin.length ? total / fin.length : 0;
+  setText('finReceita', money(total).replace(',00', ''));
+  setText('finTicket', money(ticket).replace(',00', ''));
+  setText('finPagos', fin.length);
+  setText('finPlano', state.empresa?.plano || 'Grátis');
+}
+
+// ── CONFIG ──
+function renderConfig() {
+  const e = state.empresa || {};
+  const set = (id, v) => { const el = $(id); if (el) el.value = v || ''; };
+  set('cfgNome', e.nome);
+  set('cfgWhatsapp', e.whatsapp);
+  set('cfgSlug', e.slug);
+  set('cfgEndereco', e.endereco);
+  set('cfgCidade', e.cidade);
+  set('cfgInstagram', e.instagram);
+  set('cfgFacebook', e.facebook);
+  set('cfgTiktok', e.tiktok);
+  set('cfgSite', e.site);
+  const lb = $('cfgLinkBox');
+  if (lb) lb.textContent = '🔗 ' + publicUrl(e.slug || '');
+}
+
+// ── SALVAR ──
+async function salvarCliente() {
+  const nome = ($('cliNome')?.value || '').trim();
+  if (!nome) return toast('Digite o nome.', 'err');
+  const { error } = await db.from('agenda_clientes').insert({
+    empresa_id: state.empresa.id, nome,
+    telefone: ($('cliTel')?.value || '').trim(),
+    email: ($('cliEmail')?.value || '').trim(),
+    status: 'ativo'
+  });
+  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
+  if ($('cliNome')) $('cliNome').value = '';
+  if ($('cliTel')) $('cliTel').value = '';
+  if ($('cliEmail')) $('cliEmail').value = '';
+  await loadAll();
+  showNotif('Cliente adicionado', nome + ' salvo com sucesso.', 'ok');
+}
+
+async function salvarServico() {
+  const nome = ($('srvNome')?.value || '').trim();
+  if (!nome) return toast('Digite o nome.', 'err');
+  const { error } = await db.from('agenda_servicos').insert({
+    empresa_id: state.empresa.id, nome,
+    preco: Number($('srvPreco')?.value || 0),
+    duracao_minutos: Number($('srvDur')?.value || 60),
+    status: 'ativo'
+  });
+  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
+  if ($('srvNome')) $('srvNome').value = '';
+  if ($('srvPreco')) $('srvPreco').value = '';
+  if ($('srvDur')) $('srvDur').value = '';
+  await loadAll();
+  showNotif('Serviço adicionado', '', 'ok');
+}
+
+async function salvarProfissional() {
+  const nome = ($('proNome')?.value || '').trim();
+  if (!nome) return toast('Digite o nome.', 'err');
+  const { error } = await db.from('agenda_profissionais').insert({
+    empresa_id: state.empresa.id, nome,
+    especialidade: ($('proEsp')?.value || '').trim(),
+    telefone: ($('proTel')?.value || '').trim(),
+    status: 'ativo'
+  });
+  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
+  if ($('proNome')) $('proNome').value = '';
+  if ($('proEsp')) $('proEsp').value = '';
+  if ($('proTel')) $('proTel').value = '';
+  await loadAll();
+  showNotif('Profissional adicionado', '', 'ok');
+}
+
+async function salvarAgendamento() {
+  const agCli = $('agCliente')?.value?.trim();
+  const agSvc = $('agServico')?.value;
+  const agProf = $('agProfissional')?.value;
+  const agData = $('agData')?.value;
+  const agHora = $('agHora')?.value;
+  if (!agCli || !agSvc || !agProf || !agData || !agHora) {
+    return toast('Preencha todos os campos.', 'err');
+  }
+  const serv = (state.servicos || []).find(s => s.id === agSvc);
+  const prof = (state.profissionais || []).find(p => p.id === agProf);
+
+  let clienteId = null;
+  try {
+    const { data: cli } = await db.from('agenda_clientes').insert({
+      empresa_id: state.empresa.id,
+      nome: agCli,
+      telefone: ($('agTelefone')?.value || '').trim(),
+      status: 'ativo'
+    }).select('*').single();
+    if (cli) clienteId = cli.id;
+  } catch(e) {}
+
+  const { error } = await db.from('agenda_agendamentos').insert({
+    empresa_id: state.empresa.id,
+    cliente_id: clienteId,
+    servico_id: serv?.id || null,
+    profissional_id: prof?.id || null,
+    cliente_nome: agCli,
+    cliente_telefone: ($('agTelefone')?.value || '').trim(),
+    servico_nome: serv?.nome || '',
+    profissional_nome: prof?.nome || '',
+    data: agData,
+    hora: agHora,
+    status: $('agStatus')?.value || 'Pendente',
+    valor: Number(serv?.preco || 0)
+  });
+  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
+  if ($('agCliente')) $('agCliente').value = '';
+  if ($('agTelefone')) $('agTelefone').value = '';
+  if ($('agData')) $('agData').value = '';
+  if ($('agHora')) $('agHora').value = '';
+  await loadAll();
+  showNotif('Agendamento criado!', `${agCli} — ${formatDate(agData)} às ${agHora}.`, 'ok');
+}
+
+async function salvarConfig() {
+  if (!state?.empresa?.id) return;
+  const nome = ($('cfgNome')?.value || '').trim();
+  if (!nome) return toast('Digite o nome.', 'err');
+  const slugAtual = slugify(state.empresa.slug || '');
+  const slugNovo = slugify($('cfgSlug')?.value || slugAtual);
+  const updates = {
+    nome,
+    whatsapp: ($('cfgWhatsapp')?.value || '').trim(),
+    endereco: ($('cfgEndereco')?.value || '').trim(),
+    cidade: ($('cfgCidade')?.value || '').trim()
+  };
+  if (slugNovo !== slugAtual) {
+    const { data: slugExiste } = await db.from('agenda_empresas')
+      .select('id').eq('slug', slugNovo).neq('id', state.empresa.id).maybeSingle();
+    if (slugExiste) return toast('Esse link já está em uso.', 'err');
+    updates.slug = slugNovo;
+  }
+  const { data, error } = await db.from('agenda_empresas')
+    .update(updates).eq('id', state.empresa.id).select('*').single();
+  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
+  state.empresa = data || { ...state.empresa, ...updates };
+  setText('sideNome', state.empresa.nome);
+  setText('sideAvatar', initial(state.empresa.nome));
+  const lb = $('sideLinkBox');
+  if (lb) lb.textContent = publicUrl(state.empresa.slug);
+  renderConfig();
+  showNotif('Configurações salvas', '', 'ok');
+}
+
+async function salvarRedesSociais() {
+  if (!state?.empresa?.id) return;
+  const updates = {
+    instagram: ($('cfgInstagram')?.value || '').trim(),
+    facebook: ($('cfgFacebook')?.value || '').trim(),
+    tiktok: ($('cfgTiktok')?.value || '').trim(),
+    site: ($('cfgSite')?.value || '').trim()
+  };
+  const { data, error } = await db.from('agenda_empresas')
+    .update(updates).eq('id', state.empresa.id).select('*').single();
+  if (error) return toast('Erro ao salvar redes: ' + error.message, 'err');
+  state.empresa = data || { ...state.empresa, ...updates };
+  showNotif('Redes sociais salvas', '', 'ok');
+}
+
+// ── AÇÕES AGENDAMENTO ──
+async function confirmarAg(id) {
+  const ag = (state.agendamentos || []).find(a => a.id === id);
+  if (!ag) return;
+  const { error } = await db.from('agenda_agendamentos').update({ status: 'Confirmado' }).eq('id', id);
+  if (error) return toast('Erro ao confirmar.', 'err');
+  ag.status = 'Confirmado';
+  renderAll();
+  showNotif('Confirmado!', ag.cliente_nome + ' — ' + formatDate(ag.data) + ' às ' + (ag.hora || '—'), 'ok');
+  const tel = (ag.cliente_telefone || '').replace(/\D/g, '');
+  if (tel) {
+    const msg = `Olá, ${ag.cliente_nome}! Seu agendamento foi confirmado ✅\nServiço: ${ag.servico_nome || '—'}\nData: ${formatDate(ag.data)} às ${ag.hora || '—'}\nAguardamos você!`;
+    const link = buildWaLink(tel, msg);
+    if (link) window.open(link, '_blank');
+  }
+}
+
+async function concluirAg(id) {
+  const ag = (state.agendamentos || []).find(a => a.id === id);
+  if (!ag) return;
+  const { error } = await db.from('agenda_agendamentos')
+    .update({ status: 'Concluído', financeiro_status: 'Concluído' }).eq('id', id);
+  if (error) return toast('Erro ao concluir.', 'err');
+  ag.status = 'Concluído'; ag.financeiro_status = 'Concluído';
+  renderAll();
+  showNotif('Concluído!', ag.cliente_nome + ' — ' + (ag.servico_nome || '—'), 'ok');
+}
+
+function abrirWA(id) {
+  const ag = (state.agendamentos || []).find(a => a.id === id);
+  if (!ag) return;
+  const tel = (ag.cliente_telefone || ag.telefone || '').replace(/\D/g, '');
+  if (!tel) return toast('Telefone não cadastrado.', 'err');
+  const msg = `Olá, ${ag.cliente_nome}! 👋\nServiço: ${ag.servico_nome || '—'}\nData: ${formatDate(ag.data)} às ${ag.hora || '—'}\nAté lá! 😊`;
+  const link = buildWaLink(tel, msg);
+  if (link) window.open(link, '_blank');
+}
+
+// ── MODAL RECUSA ──
+function openModalRecusa(id) {
+  const ag = (state.agendamentos || []).find(a => a.id === id);
+  if (!ag) return;
+  if (!podeTerAcoes(ag)) return toast('Este agendamento não permite recusa.', 'warn');
+  _recusaId = id; _recusaMotivo = null;
+  setText('recusaInfo', `${ag.cliente_nome} · ${formatDate(ag.data)} às ${ag.hora || '—'}`);
+  document.querySelectorAll('.motivo-item').forEach(el => {
+    el.classList.remove('sel');
+    const r = el.querySelector('.motivo-radio');
+    if (r) r.innerHTML = '';
+  });
+  const rmc = $('recusaMotivoCustom');
+  if (rmc) rmc.value = '';
+  const overlay = $('modalRecusaOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeModalRecusa() {
+  const overlay = $('modalRecusaOverlay');
+  if (overlay) overlay.classList.remove('open');
+  _recusaId = null; _recusaMotivo = null;
+}
+
+function selectMotivo(el, motivo) {
+  document.querySelectorAll('.motivo-item').forEach(o => {
+    o.classList.remove('sel');
+    const r = o.querySelector('.motivo-radio');
+    if (r) r.innerHTML = '';
+  });
+  el.classList.add('sel');
+  _recusaMotivo = motivo;
+}
+
+async function confirmarRecusa() {
+  if (!_recusaId) return;
+  const motivo = ($('recusaMotivoCustom')?.value || '').trim() || _recusaMotivo;
+  if (!motivo) return toast('Escolha um motivo.', 'err');
+  const ag = (state.agendamentos || []).find(a => a.id === _recusaId);
+  if (!ag) return;
+  const { error } = await db.from('agenda_agendamentos')
+    .update({ status: 'Recusado', observacoes: motivo }).eq('id', _recusaId);
+  if (error) return toast('Erro ao recusar.', 'err');
+  ag.status = 'Recusado';
+  closeModalRecusa();
+  renderAll();
+  showNotif('Recusado', ag.cliente_nome + ' — ' + motivo, 'info');
+  const tel = (ag.cliente_telefone || '').replace(/\D/g, '');
+  if (tel) {
+    const pubLink = state.empresa ? publicUrl(state.empresa.slug) : '';
+    const msg = `Olá, ${ag.cliente_nome}!\nInfelizmente não conseguimos confirmar seu agendamento para ${formatDate(ag.data)}.\nMotivo: ${motivo}\nEscolha outro horário: ${pubLink}`;
+    const link = buildWaLink(tel, msg);
+    if (link) window.open(link, '_blank');
+  }
+}
+
+// ── MODAL REAGENDAR ──
+function openModalReagendar(id) {
+  const ag = (state.agendamentos || []).find(a => a.id === id);
+  if (!ag) return;
+  if (!podeTerAcoes(ag)) return toast('Este agendamento não permite reagendamento.', 'warn');
+  _reagendarId = id;
+  setText('reagendarInfo', `${ag.cliente_nome} · ${formatDate(ag.data)} às ${ag.hora || '—'}`);
+  const rd = $('reagendarData'); if (rd) rd.value = ag.data || '';
+  const rh = $('reagendarHora'); if (rh) rh.value = ag.hora || '';
+  const overlay = $('modalReagendarOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeModalReagendar() {
+  const overlay = $('modalReagendarOverlay');
+  if (overlay) overlay.classList.remove('open');
+  _reagendarId = null;
+}
+
+async function confirmarReagendar() {
+  if (!_reagendarId) return;
+  const data = $('reagendarData')?.value;
+  const hora = $('reagendarHora')?.value;
+  if (!data || !hora) return toast('Escolha nova data e hora.', 'err');
+  const ag = (state.agendamentos || []).find(a => a.id === _reagendarId);
+  if (!ag) return;
+  const { error } = await db.from('agenda_agendamentos')
+    .update({ data, hora, status: 'Reagendado' }).eq('id', _reagendarId);
+  if (error) return toast('Erro ao reagendar.', 'err');
+  ag.data = data; ag.hora = hora; ag.status = 'Reagendado';
+  closeModalReagendar();
+  renderAll();
+  showNotif('Reagendado!', ag.cliente_nome + ' → ' + formatDate(data) + ' às ' + hora, 'ok');
+  const tel = (ag.cliente_telefone || '').replace(/\D/g, '');
+  if (tel) {
+    const msg = `Olá, ${ag.cliente_nome}!\nSeu agendamento foi reagendado 📅\nNova data: ${formatDate(data)} às ${hora}\nAguardamos você! 😊`;
+    const link = buildWaLink(tel, msg);
+    if (link) window.open(link, '_blank');
+  }
+}
+
+// ── CONFIRM MODAL ──
+function openConfirmModal({ icon = '⚠️', type = 'danger', title = 'Tem certeza?', body = 'Esta ação não pode ser desfeita.', btnLabel = 'Confirmar', cb }) {
+  const wrap = $('confirmIconWrap');
+  if (wrap) { wrap.className = 'confirm-icon-wrap ' + type; wrap.textContent = icon; }
+  setText('confirmTitle', title);
+  setText('confirmBody', body);
+  const btn = $('confirmActionBtn');
+  if (btn) {
+    btn.textContent = btnLabel;
+    btn.className = 'btn ' + (type === 'danger' ? 'btn-danger' : 'btn-primary');
+  }
+  _confirmCb = cb;
+  const overlay = $('confirmOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeConfirmModal() {
+  const overlay = $('confirmOverlay');
+  if (overlay) overlay.classList.remove('open');
+  _confirmCb = null;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const confirmBtn = $('confirmActionBtn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      if (_confirmCb) _confirmCb();
+      closeConfirmModal();
+    });
+  }
+
+  const confirmOverlay = $('confirmOverlay');
+  if (confirmOverlay) {
+    confirmOverlay.addEventListener('click', e => {
+      if (e.target === confirmOverlay) closeConfirmModal();
+    });
+  }
+
+  const editOverlay = $('editOverlay');
+  if (editOverlay) {
+    editOverlay.addEventListener('click', e => {
+      if (e.target === editOverlay) closeEditModal();
+    });
+  }
+
+  const modalRecusaOverlay = $('modalRecusaOverlay');
+  if (modalRecusaOverlay) {
+    modalRecusaOverlay.addEventListener('click', e => {
+      if (e.target === modalRecusaOverlay) closeModalRecusa();
+    });
+  }
+
+  const modalReagendarOverlay = $('modalReagendarOverlay');
+  if (modalReagendarOverlay) {
+    modalReagendarOverlay.addEventListener('click', e => {
+      if (e.target === modalReagendarOverlay) closeModalReagendar();
     });
   }
 });
 
-// ============================================================
-// MODAL: AGENDAMENTO
-// ============================================================
-function openModalNovoAgendamento() {
-  STATE.editingId = null;
-  document.getElementById('agCliente').value = '';
-  document.getElementById('agServico').value = '';
-  document.getElementById('agProfissional').value = '';
-  document.getElementById('agStatus').value = 'pendente';
-  document.getElementById('agData').value = new Date().toISOString().split('T')[0];
-  document.getElementById('agHora').value = '09:00';
-  document.getElementById('agObservacoes').value = '';
-  openModal('modalNovoAgendamento');
+// ── EDIT MODAL ──
+function openEditModal(title, bodyHtml, saveCb) {
+  setText('editModalTitle', title);
+  const body = $('editModalBody');
+  if (body) body.innerHTML = bodyHtml;
+  _editSaveCb = saveCb;
+  const saveBtn = $('editSaveBtn');
+  if (saveBtn) saveBtn.onclick = () => { if (_editSaveCb) _editSaveCb(); };
+  const overlay = $('editOverlay');
+  if (overlay) overlay.classList.add('open');
 }
 
-function openEditAgendamento(id) {
-  const ag = STATE.agendamentos.find(a => a.id == id);
-  if (!ag) return;
-  STATE.editingId = id;
-  document.getElementById('agCliente').value = ag.cliente_id || '';
-  document.getElementById('agServico').value = ag.servico_id || '';
-  document.getElementById('agProfissional').value = ag.profissional_id || '';
-  document.getElementById('agStatus').value = ag.status || 'pendente';
-  document.getElementById('agData').value = ag.data || '';
-  document.getElementById('agHora').value = ag.hora || '';
-  document.getElementById('agObservacoes').value = ag.observacoes || '';
-  openModal('modalNovoAgendamento');
+function closeEditModal() {
+  const overlay = $('editOverlay');
+  if (overlay) overlay.classList.remove('open');
+  _editSaveCb = null;
 }
 
-async function salvarAgendamento() {
-  const data = {
-    cliente_id: document.getElementById('agCliente').value || null,
-    servico_id: document.getElementById('agServico').value || null,
-    profissional_id: document.getElementById('agProfissional').value || null,
-    status: document.getElementById('agStatus').value,
-    data: document.getElementById('agData').value,
-    hora: document.getElementById('agHora').value,
-    observacoes: document.getElementById('agObservacoes').value
-  };
-
-  if (!data.data) { showToast('Informe a data', 'error'); return; }
-
-  let result;
-  if (STATE.editingId) {
-    result = await sb.patch('agendamentos', STATE.editingId, data);
-  } else {
-    result = await sb.post('agendamentos', data);
-  }
-
-  if (result) {
-    showToast(STATE.editingId ? 'Agendamento atualizado!' : 'Agendamento criado!', 'success');
-    closeModal('modalNovoAgendamento');
-    await loadAgenda();
-    renderDashboard();
-  } else {
-    showToast('Erro ao salvar agendamento', 'error');
-  }
-}
-
-async function deleteAgendamento(id) {
-  if (!confirm('Excluir este agendamento?')) return;
-  const ok = await sb.delete('agendamentos', id);
-  if (ok) {
-    showToast('Agendamento excluído', 'success');
-    await loadAgenda();
-    renderDashboard();
-  }
-}
-
-// ============================================================
-// MODAL: CLIENTE
-// ============================================================
-function openModalNovoCliente() {
-  STATE.editingId = null;
-  document.getElementById('modalClienteTitle').textContent = 'Novo Cliente';
-  document.getElementById('clienteId').value = '';
-  document.getElementById('clienteNome').value = '';
-  document.getElementById('clienteTelefone').value = '';
-  document.getElementById('clienteEmail').value = '';
-  document.getElementById('clienteObs').value = '';
-  openModal('modalNovoCliente');
-}
-
-function openEditCliente(id) {
-  const c = STATE.clientes.find(x => x.id == id);
-  if (!c) return;
-  STATE.editingId = id;
-  document.getElementById('modalClienteTitle').textContent = 'Editar Cliente';
-  document.getElementById('clienteId').value = c.id;
-  document.getElementById('clienteNome').value = c.nome || '';
-  document.getElementById('clienteTelefone').value = c.telefone || '';
-  document.getElementById('clienteEmail').value = c.email || '';
-  document.getElementById('clienteObs').value = c.observacoes || '';
-  openModal('modalNovoCliente');
-}
-
-async function salvarCliente() {
-  const nome = document.getElementById('clienteNome').value.trim();
-  if (!nome) { showToast('Informe o nome do cliente', 'error'); return; }
-
-  const data = {
-    nome,
-    telefone: document.getElementById('clienteTelefone').value.trim(),
-    email: document.getElementById('clienteEmail').value.trim(),
-    observacoes: document.getElementById('clienteObs').value.trim()
-  };
-
-  let result;
-  if (STATE.editingId) {
-    result = await sb.patch('clientes', STATE.editingId, data);
-  } else {
-    result = await sb.post('clientes', data);
-  }
-
-  if (result) {
-    showToast(STATE.editingId ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
-    closeModal('modalNovoCliente');
-    await loadClientes();
-    populateSelects();
-  } else {
-    showToast('Erro ao salvar cliente', 'error');
-  }
-}
-
-async function deleteCliente(id) {
-  if (!confirm('Excluir este cliente?')) return;
-  const ok = await sb.delete('clientes', id);
-  if (ok) {
-    showToast('Cliente excluído', 'success');
-    await loadClientes();
-    populateSelects();
-  }
-}
-
-// ============================================================
-// MODAL: SERVIÇO
-// ============================================================
-function openModalNovoServico() {
-  STATE.editingId = null;
-  document.getElementById('modalServicoTitle').textContent = 'Novo Serviço';
-  document.getElementById('servicoId').value = '';
-  document.getElementById('servicoNome').value = '';
-  document.getElementById('servicoDuracao').value = '60';
-  document.getElementById('servicoCategoria').value = '';
-  document.getElementById('servicoDesc').value = '';
-  openModal('modalNovoServico');
-}
-
-function openEditServico(id) {
-  const s = STATE.servicos.find(x => x.id == id);
+// ── EDITAR ──
+function editServico(id) {
+  const s = (state.servicos || []).find(x => x.id === id);
   if (!s) return;
-  STATE.editingId = id;
-  document.getElementById('modalServicoTitle').textContent = 'Editar Serviço';
-  document.getElementById('servicoId').value = s.id;
-  document.getElementById('servicoNome').value = s.nome || '';
-  document.getElementById('servicoDuracao').value = s.duracao || '';
-  document.getElementById('servicoCategoria').value = s.categoria || '';
-  document.getElementById('servicoDesc').value = s.descricao || '';
-  openModal('modalNovoServico');
+  openEditModal('Editar Serviço', `
+    <div class="form-gap">
+      <div class="field"><label>Nome</label><input id="ed_sn" value="${s.nome || ''}"></div>
+      <div class="field-row">
+        <div class="field"><label>Preço (R$)</label><input id="ed_sp" type="number" value="${s.preco || 0}"></div>
+        <div class="field"><label>Duração (min)</label><input id="ed_sd" type="number" value="${s.duracao_minutos || 60}"></div>
+      </div>
+    </div>`, async () => {
+    const nome = ($('ed_sn')?.value || '').trim();
+    if (!nome) return toast('Preencha o nome.', 'err');
+    const { error } = await db.from('agenda_servicos').update({
+      nome,
+      preco: Number($('ed_sp')?.value || 0),
+      duracao_minutos: Number($('ed_sd')?.value || 60)
+    }).eq('id', id);
+    if (error) return toast('Erro ao salvar.', 'err');
+    closeEditModal(); await loadAll();
+    showNotif('Serviço atualizado', '', 'ok');
+  });
 }
 
-async function salvarServico() {
-  const nome = document.getElementById('servicoNome').value.trim();
-  if (!nome) { showToast('Informe o nome do serviço', 'error'); return; }
-
-  const data = {
-    nome,
-    duracao: parseInt(document.getElementById('servicoDuracao').value) || 60,
-    categoria: document.getElementById('servicoCategoria').value.trim(),
-    descricao: document.getElementById('servicoDesc').value.trim()
-  };
-
-  let result;
-  if (STATE.editingId) {
-    result = await sb.patch('servicos', STATE.editingId, data);
-  } else {
-    result = await sb.post('servicos', data);
-  }
-
-  if (result) {
-    showToast(STATE.editingId ? 'Serviço atualizado!' : 'Serviço criado!', 'success');
-    closeModal('modalNovoServico');
-    await loadServicos();
-    populateSelects();
-  } else {
-    showToast('Erro ao salvar serviço', 'error');
-  }
-}
-
-async function deleteServico(id) {
-  if (!confirm('Excluir este serviço?')) return;
-  const ok = await sb.delete('servicos', id);
-  if (ok) {
-    showToast('Serviço excluído', 'success');
-    await loadServicos();
-    populateSelects();
-  }
-}
-
-// ============================================================
-// MODAL: PROFISSIONAL
-// ============================================================
-function openModalNovoProfissional() {
-  STATE.editingId = null;
-  document.getElementById('modalProfissionalTitle').textContent = 'Novo Profissional';
-  document.getElementById('profissionalId').value = '';
-  document.getElementById('profissionalNome').value = '';
-  document.getElementById('profissionalEspecialidade').value = '';
-  document.getElementById('profissionalTelefone').value = '';
-  document.getElementById('profissionalEmail').value = '';
-  openModal('modalNovoProfissional');
-}
-
-function openEditProfissional(id) {
-  const p = STATE.profissionais.find(x => x.id == id);
+function editProfissional(id) {
+  const p = (state.profissionais || []).find(x => x.id === id);
   if (!p) return;
-  STATE.editingId = id;
-  document.getElementById('modalProfissionalTitle').textContent = 'Editar Profissional';
-  document.getElementById('profissionalId').value = p.id;
-  document.getElementById('profissionalNome').value = p.nome || '';
-  document.getElementById('profissionalEspecialidade').value = p.especialidade || '';
-  document.getElementById('profissionalTelefone').value = p.telefone || '';
-  document.getElementById('profissionalEmail').value = p.email || '';
-  openModal('modalNovoProfissional');
+  openEditModal('Editar Profissional', `
+    <div class="form-gap">
+      <div class="field"><label>Nome</label><input id="ed_pn" value="${p.nome || ''}"></div>
+      <div class="field"><label>Especialidade</label><input id="ed_pe" value="${p.especialidade || ''}"></div>
+      <div class="field"><label>Telefone</label><input id="ed_pt" value="${p.telefone || ''}"></div>
+    </div>`, async () => {
+    const nome = ($('ed_pn')?.value || '').trim();
+    if (!nome) return toast('Preencha o nome.', 'err');
+    const { error } = await db.from('agenda_profissionais').update({
+      nome,
+      especialidade: ($('ed_pe')?.value || '').trim(),
+      telefone: ($('ed_pt')?.value || '').trim()
+    }).eq('id', id);
+    if (error) return toast('Erro ao salvar.', 'err');
+    closeEditModal(); await loadAll();
+    showNotif('Profissional atualizado', '', 'ok');
+  });
 }
 
-async function salvarProfissional() {
-  const nome = document.getElementById('profissionalNome').value.trim();
-  if (!nome) { showToast('Informe o nome do profissional', 'error'); return; }
+function editCliente(id) {
+  const c = (state.clientes || []).find(x => x.id === id);
+  if (!c) return;
+  openEditModal('Editar Cliente', `
+    <div class="form-gap">
+      <div class="field"><label>Nome</label><input id="ed_cn" value="${c.nome || ''}"></div>
+      <div class="field"><label>Telefone</label><input id="ed_ct" value="${c.telefone || ''}"></div>
+      <div class="field"><label>E-mail</label><input id="ed_ce" value="${c.email || ''}"></div>
+    </div>`, async () => {
+    const nome = ($('ed_cn')?.value || '').trim();
+    if (!nome) return toast('Preencha o nome.', 'err');
+    const { error } = await db.from('agenda_clientes').update({
+      nome,
+      telefone: ($('ed_ct')?.value || '').trim(),
+      email: ($('ed_ce')?.value || '').trim()
+    }).eq('id', id);
+    if (error) return toast('Erro ao salvar.', 'err');
+    closeEditModal(); await loadAll();
+    showNotif('Cliente atualizado', '', 'ok');
+  });
+}
 
-  const data = {
-    nome,
-    especialidade: document.getElementById('profissionalEspecialidade').value.trim(),
-    telefone: document.getElementById('profissionalTelefone').value.trim(),
-    email: document.getElementById('profissionalEmail').value.trim()
-  };
+function editAgendamento(id) {
+  const a = (state.agendamentos || []).find(x => x.id === id);
+  if (!a) return;
+  const svcopts = (state.servicos || []).filter(s => s.status === 'ativo')
+    .map(s => `<option value="${s.id}"${s.id === a.servico_id ? ' selected' : ''}>${s.nome}</option>`).join('');
+  const profopts = (state.profissionais || []).filter(p => p.status === 'ativo')
+    .map(p => `<option value="${p.id}"${p.id === a.profissional_id ? ' selected' : ''}>${p.nome}</option>`).join('');
+  openEditModal('Editar Agendamento', `
+    <div class="form-gap">
+      <div class="field-row">
+        <div class="field"><label>Cliente</label><input id="ed_ac" value="${a.cliente_nome || ''}"></div>
+        <div class="field"><label>Telefone</label><input id="ed_atel" value="${a.cliente_telefone || ''}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Serviço</label><select id="ed_as">${svcopts}</select></div>
+        <div class="field"><label>Profissional</label><select id="ed_ap">${profopts}</select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Data</label><input id="ed_ad" type="date" value="${a.data || ''}"></div>
+        <div class="field"><label>Hora</label><input id="ed_ah" type="time" value="${a.hora || ''}"></div>
+      </div>
+      <div class="field"><label>Status</label><select id="ed_ast">
+        <option${normStatus(a.status) === 'Confirmado' ? ' selected' : ''}>Confirmado</option>
+        <option${normStatus(a.status) === 'Pendente' ? ' selected' : ''}>Pendente</option>
+        <option${normStatus(a.status) === 'Reagendado' ? ' selected' : ''}>Reagendado</option>
+        <option${normStatus(a.status) === 'Concluído' ? ' selected' : ''}>Concluído</option>
+        <option${normStatus(a.status) === 'Recusado' ? ' selected' : ''}>Recusado</option>
+        <option${normStatus(a.status) === 'Excluído' ? ' selected' : ''}>Excluído</option>
+      </select></div>
+    </div>`, async () => {
+    const cli = ($('ed_ac')?.value || '').trim();
+    const data = $('ed_ad')?.value;
+    const hora = $('ed_ah')?.value;
+    if (!cli || !data || !hora) return toast('Preencha cliente, data e hora.', 'err');
+    const serv = (state.servicos || []).find(s => s.id === $('ed_as')?.value);
+    const prof = (state.profissionais || []).find(p => p.id === $('ed_ap')?.value);
+    const { error } = await db.from('agenda_agendamentos').update({
+      cliente_nome: cli,
+      cliente_telefone: ($('ed_atel')?.value || '').trim(),
+      servico_id: $('ed_as')?.value || null,
+      profissional_id: $('ed_ap')?.value || null,
+      servico_nome: serv?.nome || a.servico_nome,
+      profissional_nome: prof?.nome || a.profissional_nome,
+      data, hora,
+      status: $('ed_ast')?.value || 'Pendente',
+      valor: Number(serv?.preco || a.valor || 0)
+    }).eq('id', id);
+    if (error) return toast('Erro ao salvar.', 'err');
+    closeEditModal(); await loadAll();
+    showNotif('Agendamento atualizado', '', 'ok');
+  });
+}
 
-  let result;
-  if (STATE.editingId) {
-    result = await sb.patch('profissionais', STATE.editingId, data);
+// ── DUPLICAR ──
+async function duplicarServico(id) {
+  const s = (state.servicos || []).find(x => x.id === id);
+  if (!s) return;
+  await db.from('agenda_servicos').insert({
+    empresa_id: state.empresa.id, nome: s.nome + ' (cópia)',
+    preco: s.preco, duracao_minutos: s.duracao_minutos, status: 'ativo'
+  });
+  await loadAll(); showNotif('Serviço duplicado', '', 'info');
+}
+
+async function duplicarProfissional(id) {
+  const p = (state.profissionais || []).find(x => x.id === id);
+  if (!p) return;
+  await db.from('agenda_profissionais').insert({
+    empresa_id: state.empresa.id, nome: p.nome + ' (cópia)',
+    especialidade: p.especialidade, telefone: p.telefone, status: 'ativo'
+  });
+  await loadAll(); showNotif('Profissional duplicado', '', 'info');
+}
+
+async function duplicarCliente(id) {
+  const c = (state.clientes || []).find(x => x.id === id);
+  if (!c) return;
+  await db.from('agenda_clientes').insert({
+    empresa_id: state.empresa.id, nome: c.nome + ' (cópia)',
+    telefone: c.telefone, email: c.email, status: 'ativo'
+  });
+  await loadAll(); showNotif('Cliente duplicado', '', 'info');
+}
+
+async function duplicarAgendamento(id) {
+  const a = (state.agendamentos || []).find(x => x.id === id);
+  if (!a) return;
+  await db.from('agenda_agendamentos').insert({
+    empresa_id: state.empresa.id,
+    cliente_id: a.cliente_id, servico_id: a.servico_id,
+    profissional_id: a.profissional_id,
+    cliente_nome: a.cliente_nome, cliente_telefone: a.cliente_telefone,
+    servico_nome: a.servico_nome, profissional_nome: a.profissional_nome,
+    data: a.data, hora: a.hora, status: 'Pendente', valor: a.valor
+  });
+  await loadAll(); showNotif('Agendamento duplicado como Pendente', '', 'info');
+}
+
+// ── TOGGLE ──
+function toggleServico(id, ns) {
+  const s = (state.servicos || []).find(x => x.id === id); if (!s) return;
+  openConfirmModal({
+    icon: ns === 'ativo' ? '▶️' : '⏸', type: ns === 'ativo' ? 'info' : 'danger',
+    title: ns === 'ativo' ? 'Ativar serviço?' : 'Desativar serviço?',
+    body: `"${s.nome}"`, btnLabel: ns === 'ativo' ? 'Ativar' : 'Desativar',
+    cb: async () => {
+      await db.from('agenda_servicos').update({ status: ns }).eq('id', id);
+      await loadAll();
+      showNotif(ns === 'ativo' ? 'Serviço ativado' : 'Serviço desativado', '', 'ok');
+    }
+  });
+}
+
+function toggleProfissional(id, ns) {
+  const p = (state.profissionais || []).find(x => x.id === id); if (!p) return;
+  openConfirmModal({
+    icon: ns === 'ativo' ? '▶️' : '⏸', type: ns === 'ativo' ? 'info' : 'danger',
+    title: ns === 'ativo' ? 'Ativar profissional?' : 'Desativar?',
+    body: `"${p.nome}"`, btnLabel: ns === 'ativo' ? 'Ativar' : 'Desativar',
+    cb: async () => {
+      await db.from('agenda_profissionais').update({ status: ns }).eq('id', id);
+      await loadAll();
+      showNotif(ns === 'ativo' ? 'Profissional ativado' : 'Profissional desativado', '', 'ok');
+    }
+  });
+}
+
+function toggleCliente(id, ativar) {
+  const c = (state.clientes || []).find(x => x.id === id); if (!c) return;
+  openConfirmModal({
+    icon: ativar ? '▶️' : '⏸', type: ativar ? 'info' : 'danger',
+    title: ativar ? 'Ativar cliente?' : 'Desativar?',
+    body: `"${c.nome}"`, btnLabel: ativar ? 'Ativar' : 'Desativar',
+    cb: async () => {
+      await db.from('agenda_clientes').update({ status: ativar ? 'ativo' : 'inativo' }).eq('id', id);
+      await loadAll();
+      showNotif(ativar ? 'Cliente ativado' : 'Cliente desativado', '', 'ok');
+    }
+  });
+}
+
+// ── EXCLUIR ──
+function excluirServico(id) {
+  const s = (state.servicos || []).find(x => x.id === id); if (!s) return;
+  openConfirmModal({
+    icon: '🗑', type: 'danger', title: 'Excluir serviço?', body: `"${s.nome}"`, btnLabel: 'Excluir',
+    cb: async () => {
+      await db.from('agenda_servicos').update({ status: 'excluido' }).eq('id', id);
+      await loadAll(); showNotif('Serviço excluído', '', 'info');
+    }
+  });
+}
+
+function excluirProfissional(id) {
+  const p = (state.profissionais || []).find(x => x.id === id); if (!p) return;
+  openConfirmModal({
+    icon: '🗑', type: 'danger', title: 'Excluir profissional?', body: `"${p.nome}"`, btnLabel: 'Excluir',
+    cb: async () => {
+      await db.from('agenda_profissionais').update({ status: 'excluido' }).eq('id', id);
+      await loadAll(); showNotif('Profissional excluído', '', 'info');
+    }
+  });
+}
+
+function excluirCliente(id) {
+  const c = (state.clientes || []).find(x => x.id === id); if (!c) return;
+  openConfirmModal({
+    icon: '🗑', type: 'danger', title: 'Excluir cliente?', body: `"${c.nome}"`, btnLabel: 'Excluir',
+    cb: async () => {
+      await db.from('agenda_clientes').update({ status: 'inativo' }).eq('id', id);
+      await loadAll(); showNotif('Cliente removido', '', 'info');
+    }
+  });
+}
+
+function excluirAgendamento(id) {
+  const a = (state.agendamentos || []).find(x => x.id === id); if (!a) return;
+  const jaFoi = normStatus(a.status) === 'Concluído' || a.financeiro_status === 'Concluído';
+  openConfirmModal({
+    icon: '🗑', type: 'danger',
+    title: jaFoi ? 'Arquivar agendamento?' : 'Excluir agendamento?',
+    body: `"${a.cliente_nome}" em ${formatDate(a.data)}.${jaFoi ? ' O faturamento será preservado.' : ''}`,
+    btnLabel: jaFoi ? 'Arquivar' : 'Excluir',
+    cb: async () => {
+      const payload = jaFoi
+        ? { status: 'Excluído', financeiro_status: 'Concluído' }
+        : { status: 'Excluído' };
+      const { error } = await db.from('agenda_agendamentos').update(payload).eq('id', id);
+      if (error) return toast('Erro ao excluir.', 'err');
+      await loadAll();
+      showNotif(jaFoi ? 'Agendamento arquivado' : 'Agendamento excluído', jaFoi ? 'Faturamento mantido.' : '', 'info');
+    }
+  });
+}
+
+// ── PUBLIC PAGE ──
+function copyPublicLink() {
+  if (!state?.empresa?.slug) return;
+  const link = publicUrl(state.empresa.slug);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link).catch(() => {});
+  }
+  showNotif('Link copiado!', link, 'ok', 3000);
+}
+
+function openPublic() {
+  if (!state?.empresa?.slug) return;
+  history.pushState(null, '', '#agendar/' + state.empresa.slug);
+  loadPublic(state.empresa.slug);
+}
+
+async function loadPublic(slug) {
+  const lv = $('landingView');
+  const dv = $('dashboardView');
+  const pv = $('publicView');
+  if (lv) lv.style.display = 'none';
+  if (dv) dv.style.display = 'none';
+  if (pv) pv.style.display = 'block';
+
+  const { data: empresa, error } = await db.from('agenda_empresas')
+    .select('*').eq('slug', slug).single();
+
+  if (error || !empresa) {
+    setText('pubNomeEmpresa', 'Agenda não encontrada');
+    setText('pubDescEmpresa', 'Verifique se o link está correto.');
+    return;
+  }
+
+  state.pubEmpresa = empresa;
+  setText('pubNomeEmpresa', empresa.nome);
+  setText('pubDescEmpresa', (empresa.area_atuacao || 'Agendamento Online') + ' • WhatsApp: ' + (empresa.whatsapp || 'Não informado'));
+
+  const sociais = $('pubSociais');
+  if (sociais) {
+    let html = '';
+    if (empresa.instagram) {
+      const h = empresa.instagram.replace('@', '').replace(/.*instagram\.com\//, '');
+      html += `<a href="https://instagram.com/${h}" target="_blank" rel="noopener" class="pub-social">📸 @${h}</a>`;
+    }
+    if (empresa.site) {
+      const url = empresa.site.startsWith('http') ? empresa.site : 'https://' + empresa.site;
+      const lbl = empresa.site.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      html += `<a href="${url}" target="_blank" rel="noopener" class="pub-social">🌐 ${lbl}</a>`;
+    }
+    sociais.innerHTML = html;
+    sociais.style.display = html ? 'flex' : 'none';
+  }
+
+  const waFab = $('pubWaFab');
+  if (waFab) {
+    const tel = (empresa.whatsapp || '').replace(/\D/g, '');
+    if (tel) {
+      const f = tel.startsWith('55') ? tel : '55' + tel;
+      waFab.href = 'https://wa.me/' + f + '?text=' + encodeURIComponent('Olá, tenho uma dúvida antes de agendar.');
+      waFab.style.display = 'flex';
+    } else {
+      waFab.style.display = 'none';
+    }
+  }
+
+  const [svcs, profs] = await Promise.all([
+    db.from('agenda_servicos').select('*').eq('empresa_id', empresa.id).eq('status', 'ativo').order('nome'),
+    db.from('agenda_profissionais').select('*').eq('empresa_id', empresa.id).eq('status', 'ativo').order('nome')
+  ]);
+  state.servicos = svcs.data || [];
+  state.profissionais = profs.data || [];
+
+  const ps = $('pubServicos');
+  if (ps) {
+    ps.innerHTML = state.servicos.map(s => `
+      <div class="choice" onclick="selectPubSvc('${s.id}',this)">
+        <div class="choice-icon">✦</div>
+        <div style="flex:1;min-width:0"><div class="choice-title">${s.nome}</div><div class="choice-sub">${s.duracao_minutos || 60} min</div></div>
+        <div class="choice-price">${money(s.preco).replace(',00', '')}</div>
+      </div>`).join('') ||
+      '<div class="empty-state"><div class="es-icon">✦</div><p>Nenhum serviço disponível.</p></div>';
+  }
+
+  const pp = $('pubProfissionais');
+  if (pp) {
+    pp.innerHTML = state.profissionais.map(p => `
+      <div class="choice" onclick="selectPubProf('${p.id}',this)">
+        <div class="choice-icon">👤</div>
+        <div style="flex:1;min-width:0"><div class="choice-title">${p.nome}</div><div class="choice-sub">${p.especialidade || 'Profissional'}</div></div>
+      </div>`).join('') ||
+      '<div class="empty-state"><div class="es-icon">👤</div><p>Nenhum profissional disponível.</p></div>';
+  }
+}
+
+function selectPubSvc(id, el) {
+  state.pubServico = (state.servicos || []).find(s => s.id === id);
+  document.querySelectorAll('#pubServicos .choice').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function selectPubProf(id, el) {
+  state.pubProfissional = (state.profissionais || []).find(p => p.id === id);
+  document.querySelectorAll('#pubProfissionais .choice').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+async function confirmarAgendamentoPublico() {
+  const pubNome = $('pubClienteNome')?.value?.trim();
+  const pubTel = $('pubClienteTel')?.value?.trim();
+  const pubData = $('pubData')?.value;
+  const pubHora = $('pubHora')?.value;
+
+  if (!state.pubEmpresa || !state.pubServico || !state.pubProfissional || !pubNome || !pubTel || !pubData || !pubHora) {
+    return toast('Preencha tudo para confirmar.', 'err');
+  }
+
+  try {
+    let clienteId = null;
+    const { data: cli } = await db.from('agenda_clientes').insert({
+      empresa_id: state.pubEmpresa.id,
+      nome: pubNome,
+      telefone: pubTel,
+      status: 'ativo'
+    }).select('*').single();
+    if (cli) clienteId = cli.id;
+
+    const { error } = await db.from('agenda_agendamentos').insert({
+      empresa_id: state.pubEmpresa.id,
+      cliente_id: clienteId,
+      servico_id: state.pubServico.id,
+      profissional_id: state.pubProfissional.id,
+      cliente_nome: pubNome,
+      cliente_telefone: pubTel,
+      servico_nome: state.pubServico.nome,
+      profissional_nome: state.pubProfissional.nome,
+      data: pubData,
+      hora: pubHora,
+      status: 'Pendente',
+      valor: Number(state.pubServico.preco || 0),
+      observacoes: $('pubObs')?.value || ''
+    });
+
+    if (error) { console.error(error); return toast('Erro ao confirmar: ' + error.message, 'err'); }
+
+    const mb = $('pubMainBody');
+    const cs = $('pubConfirmScreen');
+    if (mb) mb.style.display = 'none';
+    if (cs) cs.style.display = 'block';
+  } catch (e) {
+    console.error('Erro ao confirmar agendamento público:', e);
+    toast('Erro inesperado. Tente novamente.', 'err');
+  }
+}
+
+function resetPublic() {
+  const mb = $('pubMainBody');
+  const cs = $('pubConfirmScreen');
+  if (mb) mb.style.display = 'flex';
+  if (cs) cs.style.display = 'none';
+  const campos = ['pubClienteNome', 'pubClienteTel', 'pubData', 'pubHora', 'pubObs'];
+  campos.forEach(id => { const el = $(id); if (el) el.value = ''; });
+  state.pubServico = null;
+  state.pubProfissional = null;
+  document.querySelectorAll('.choice').forEach(c => c.classList.remove('active'));
+}
+
+function voltarDaPublica() {
+  history.pushState(null, '', location.pathname);
+  const pv = $('publicView');
+  if (pv) pv.style.display = 'none';
+  if (state?.empresa) {
+    const dv = $('dashboardView');
+    if (dv) dv.style.display = 'block';
+    setView('dashboard');
   } else {
-    result = await sb.post('profissionais', data);
+    const lv = $('landingView');
+    if (lv) lv.style.display = 'block';
   }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  if (result) {
-    showToast(STATE.editingId ? 'Profissional atualizado!' : 'Profissional cadastrado!', 'success');
-    closeModal('modalNovoProfissional');
-    await loadProfissionais();
-    populateSelects();
-  } else {
-    showToast('Erro ao salvar profissional', 'error');
+// ── EXPOSE GLOBALS ──
+Object.assign(window, {
+  openAuth, closeAuth, showLogin, showCadastro,
+  goStep1, goStep2, goStep3, autoSlug,
+  loginComSenha, finalizarCadastro, logout,
+  setView, setFilter,
+  salvarCliente, salvarServico, salvarProfissional, salvarAgendamento,
+  salvarConfig, salvarRedesSociais,
+  confirmarAg, concluirAg, abrirWA,
+  openModalRecusa, closeModalRecusa, selectMotivo, confirmarRecusa,
+  openModalReagendar, closeModalReagendar, confirmarReagendar,
+  editCliente, editServico, editProfissional, editAgendamento,
+  duplicarCliente, duplicarServico, duplicarProfissional, duplicarAgendamento,
+  toggleCliente, toggleServico, toggleProfissional,
+  excluirCliente, excluirServico, excluirProfissional, excluirAgendamento,
+  copyPublicLink, openPublic, voltarDaPublica,
+  selectPubSvc, selectPubProf, confirmarAgendamentoPublico, resetPublic,
+  closeEditModal, closeConfirmModal, closeModalRecusa, closeModalReagendar,
+  toast, clearNotifDot, loadPublic,
+  openMobileMenu, closeMobileMenu
+});
+
+
+/* PATCH DATE PICKER PREMIUM */
+let _datePickerTarget = null;
+let _datePickerMonth = new Date();
+
+function openDatePicker(targetId) {
+  const overlay = $('datePickerOverlay');
+  if (!overlay) return;
+  _datePickerTarget = targetId;
+  _datePickerMonth = new Date();
+  overlay.classList.add('open');
+  renderDatePicker();
+}
+function closeDatePicker() { const overlay = $('datePickerOverlay'); if (overlay) overlay.classList.remove('open'); }
+function changeMonth(dir) { _datePickerMonth.setMonth(_datePickerMonth.getMonth() + dir); renderDatePicker(); }
+function renderDatePicker() {
+  const label = $('dateMonthLabel'); const days = $('dateDays'); if (!label || !days) return;
+  const y = _datePickerMonth.getFullYear(); const m = _datePickerMonth.getMonth();
+  label.textContent = _datePickerMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const first = new Date(y, m, 1).getDay(); const last = new Date(y, m + 1, 0).getDate();
+  let html = '';
+  for (let i = 0; i < first; i++) html += '<button class="dp-empty" disabled></button>';
+  for (let d = 1; d <= last; d++) {
+    const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const disabled = iso < hojeISO();
+    html += `<button class="${disabled ? 'disabled' : ''}" ${disabled ? 'disabled' : ''} onclick="pickDate('${iso}')">${d}</button>`;
   }
+  days.innerHTML = html;
 }
-
-async function deleteProfissional(id) {
-  if (!confirm('Excluir este profissional?')) return;
-  const ok = await sb.delete('profissionais', id);
-  if (ok) {
-    showToast('Profissional excluído', 'success');
-    await loadProfissionais();
-    populateSelects();
-  }
-}
-
-// ============================================================
-// MODAL: TRANSAÇÃO
-// ============================================================
-function openModalTransacao() {
-  document.getElementById('transDesc').value = '';
-  document.getElementById('transTipo').value = 'receita';
-  document.getElementById('transValor').value = '';
-  document.getElementById('transData').value = new Date().toISOString().split('T')[0];
-  openModal('modalTransacao');
-}
-
-async function salvarTransacao() {
-  const desc = document.getElementById('transDesc').value.trim();
-  const valor = parseFloat(document.getElementById('transValor').value);
-  const tipo = document.getElementById('transTipo').value;
-  const data = document.getElementById('transData').value;
-
-  if (!desc || !valor || !data) { showToast('Preencha todos os campos', 'error'); return; }
-
-  const result = await sb.post('financeiro', { descricao: desc, tipo, valor, data });
-  if (result) {
-    showToast('Lançamento salvo!', 'success');
-    closeModal('modalTransacao');
-    await loadFinanceiro();
-  } else {
-    showToast('Erro ao salvar lançamento', 'error');
-  }
-}
-
-async function deleteTransacao(id) {
-  if (!confirm('Excluir este lançamento?')) return;
-  const ok = await sb.delete('financeiro', id);
-  if (ok) {
-    showToast('Lançamento excluído', 'success');
-    await loadFinanceiro();
-  }
-}
-
-async function deleteMensagem(id) {
-  if (!confirm('Excluir esta mensagem?')) return;
-  const ok = await sb.delete('mensagens', id);
-  if (ok) {
-    showToast('Mensagem excluída', 'success');
-    await loadMensagens();
-  }
-}
-
-// ============================================================
-// POPULATE SELECTS
-// ============================================================
-function populateSelects() {
-  const clienteSel = document.getElementById('agCliente');
-  const servicoSel = document.getElementById('agServico');
-  const profSel = document.getElementById('agProfissional');
-  const agProfFilter = document.getElementById('agendaFilterProfissional');
-
-  if (clienteSel) {
-    const currentVal = clienteSel.value;
-    clienteSel.innerHTML = '<option value="">Selecione o cliente...</option>';
-    STATE.clientes.forEach(c => {
-      clienteSel.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
-    });
-    clienteSel.value = currentVal;
-  }
-
-  if (servicoSel) {
-    const currentVal = servicoSel.value;
-    servicoSel.innerHTML = '<option value="">Selecione o serviço...</option>';
-    STATE.servicos.forEach(s => {
-      servicoSel.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
-    });
-    servicoSel.value = currentVal;
-  }
-
-  if (profSel) {
-    const currentVal = profSel.value;
-    profSel.innerHTML = '<option value="">Selecione o profissional...</option>';
-    STATE.profissionais.forEach(p => {
-      profSel.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
-    });
-    profSel.value = currentVal;
-  }
-
-  if (agProfFilter) {
-    agProfFilter.innerHTML = '<option value="">Todos os profissionais</option>';
-    STATE.profissionais.forEach(p => {
-      agProfFilter.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
-    });
-  }
-}
-
-// ============================================================
-// WHATSAPP
-// ============================================================
-function openWhatsApp() {
-  window.open('https://wa.me/', '_blank');
-}
-
-function openWhatsAppCliente(telefone, nome) {
-  const num = telefone.replace(/\D/g, '');
-  const msg = encodeURIComponent(`Olá, ${nome}! Aqui é o AgendaPro. 😊`);
-  window.open(`https://wa.me/55${num}?text=${msg}`, '_blank');
-}
-
-// ============================================================
-// GLOBAL SEARCH
-// ============================================================
-function globalSearch(q) {
-  if (!q) return;
-  const lower = q.toLowerCase();
-  const clienteMatch = STATE.clientes.filter(c => c.nome?.toLowerCase().includes(lower));
-  if (clienteMatch.length) {
-    navigate('clientes');
-    filterClientes(q);
-  }
-}
-
-// ============================================================
-// FILTERS
-// ============================================================
-function clearAgendaFilters() {
-  document.getElementById('agendaFilterStatus').value = '';
-  document.getElementById('agendaFilterData').value = '';
-  document.getElementById('agendaFilterProfissional').value = '';
-  loadAgenda();
-}
-
-// ============================================================
-// TOAST
-// ============================================================
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<span class="toast-icon">${icons[type]}</span> ${message}`;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.animation = 'none';
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(20px)';
-    toast.style.transition = 'all 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 3500);
-}
-
-// ============================================================
-// UTILS
-// ============================================================
-function formatDateBR(date) {
-  if (!(date instanceof Date) || isNaN(date)) return '—';
-  return date.toLocaleDateString('pt-BR');
-}
-
-function formatDateShort(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr + 'T12:00:00');
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
-}
-
-function formatMoney(value) {
-  return 'R$ ' + Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function capitalize(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
+function pickDate(iso) {
+  if (!_datePickerTarget) return;
+  const input = $(_datePickerTarget); const label = $(_datePickerTarget + 'Label');
+  if (input) input.value = iso;
+  if (label) label.textContent = formatDate(iso);
+  closeDatePicker();
 }
