@@ -254,8 +254,12 @@ input,select,textarea{background:#141418!important;color:#f4f4f5!important;borde
           <div class="field"><label>Senha</label><input id="loginSenha" type="password" placeholder="Sua senha" autocomplete="current-password"></div>
           <button class="btn btn-primary btn-full" onclick="loginComSenha()">Entrar →</button>
         </div>
-        <div class="auth-switch">Não tenho conta. <button onclick="showCadastro()">Criar cadastro</button></div>
-      </div>
+       <div class="auth-switch">
+    Não tenho conta.
+    <button type="button" onclick="showCadastro(); return false;">
+        Criar cadastro
+    </button>
+</div>
       <!-- CADASTRO -->
       <div id="formCadastro" style="display:none">
         <div class="auth-form-title">Criar sua conta</div>
