@@ -8,6 +8,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style id="critical-agendapro-fix">
+html,body{margin:0;background:#09090b!important;color:#f4f4f5!important;font-family:Geist,Arial,sans-serif!important;overflow-x:hidden}
+button,input,select,textarea{font:inherit;box-sizing:border-box}
+#landingView,#publicView,#dashboardView{position:relative;z-index:1}
+.land-nav{background:rgba(9,9,11,.82)!important;border-bottom:1px solid rgba(255,255,255,.08)!important}
+.btn,.btn-primary,.btn-secondary,.btn-ghost{border-radius:10px!important}
+input,select,textarea{background:#141418!important;color:#f4f4f5!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:10px!important}
+</style>
+
 </head>
 <body>
 
@@ -720,7 +730,6 @@ Aguardamos você!</textarea></div>
 })();
 </script>
 
-<script src="app.js"></script>
 <script>
 function openMobileMenu(){
   const overlay = document.getElementById('mobileMenuOverlay');
@@ -735,5 +744,6 @@ function closeMobileMenu(){
   if(drawer) drawer.classList.remove('open');
 }
 </script>
+<script src="app.js"></script>
 </body>
 </html>
