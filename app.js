@@ -357,53 +357,166 @@ function setView(view) {
 function openAuth(mode) {
   const overlay = $('authOverlay');
   if (!overlay) return;
+
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  if (mode === 'login') showLogin();
-  else showCadastro();
+
+  if (mode === 'login') {
+    showLogin();
+  } else {
+    showCadastro();
+  }
 }
 
 function closeAuth() {
   const overlay = $('authOverlay');
-  if (overlay) overlay.classList.remove('open');
+
+  if (overlay) {
+    overlay.classList.remove('open');
+  }
+
   document.body.style.overflow = '';
 }
 
+function resetCadastroSteps() {
+
+  const steps = ['step1', 'step2', 'step3'];
+
+  steps.forEach(id => {
+    const el = $(id);
+
+    if (!el) return;
+
+    el.style.display = 'none';
+    el.classList.remove('active');
+  });
+}
+
 function showLogin() {
+
   const fl = $('formLogin');
   const fc = $('formCadastro');
-  if (fl) fl.style.display = 'block';
-  if (fc) fc.style.display = 'none';
+
+  resetCadastroSteps();
+
+  if (fc) {
+    fc.style.display = 'none';
+  }
+
+  if (fl) {
+    fl.style.display = 'block';
+  }
 }
 
 function showCadastro() {
-    const fl = $('formLogin');
-    const fc = $('formCadastro');
 
-    if (fl) fl.style.display = 'none';
+  const fl = $('formLogin');
+  const fc = $('formCadastro');
 
-    if (fc) {
-        fc.style.display = 'block';
-    }
+  if (fl) {
+    fl.style.display = 'none';
+  }
 
-    const s1 = $('step1'),
-          s2 = $('step2'),
-          s3 = $('step3');
+  if (fc) {
+    fc.style.display = 'block';
+  }
 
-    if (s1) s1.style.display = 'block';
+  resetCadastroSteps();
 
-    if (s2) {
-        s2.style.display = 'none';
-        s2.classList.remove('active');
-    }
+  const s1 = $('step1');
 
-    if (s3) {
-        s3.style.display = 'none';
-        s3.classList.remove('active');
-    }
+  if (s1) {
+    s1.style.display = 'block';
+    s1.classList.add('active');
+  }
 
-    setStep(1);
-    preencherSelectCategorias();
+  setStep(1);
+
+  preencherSelectCategorias();
+}
+
+function setStep(n) {
+
+  ['st1', 'st2', 'st3'].forEach((id, i) => {
+
+    const el = $(id);
+
+    if (!el) return;
+
+    el.className =
+      'step-dot' +
+      (
+        i + 1 === n
+          ? ' active'
+          : i + 1 < n
+            ? ' done'
+            : ''
+      );
+  });
+}
+
+function goStep1() {
+
+  resetCadastroSteps();
+
+  const s1 = $('step1');
+
+  if (s1) {
+    s1.style.display = 'block';
+    s1.classList.add('active');
+  }
+
+  setStep(1);
+}
+
+function goStep2() {
+
+  const nome = $('cadNome')?.value?.trim();
+  const email = $('cadEmail')?.value?.trim();
+  const senha = $('cadSenha')?.value?.trim();
+
+  if (!nome || !email || !senha) {
+    return toast('Preencha nome, e-mail e senha.', 'err');
+  }
+
+  if (senha.length < 6) {
+    return toast('Senha mínimo 6 caracteres.', 'err');
+  }
+
+  resetCadastroSteps();
+
+  const s2 = $('step2');
+
+  if (s2) {
+    s2.style.display = 'block';
+    s2.classList.add('active');
+  }
+
+  setStep(2);
+
+  preencherSelectCategorias();
+}
+
+function goStep3() {
+
+  const empNome = $('empNome')?.value?.trim();
+  const empSlug = $('empSlug')?.value?.trim();
+  const empWhatsapp = $('empWhatsapp')?.value?.trim();
+
+  if (!empNome || !empSlug || !empWhatsapp) {
+    return toast('Preencha nome, link e WhatsApp.', 'err');
+  }
+
+  resetCadastroSteps();
+
+  const s3 = $('step3');
+
+  if (s3) {
+    s3.style.display = 'block';
+    s3.classList.add('active');
+  }
+
+  setStep(3);
 }
 
 function setStep(n) {
