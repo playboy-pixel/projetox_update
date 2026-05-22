@@ -1,1 +1,400 @@
-let state={user:null,empresa:null,clientes:[],servicos:[],profissionais:[],agendamentos:[],horarios:{seg:true,ter:true,qua:true,qui:true,sex:true,sab:false,dom:false},mensagens:{confirmacao:"Olá, {nome}! Seu agendamento foi confirmado ✅",lembrete:"Olá, {nome}! Lembrete do seu agendamento."}};const $=id=>document.getElementById(id);let agendaFilter='todos',dateTarget=null,pickerDate=new Date();function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}function save(){localStorage.setItem('agendapro_teste_zero',JSON.stringify(state))}function load(){let s=localStorage.getItem('agendapro_teste_zero');if(s)try{state=JSON.parse(s)}catch(e){}}function money(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}function slugify(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}function hojeISO(){return new Date().toISOString().slice(0,10)}function fmt(d){if(!d)return'--';let [y,m,dd]=d.split('-');return `${dd}/${m}/${y}`}function ini(n){return(n||'?').trim()[0]?.toUpperCase()||'?'}function norm(s){s=(s||'Pendente').toLowerCase();if(s.includes('confirm'))return'Confirmado';if(s.includes('concl'))return'Concluído';if(s.includes('recus'))return'Recusado';if(s.includes('excl'))return'Excluído';return'Pendente'}function bc(s){return{'Confirmado':'ok','Pendente':'wait','Concluído':'done','Recusado':'off','Excluído':'exc'}[norm(s)]||'wait'}function toast(t,m=''){let n=document.createElement('div');n.className='notif';n.innerHTML=`<b>${t}</b>${m?`<p>${m}</p>`:''}`;notifStack.prepend(n);setTimeout(()=>n.remove(),4000);if(topNotifyText)topNotifyText.textContent=t}window.onload=()=>{load();if(location.hash.startsWith('#agendar/')){loadPublic();return}if(state.user&&state.empresa){showDashboard();renderAll()}renderDays()};function openLogin(){authOverlay.classList.add('open');loginBox.style.display='block';cadastroBox.style.display='none'}function openCadastro(){authOverlay.classList.add('open');loginBox.style.display='none';cadastroBox.style.display='block'}function closeAuth(){authOverlay.classList.remove('open')}function goStepNegocio(){if(!cadNome.value||!cadEmail.value||cadSenha.value.length<6)return toast('Preencha nome, e-mail e senha');stepConta.style.display='none';stepNegocio.style.display='block'}function backStepConta(){stepNegocio.style.display='none';stepConta.style.display='block'}function goStepServico(){if(!empNome.value||!empWhatsapp.value||!empSlug.value)return toast('Preencha os dados');stepNegocio.style.display='none';stepServico.style.display='block'}function backStepNegocio(){stepServico.style.display='none';stepNegocio.style.display='block'}function autoSlug(){empSlug.value=slugify(empNome.value)}function finalizarCadastro(){if(!servNome.value||!profNome.value)return toast('Preencha serviço e profissional');state.user={email:cadEmail.value,senha:cadSenha.value,nome:cadNome.value};state.empresa={nome:empNome.value,slug:slugify(empSlug.value),whatsapp:empWhatsapp.value,area:empCategoria.value,cidade:''};state.servicos=[{id:uid(),nome:servNome.value,preco:+servPreco.value||0,dur:+servDuracao.value||60,status:'ativo'}];state.profissionais=[{id:uid(),nome:profNome.value,especialidade:profEspecialidade.value||'Profissional',telefone:empWhatsapp.value,status:'ativo'}];save();showDashboard();renderAll();toast('Painel criado!')}function loginComSenha(){if(state.user&&loginEmail.value===state.user.email&&loginSenha.value===state.user.senha){showDashboard();renderAll()}else toast('Login incorreto')}function showDashboard(){landingView.style.display='none';dashboardView.style.display='grid';publicView.style.display='none';closeAuth();sideEmpresa.textContent=state.empresa.nome;sideArea.textContent=state.empresa.area;avatarLetter.textContent=ini(state.empresa.nome);setView('dashboard')}function logout(){state.user=null;save();location.href=location.pathname}function setView(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));$(`view-${v}`)?.classList.add('active');let n={dashboard:['Dashboard','Controle completo.'],agenda:['Agenda','Todos os agendamentos'],clientes:['Clientes','Base de clientes'],servicos:['Serviços','Catálogo'],profissionais:['Profissionais','Equipe'],config:['Configurações','Dados do negócio']};pageTitle.textContent=n[v]?.[0]||v;pageSub.textContent=n[v]?.[1]||''}function openMobileMenu(){mobileMenuOverlay.classList.add('open');mobileMenuDrawer.classList.add('open')}function closeMobileMenu(){mobileMenuOverlay.classList.remove('open');mobileMenuDrawer.classList.remove('open')}function renderAll(){renderStats();renderSelects();renderAgenda();renderClientes();renderServicos();renderProfs();renderConfig();save()}function renderStats(){let a=state.agendamentos.filter(x=>norm(x.status)!=='Excluído'),c=state.agendamentos.filter(x=>norm(x.status)==='Concluído');statHoje.textContent=a.filter(x=>x.data===hojeISO()).length;statPendentes.textContent=a.filter(x=>norm(x.status)==='Pendente').length;statConfirmados.textContent=a.filter(x=>norm(x.status)==='Confirmado').length;statConcluidos.textContent=c.length;statClientes.textContent=state.clientes.length;statFatMes.textContent=money(c.reduce((s,x)=>s+(+x.valor||0),0)).replace(',00','');fc()}function fc(){let l=state.agendamentos;fc-todos.textContent}function fc(){let l=state.agendamentos;$('fc-todos').textContent=l.filter(x=>norm(x.status)!=='Excluído').length;$('fc-pendente').textContent=l.filter(x=>norm(x.status)==='Pendente').length;$('fc-confirmado').textContent=l.filter(x=>norm(x.status)==='Confirmado').length;$('fc-concluido').textContent=l.filter(x=>norm(x.status)==='Concluído').length;$('fc-excluido').textContent=l.filter(x=>norm(x.status)==='Excluído').length}function renderSelects(){agServico.innerHTML='<option value="">Serviço</option>'+state.servicos.filter(s=>s.status==='ativo').map(s=>`<option value="${s.id}">${s.nome} — ${money(s.preco).replace(',00','')}</option>`).join('');agProfissional.innerHTML='<option value="">Profissional</option>'+state.profissionais.filter(p=>p.status==='ativo').map(p=>`<option value="${p.id}">${p.nome}</option>`).join('')}function setAgendaFilter(f,b){agendaFilter=f;document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderAgenda()}function salvarAgendamento(){if(!agCliente.value||!agServico.value||!agProfissional.value||!agData.value||!agHora.value)return toast('Preencha tudo');let s=state.servicos.find(x=>x.id===agServico.value),p=state.profissionais.find(x=>x.id===agProfissional.value);state.agendamentos.unshift({id:uid(),cliente_nome:agCliente.value,cliente_telefone:agTelefone.value,servico_nome:s.nome,profissional_nome:p.nome,data:agData.value,hora:agHora.value,status:agStatus.value,valor:s.preco});if(!state.clientes.find(c=>c.nome===agCliente.value))state.clientes.unshift({id:uid(),nome:agCliente.value,telefone:agTelefone.value,status:'ativo'});agCliente.value=agTelefone.value=agHora.value=agData.value='';agDataLabel.textContent='Escolher data';renderAll();toast('Novo agendamento!')}function renderAgenda(){let list=state.agendamentos;if(agendaFilter!=='todos'){let m={pendente:'Pendente',confirmado:'Confirmado',concluido:'Concluído',excluido:'Excluído'};list=list.filter(a=>norm(a.status)===m[agendaFilter])}else list=list.filter(a=>norm(a.status)!=='Excluído');agendaTimeline.innerHTML=list.map(a=>`<div class="agenda-card card"><div class="row"><div class="avatar">${ini(a.cliente_nome)}</div><div><div class="name">${a.cliente_nome}</div><div class="muted">${a.servico_nome}</div><p><span class="badge ${bc(a.status)}">• ${norm(a.status)}</span></p><div class="mini"><span>👤 ${a.profissional_nome}</span><span>📅 ${fmt(a.data)}</span><span>🕒 ${a.hora}</span><span>📱 ${a.cliente_telefone||'--'}</span></div></div></div>${acoes(a)}${menu(a.id)}</div>`).join('')||'<div class="form">Nenhum agendamento.</div>'}function acoes(a){if(norm(a.status)==='Excluído')return'';return`<div class="actions"><button class="act green" onclick="upd('${a.id}','Confirmado')">✅ Confirmar</button><button class="act red" onclick="upd('${a.id}','Recusado')">✕ Recusar</button><button class="act purple" onclick="toast('Reagendar','Escolha nova data no teste')">📅 Reagendar</button><button class="act blue" onclick="upd('${a.id}','Concluído')">✓ Concluir</button><button class="act wa" onclick="wa('${a.id}')">💬 WA</button></div>`}function menu(id){return`<div class="action-menu"><button class="dots" onclick="tog(event,'m${id}')">⋮</button><div class="dropdown" id="m${id}"><button onclick="toast('Editar')">✏️ Editar</button><button onclick="dup('${id}')">📋 Duplicar</button><button class="danger" onclick="upd('${id}','Excluído')">🗑 Excluir</button></div></div>`}function tog(e,id){e.stopPropagation();document.querySelectorAll('.dropdown').forEach(x=>x.id!==id&&x.classList.remove('open'));$(id).classList.toggle('open')}document.addEventListener('click',()=>document.querySelectorAll('.dropdown').forEach(x=>x.classList.remove('open')));function upd(id,st){let a=state.agendamentos.find(x=>x.id===id);a.status=st;renderAll();toast(st,a.cliente_nome)}function dup(id){let a=state.agendamentos.find(x=>x.id===id);state.agendamentos.unshift({...a,id:uid(),status:'Pendente'});renderAll()}function wa(id){let a=state.agendamentos.find(x=>x.id===id);window.open('https://wa.me/55'+(a.cliente_telefone||'').replace(/\D/g,''),'_blank')}function salvarCliente(){if(!cliNome.value)return toast('Digite nome');state.clientes.unshift({id:uid(),nome:cliNome.value,telefone:cliTel.value,email:cliEmail.value,status:'ativo'});cliNome.value=cliTel.value=cliEmail.value='';renderAll()}function renderClientes(){clientesCards.innerHTML=state.clientes.map(c=>`<div class="client card"><div class="row"><div class="avatar">${ini(c.nome)}</div><div><div class="name">${c.nome}</div><div class="muted">${c.telefone||''}</div><p><span class="badge ok">• Ativo</span></p></div></div><div class="mini"><span>Atendimentos ${state.agendamentos.filter(a=>a.cliente_nome===c.nome).length}</span><span>Total ${money(0)}</span></div>${menu(c.id)}</div>`).join('')}function salvarServico(){if(!srvNome.value)return;state.servicos.unshift({id:uid(),nome:srvNome.value,preco:+srvPreco.value||0,dur:+srvDur.value||60,status:'ativo'});srvNome.value=srvPreco.value=srvDur.value='';renderAll()}function renderServicos(){servicosCards.innerHTML=state.servicos.map(s=>`<div class="service card"><h2>${money(s.preco).replace(',00','')}</h2><h3>${s.nome}</h3><p class="muted">⏱ ${s.dur} min</p><span class="badge ok">• Ativo</span></div>`).join('')}function salvarProfissional(){if(!proNome.value)return;state.profissionais.unshift({id:uid(),nome:proNome.value,especialidade:proEsp.value,telefone:proTel.value,status:'ativo'});proNome.value=proEsp.value=proTel.value='';renderAll()}function renderProfs(){profCards.innerHTML=state.profissionais.map(p=>`<div class="pro card"><div class="avatar">${ini(p.nome)}</div><h3>${p.nome}</h3><p class="muted">${p.especialidade}</p><span class="badge ok">• Online</span></div>`).join('')}function renderConfig(){if(!state.empresa)return;cfgNome.value=state.empresa.nome;cfgWhatsapp.value=state.empresa.whatsapp;cfgSlug.value=state.empresa.slug;cfgCidade.value=state.empresa.cidade||'';cfgLink.textContent=publicUrl();msgConfirmacao.value=state.mensagens.confirmacao;msgLembrete.value=state.mensagens.lembrete;renderDays()}function salvarConfig(){state.empresa.nome=cfgNome.value;state.empresa.whatsapp=cfgWhatsapp.value;state.empresa.slug=slugify(cfgSlug.value);state.empresa.cidade=cfgCidade.value;renderAll();toast('Config salvo')}function renderDays(){if(!daysGrid)return;let d=['seg','ter','qua','qui','sex','sab','dom'];daysGrid.innerHTML=d.map(x=>`<label class="day">${x.toUpperCase()}<br><input id="day_${x}" type="checkbox" ${state.horarios[x]?'checked':''}></label>`).join('')}function salvarHorarios(){['seg','ter','qua','qui','sex','sab','dom'].forEach(x=>state.horarios[x]=$('day_'+x).checked);save();toast('Horários salvos')}function salvarMensagens(){state.mensagens.confirmacao=msgConfirmacao.value;state.mensagens.lembrete=msgLembrete.value;save();toast('Mensagens salvas')}function publicUrl(){return location.origin+location.pathname+'#agendar/'+state.empresa.slug}function copyPublicLink(){navigator.clipboard?.writeText(publicUrl());toast('Link copiado')}function openPublic(){location.hash='#agendar/'+state.empresa.slug;loadPublic()}function loadPublic(){landingView.style.display='none';dashboardView.style.display='none';publicView.style.display='block';pubEmpresa.textContent=state.empresa?.nome||'AgendaPro';pubDesc.textContent=state.empresa?.whatsapp||'';pubWaFab.href='https://wa.me/55'+(state.empresa?.whatsapp||'').replace(/\D/g,'');pubServicos.innerHTML=state.servicos.map(s=>`<div class="choice" onclick="state.pubServico='${s.id}';document.querySelectorAll('#pubServicos .choice').forEach(c=>c.classList.remove('active'));this.classList.add('active')"><b>${s.nome}</b><span>${money(s.preco).replace(',00','')}</span></div>`).join('');pubProfissionais.innerHTML=state.profissionais.map(p=>`<div class="choice" onclick="state.pubProfissional='${p.id}';document.querySelectorAll('#pubProfissionais .choice').forEach(c=>c.classList.remove('active'));this.classList.add('active')"><b>${p.nome}</b><span>${p.especialidade}</span></div>`).join('')}function confirmarAgendamentoPublico(){let s=state.servicos.find(x=>x.id===state.pubServico),p=state.profissionais.find(x=>x.id===state.pubProfissional);if(!s||!p||!pubNome.value||!pubTelefone.value||!pubData.value||!pubHora.value)return toast('Preencha tudo');state.agendamentos.unshift({id:uid(),cliente_nome:pubNome.value,cliente_telefone:pubTelefone.value,servico_nome:s.nome,profissional_nome:p.nome,data:pubData.value,hora:pubHora.value,status:'Pendente',valor:s.preco});save();document.querySelector('.pubgrid').style.display='none';pubConfirmScreen.style.display='block'}function resetPublic(){document.querySelector('.pubgrid').style.display='grid';pubConfirmScreen.style.display='none'}function voltarInicioPublico(){location.hash='';publicView.style.display='none';if(state.user)showDashboard();else landingView.style.display='block'}function openDatePicker(t){dateTarget=t;datePickerOverlay.classList.add('open');pickerDate=new Date();renderDatePicker()}function closeDatePicker(){datePickerOverlay.classList.remove('open')}function changeMonth(n){pickerDate.setMonth(pickerDate.getMonth()+n);renderDatePicker()}function renderDatePicker(){let y=pickerDate.getFullYear(),m=pickerDate.getMonth();dateMonthLabel.textContent=pickerDate.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});let first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate(),h='';for(let i=0;i<first;i++)h+='<button class="disabled"></button>';for(let d=1;d<=last;d++){let iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;h+=`<button class="${iso<hojeISO()?'disabled':''}" onclick="pickDate('${iso}')">${d}</button>`}dateDays.innerHTML=h}function pickDate(iso){$(dateTarget).value=iso;$(dateTarget+'Label').textContent=fmt(iso);closeDatePicker()}
+/* ═══════════════════════════════════════════
+   AGENDAPRO — App JS com Supabase
+   ═══════════════════════════════════════════ */
+
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL = 'https://wyjrjioipqfltdyupfna.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PkDkt5S-_rdrT0HhANoPAw_ZWluV2_H';
+
+async function supaFetch(path, options = {}) {
+  const url = `${SUPABASE_URL}/rest/v1/${path}`;
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation',
+    ...options.headers
+  };
+  const res = await fetch(url, { ...options, headers });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || res.statusText);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function supaAuth(action, body) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/${action}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// ── PARTICLES ──
+(function initParticles() {
+  const canvas = document.getElementById('particles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+
+  for (let i = 0; i < 80; i++) {
+    particles.push({
+      x: rand(0, window.innerWidth),
+      y: rand(0, window.innerHeight),
+      r: rand(0.4, 1.6),
+      vx: rand(-0.15, 0.15),
+      vy: rand(-0.15, 0.15),
+      alpha: rand(0.2, 0.7),
+      gold: Math.random() > 0.7
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.gold
+        ? `rgba(201,162,39,${p.alpha})`
+        : `rgba(200,200,255,${p.alpha * 0.5})`;
+      ctx.fill();
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── CUSTOM CURSOR ──
+(function initCursor() {
+  const cursor = document.getElementById('cursor');
+  const follower = document.getElementById('cursorFollower');
+  if (!cursor || !follower) return;
+
+  let mx = 0, my = 0, fx = 0, fy = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+  });
+
+  function animFollower() {
+    fx += (mx - fx) * 0.12;
+    fy += (my - fy) * 0.12;
+    follower.style.left = fx + 'px';
+    follower.style.top  = fy + 'px';
+    requestAnimationFrame(animFollower);
+  }
+  animFollower();
+
+  document.querySelectorAll('a,button,.feature-card,.pricing-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+      follower.style.opacity = '0.3';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      follower.style.opacity = '1';
+    });
+  });
+})();
+
+// ── NAVBAR SCROLL ──
+(function initNav() {
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 30);
+  });
+})();
+
+// ── HAMBURGER ──
+window.closeMobile = function() {
+  document.getElementById('mobileMenu').classList.remove('open');
+};
+document.getElementById('hamburger').addEventListener('click', function() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+});
+
+// ── AOS (Animate on scroll) ──
+(function initAOS() {
+  const els = document.querySelectorAll('[data-aos]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('aos-visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(el => observer.observe(el));
+})();
+
+// ── COUNTER ANIMATION ──
+function animateCount(el, target, suffix, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    if (suffix === '%') el.textContent = Math.round(start) + suffix;
+    else if (target >= 1000) el.textContent = '+' + Math.round(start / 1000) + 'k';
+    else el.textContent = '+' + Math.round(start);
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+
+(function initCounters() {
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      animateCount(document.getElementById('statAgend'),   350000, '',  2000);
+      animateCount(document.getElementById('statClients'), 12000,  '',  2000);
+      animateCount(document.getElementById('statSatisf'),  98,     '%', 1800);
+      observer.disconnect();
+    }
+  }, { threshold: 0.3 });
+  const hero = document.querySelector('.hero-stats');
+  if (hero) observer.observe(hero);
+})();
+
+// ── BAR CHART ANIMATION ──
+(function initBarAnim() {
+  const bars = document.querySelectorAll('.dp-bar-fill');
+  bars.forEach(bar => {
+    const target = bar.style.width;
+    bar.style.width = '0%';
+    setTimeout(() => { bar.style.width = target; }, 800);
+  });
+})();
+
+// ── TOAST ──
+window.showToast = function(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.className = `toast ${type} show`;
+  t.innerHTML = `<i class="fa-solid ${
+    type === 'success' ? 'fa-circle-check' :
+    type === 'error'   ? 'fa-circle-xmark' : 'fa-circle-info'
+  }"></i> ${msg}`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+};
+
+// ── APP ──
+window.App = {
+  openModal(name) {
+    document.getElementById('modalOverlay').classList.add('open');
+    const id = `modal${name.charAt(0).toUpperCase() + name.slice(1)}`;
+    const modal = document.getElementById(id);
+    if (modal) {
+      setTimeout(() => modal.classList.add('open'), 10);
+    }
+  },
+
+  closeModal() {
+    document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
+    setTimeout(() => {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }, 300);
+  },
+
+  switchModal(to) {
+    document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
+    setTimeout(() => { App.openModal(to); }, 150);
+  },
+
+  async login() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    const btn   = document.getElementById('btnLoginSubmit');
+
+    errEl.classList.remove('show');
+    if (!email || !pass) {
+      errEl.textContent = 'Preencha e-mail e senha.';
+      errEl.classList.add('show'); return;
+    }
+
+    btn.textContent = 'Entrando...'; btn.disabled = true;
+    try {
+      const data = await supaAuth('token?grant_type=password', { email, password: pass });
+      if (data.error || data.error_description) throw new Error(data.error_description || data.error);
+      App.closeModal();
+      showToast('Login realizado com sucesso! 🎉', 'success');
+    } catch(e) {
+      errEl.textContent = 'E-mail ou senha incorretos.';
+      errEl.classList.add('show');
+    } finally {
+      btn.textContent = 'Entrar'; btn.disabled = false;
+    }
+  },
+
+  async cadastro() {
+    const nome  = document.getElementById('cadNome').value.trim();
+    const email = document.getElementById('cadEmail').value.trim();
+    const senha = document.getElementById('cadSenha').value;
+    const errEl = document.getElementById('cadError');
+    const btn   = document.getElementById('btnCadSubmit');
+
+    errEl.classList.remove('show');
+    if (!nome || !email || !senha) {
+      errEl.textContent = 'Preencha todos os campos.';
+      errEl.classList.add('show'); return;
+    }
+    if (senha.length < 6) {
+      errEl.textContent = 'Senha deve ter ao menos 6 caracteres.';
+      errEl.classList.add('show'); return;
+    }
+
+    btn.textContent = 'Criando conta...'; btn.disabled = true;
+    try {
+      const data = await supaAuth('signup', {
+        email, password: senha,
+        data: { nome_completo: nome }
+      });
+      if (data.error || data.error_description) throw new Error(data.error_description || data.error);
+      App.closeModal();
+      showToast('Conta criada! Verifique seu e-mail. ✉️', 'success');
+    } catch(e) {
+      errEl.textContent = e.message || 'Erro ao criar conta. Tente novamente.';
+      errEl.classList.add('show');
+    } finally {
+      btn.textContent = 'Criar conta grátis'; btn.disabled = false;
+    }
+  },
+
+  async salvarAgendamento() {
+    const cliente  = document.getElementById('agCliente').value.trim();
+    const servico  = document.getElementById('agServico').value;
+    const dataHora = document.getElementById('agDataHora').value;
+    const obs      = document.getElementById('agObs').value.trim();
+    const errEl    = document.getElementById('agError');
+
+    errEl.classList.remove('show');
+    if (!cliente || !servico || !dataHora) {
+      errEl.textContent = 'Preencha cliente, serviço e data/hora.';
+      errEl.classList.add('show'); return;
+    }
+
+    try {
+      await supaFetch('agendamentos', {
+        method: 'POST',
+        body: JSON.stringify({
+          cliente, servico,
+          data_hora: new Date(dataHora).toISOString(),
+          observacoes: obs,
+          status: 'Pendente',
+          created_at: new Date().toISOString()
+        })
+      });
+      App.closeModal();
+      showToast('Agendamento salvo no Supabase! ✅', 'success');
+    } catch(e) {
+      errEl.textContent = 'Erro ao salvar. Verifique as permissões da tabela.';
+      errEl.classList.add('show');
+    }
+  },
+
+  async salvarCliente() {
+    const nome  = document.getElementById('cliNome').value.trim();
+    const tel   = document.getElementById('cliTel').value.trim();
+    const email = document.getElementById('cliEmail').value.trim();
+    const errEl = document.getElementById('cliError');
+
+    errEl.classList.remove('show');
+    if (!nome) {
+      errEl.textContent = 'Nome é obrigatório.';
+      errEl.classList.add('show'); return;
+    }
+
+    try {
+      await supaFetch('clientes', {
+        method: 'POST',
+        body: JSON.stringify({
+          nome, telefone: tel, email,
+          created_at: new Date().toISOString()
+        })
+      });
+      App.closeModal();
+      showToast('Cliente salvo no Supabase! ✅', 'success');
+    } catch(e) {
+      errEl.textContent = 'Erro ao salvar. Verifique as permissões da tabela.';
+      errEl.classList.add('show');
+    }
+  },
+
+  async salvarServico() {
+    const nome    = document.getElementById('svcNome').value.trim();
+    const duracao = document.getElementById('svcDuracao').value;
+    const valor   = document.getElementById('svcValor').value;
+    const errEl   = document.getElementById('svcError');
+
+    errEl.classList.remove('show');
+    if (!nome || !duracao || !valor) {
+      errEl.textContent = 'Preencha todos os campos.';
+      errEl.classList.add('show'); return;
+    }
+
+    try {
+      await supaFetch('servicos', {
+        method: 'POST',
+        body: JSON.stringify({
+          nome, duracao_minutos: Number(duracao),
+          valor: Number(valor),
+          created_at: new Date().toISOString()
+        })
+      });
+      App.closeModal();
+      showToast('Serviço salvo no Supabase! ✅', 'success');
+    } catch(e) {
+      errEl.textContent = 'Erro ao salvar. Verifique as permissões da tabela.';
+      errEl.classList.add('show');
+    }
+  }
+};
+
+// ── BOTÕES NAV ──
+document.getElementById('btnLogin').addEventListener('click', () => App.openModal('login'));
+document.getElementById('btnCadastro').addEventListener('click', () => App.openModal('cadastro'));
+document.getElementById('btnHeroCta').addEventListener('click', () => App.openModal('cadastro'));
+document.getElementById('btnHeroDemo').addEventListener('click', () => {
+  document.getElementById('painel').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ── SIDEBAR TABS (visual only) ──
+document.querySelectorAll('.fd-nav-item').forEach(item => {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.fd-nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    const tab = this.dataset.tab;
+    document.querySelector('.fd-topbar-title').textContent =
+      tab.charAt(0).toUpperCase() + tab.slice(1);
+    showToast(`Módulo de ${tab} — disponível na versão completa.`, 'info');
+  });
+});
+
+// ── LOGOS BAND DUPLICA PARA MARQUEE ──
+(function duplicateMarquee() {
+  const inner = document.querySelector('.logos-inner');
+  if (inner) {
+    inner.innerHTML += inner.innerHTML;
+  }
+})();
