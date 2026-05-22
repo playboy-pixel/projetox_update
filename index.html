@@ -1,14 +1,872 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>AgendaPro Teste</title><link rel="stylesheet" href="style.css"></head><body><div class="bg"></div><div id="notifStack" class="notif-stack"></div>
-<section id="landingView" class="landing"><nav><div class="brand"><b>✦</b>AgendaPro</div><div><button onclick="openLogin()" class="ghost">Entrar</button><button onclick="openCadastro()" class="primary">Criar conta →</button></div></nav><main><span class="pill">● Plataforma de Agendamento Premium</span><h1>Sua agenda online,<br><em>organizada e elegante.</em></h1><p>Receba agendamentos, gerencie equipe, clientes e faturamento em um painel profissional.</p><button onclick="openCadastro()" class="primary big">✦ Criar minha agenda grátis</button></main></section>
-<div id="authOverlay" class="overlay"><div class="modal"><button class="close" onclick="closeAuth()">×</button><div id="loginBox"><h2>Entrar no painel</h2><p>Use seu e-mail e senha.</p><label>E-mail</label><input id="loginEmail"><label>Senha</label><input id="loginSenha" type="password"><button class="primary full" onclick="loginComSenha()">Entrar →</button><p>Não tenho conta. <b onclick="openCadastro()">Criar cadastro</b></p></div><div id="cadastroBox" style="display:none"><h2>Criar painel</h2><div id="stepConta"><label>Nome</label><input id="cadNome"><label>E-mail</label><input id="cadEmail"><label>Senha</label><input id="cadSenha" type="password"><button class="primary full" onclick="goStepNegocio()">Continuar →</button></div><div id="stepNegocio" style="display:none"><label>Negócio</label><input id="empNome" oninput="autoSlug()"><div class="grid2"><div><label>Área</label><select id="empCategoria"><option>💅 Beleza & Estética</option><option>✂️ Barbearia</option><option>🏥 Saúde</option><option>✦ Outro</option></select></div><div><label>WhatsApp</label><input id="empWhatsapp"></div></div><label>Link</label><input id="empSlug"><div class="grid2"><button class="ghost full" onclick="backStepConta()">← Voltar</button><button class="primary full" onclick="goStepServico()">Continuar →</button></div></div><div id="stepServico" style="display:none"><label>Primeiro serviço</label><input id="servNome"><div class="grid2"><div><label>Preço</label><input id="servPreco" type="number"></div><div><label>Duração</label><input id="servDuracao" type="number"></div></div><label>Profissional</label><input id="profNome"><label>Especialidade</label><input id="profEspecialidade"><div class="grid2"><button class="ghost full" onclick="backStepNegocio()">← Voltar</button><button class="primary full" onclick="finalizarCadastro()">Criar painel →</button></div></div></div></div></div>
-<section id="dashboardView" class="dashboard" style="display:none"><aside><div class="brand side"><b id="avatarLetter">A</b><div><strong id="sideEmpresa">AgendaPro</strong><small id="sideArea">Premium</small></div></div><button onclick="setView('dashboard')">📊 Dashboard</button><button onclick="setView('agenda')">📅 Agenda</button><button onclick="setView('clientes')">👥 Clientes</button><button onclick="setView('servicos')">✦ Serviços</button><button onclick="setView('profissionais')">👤 Profissionais</button><button onclick="openPublic()">🌐 Página Pública</button><button onclick="setView('config')">⚙ Configurações</button><button onclick="logout()">Sair</button></aside><main class="dash"><header><button class="menu" onclick="openMobileMenu()">☰</button><div><h2 id="pageTitle">Dashboard</h2><p id="pageSub">Controle completo.</p></div><div class="topnotif"><span></span><b id="topNotifyText">Aguardando notificações</b></div></header>
-<div id="view-dashboard" class="view active"><div class="hero-card"><h1>Centro de <em>comando.</em></h1><p>Visão completa em tempo real.</p><button class="primary big" onclick="copyPublicLink()">🔗 Copiar link</button></div><div class="stats"><div><label>Hoje</label><b id="statHoje">0</b></div><div><label>Pendentes</label><b id="statPendentes">0</b></div><div><label>Confirmados</label><b id="statConfirmados">0</b></div><div><label>Concluídos</label><b id="statConcluidos">0</b></div><div><label>Clientes</label><b id="statClientes">0</b></div><div><label>Fat. mês</label><b id="statFatMes">R$ 0</b></div></div></div>
-<div id="view-agenda" class="view"><div class="form"><h3>Novo agendamento</h3><div class="formgrid"><input id="agCliente" placeholder="Cliente"><input id="agTelefone" placeholder="WhatsApp"><select id="agServico"></select><select id="agProfissional"></select><button class="datebtn" onclick="openDatePicker('agData')"><span id="agDataLabel">Escolher data</span> 📅</button><input id="agData" type="hidden"><input id="agHora" type="time"><select id="agStatus"><option>Pendente</option><option>Confirmado</option></select></div><button class="primary full" onclick="salvarAgendamento()">Salvar</button></div><div class="filters"><button onclick="setAgendaFilter('todos',this)" class="active">Todos <b id="fc-todos">0</b></button><button onclick="setAgendaFilter('pendente',this)">Pendentes <b id="fc-pendente">0</b></button><button onclick="setAgendaFilter('confirmado',this)">Confirmados <b id="fc-confirmado">0</b></button><button onclick="setAgendaFilter('concluido',this)">Concluídos <b id="fc-concluido">0</b></button><button onclick="setAgendaFilter('excluido',this)">Excluídos <b id="fc-excluido">0</b></button></div><div id="agendaTimeline" class="cards"></div></div>
-<div id="view-clientes" class="view"><div class="form"><h3>Adicionar cliente</h3><input id="cliNome" placeholder="Nome"><input id="cliTel" placeholder="Telefone"><input id="cliEmail" placeholder="E-mail"><button class="primary full" onclick="salvarCliente()">Adicionar</button></div><div id="clientesCards" class="cards"></div></div>
-<div id="view-servicos" class="view"><div class="form"><h3>Serviços</h3><input id="srvNome" placeholder="Serviço"><div class="grid2"><input id="srvPreco" type="number" placeholder="Preço"><input id="srvDur" type="number" placeholder="Duração"></div><button class="primary full" onclick="salvarServico()">Adicionar</button></div><div id="servicosCards" class="cards"></div></div>
-<div id="view-profissionais" class="view"><div class="form"><h3>Profissionais</h3><input id="proNome" placeholder="Nome"><input id="proEsp" placeholder="Especialidade"><input id="proTel" placeholder="Telefone"><button class="primary full" onclick="salvarProfissional()">Adicionar</button></div><div id="profCards" class="cards"></div></div>
-<div id="view-config" class="view"><div class="config"><div class="form"><h3>Configurações</h3><input id="cfgNome"><input id="cfgWhatsapp"><input id="cfgSlug"><input id="cfgCidade" placeholder="Cidade"><button class="primary full" onclick="salvarConfig()">Salvar alterações</button><p id="cfgLink"></p></div><div class="form"><h3>Horários de funcionamento</h3><div id="daysGrid" class="days"></div><button class="ghost full" onclick="salvarHorarios()">Salvar horários</button></div><div class="form"><h3>Mensagens automáticas</h3><textarea id="msgConfirmacao"></textarea><textarea id="msgLembrete"></textarea><button class="ghost full" onclick="salvarMensagens()">Salvar mensagens</button></div></div></div></main></section>
-<section id="publicView" class="public" style="display:none"><button class="ghost" onclick="voltarInicioPublico()">← Voltar</button><div class="pubhead"><h1 id="pubEmpresa">AgendaPro</h1><p id="pubDesc"></p><a id="pubWaFab" class="wa" target="_blank">💬</a></div><div class="pubgrid"><div class="form"><h3>Escolha o serviço</h3><div id="pubServicos"></div><h3>Escolha o profissional</h3><div id="pubProfissionais"></div></div><div class="form"><h3>Seus dados</h3><input id="pubNome" placeholder="Nome"><input id="pubTelefone" placeholder="WhatsApp"><button class="datebtn" onclick="openDatePicker('pubData')"><span id="pubDataLabel">Escolher data</span> 📅</button><input id="pubData" type="hidden"><input id="pubHora" type="time"><textarea id="pubObs" placeholder="Observação"></textarea><button class="primary full" onclick="confirmarAgendamentoPublico()">Confirmar</button></div></div><div id="pubConfirmScreen" class="confirm" style="display:none"><h1>✓</h1><h2>Agendamento enviado!</h2><button class="primary big" onclick="resetPublic()">Novo agendamento</button></div></section>
-<div id="datePickerOverlay" class="overlay"><div class="date"><div><button onclick="changeMonth(-1)">‹</button><b id="dateMonthLabel"></b><button onclick="changeMonth(1)">›</button></div><div class="week"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div><div id="dateDays" class="dates"></div><button class="ghost full" onclick="closeDatePicker()">Cancelar</button></div></div>
-<div id="mobileMenuOverlay" class="mobileOverlay" onclick="closeMobileMenu()"></div><aside id="mobileMenuDrawer" class="drawer"><button onclick="closeMobileMenu()">×</button><button onclick="closeMobileMenu();setView('dashboard')">📊 Dashboard</button><button onclick="closeMobileMenu();setView('agenda')">📅 Agenda</button><button onclick="closeMobileMenu();setView('clientes')">👥 Clientes</button><button onclick="closeMobileMenu();setView('servicos')">✦ Serviços</button><button onclick="closeMobileMenu();setView('profissionais')">👤 Profissionais</button><button onclick="closeMobileMenu();setView('config')">⚙ Config</button></aside>
-<nav class="bottom"><button onclick="setView('dashboard')">📊<span>Início</span></button><button onclick="setView('agenda')">📅<span>Agenda</span></button><button class="fab" onclick="setView('agenda')">+<span>Novo</span></button><button onclick="setView('clientes')">👥<span>Clientes</span></button><button onclick="openMobileMenu()">☰<span>Menu</span></button></nav><script src="app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgendaPro — Plataforma Premium de Agendamentos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --brand: #0f0e17;
+      --accent: #6c63ff;
+      --accent2: #ff6b6b;
+      --accent3: #43e97b;
+      --bg: #f8f7ff;
+      --white: #ffffff;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --border: #e5e7eb;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--brand);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 5%;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.5rem;
+      color: var(--brand);
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.92rem; font-weight: 500;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff; border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 50px;
+      font-size: 0.9rem; font-weight: 500;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; text-align: center;
+      padding: 8rem 5% 5rem;
+      background: linear-gradient(160deg, #f8f7ff 0%, #ede9ff 50%, #ffeef0 100%);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -120px; right: -120px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(108,99,255,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -80px; left: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255,107,107,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(108,99,255,0.1);
+      color: var(--accent);
+      font-size: 0.8rem; font-weight: 500;
+      padding: 0.35rem 1rem;
+      border-radius: 50px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(108,99,255,0.2);
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      color: var(--brand);
+      max-width: 800px;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      margin-top: 1.5rem;
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+    .hero-btns {
+      margin-top: 2.5rem;
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff; border: none;
+      padding: 0.9rem 2.2rem;
+      border-radius: 50px;
+      font-size: 1rem; font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--brand);
+      border: 1.5px solid var(--border);
+      padding: 0.9rem 2.2rem;
+      border-radius: 50px;
+      font-size: 1rem; font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--brand);
+      padding: 2rem 5%;
+      display: flex; justify-content: center;
+      gap: 4rem; flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-item strong {
+      display: block;
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      color: #fff;
+    }
+    .stat-item span {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      font-weight: 400;
+    }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 6rem 5%; }
+    .section-label {
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700; line-height: 1.2;
+      letter-spacing: -1px;
+    }
+    .section-sub {
+      font-size: 1.05rem; color: var(--muted);
+      margin-top: 0.75rem; max-width: 520px; line-height: 1.7;
+    }
+    .section-header { margin-bottom: 3.5rem; }
+    .center { text-align: center; }
+    .center .section-sub { margin: 0.75rem auto 0; }
+
+    /* ── FEATURES ── */
+    #features { background: var(--bg); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(108,99,255,0.1);
+    }
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: rgba(108,99,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1.2rem;
+    }
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── HOW IT WORKS ── */
+    #como-funciona { background: var(--white); }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem; position: relative;
+    }
+    .step-item { text-align: center; position: relative; }
+    .step-num {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem;
+    }
+    .step-item h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;
+    }
+    .step-item p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── DASHBOARD MOCKUP ── */
+    #painel { background: var(--brand); color: #fff; }
+    #painel .section-title { color: #fff; }
+    #painel .section-sub { color: rgba(255,255,255,0.55); }
+    .dashboard-mock {
+      background: #1a1930;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 1.5rem;
+      margin-top: 3rem;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 1.5rem;
+      min-height: 440px;
+    }
+    .dash-sidebar {
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 1.5rem 1rem;
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .dash-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.1rem;
+      color: #fff; margin-bottom: 1.5rem;
+      padding: 0 0.5rem;
+    }
+    .dash-logo span { color: var(--accent); }
+    .dash-menu-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .dash-menu-item.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .dash-menu-item:hover:not(.active) {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+    .dash-menu-icon { font-size: 1rem; }
+    .dash-main { display: flex; flex-direction: column; gap: 1rem; }
+    .dash-cards-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .dash-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .dash-card-label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .dash-card-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem; font-weight: 800;
+      color: #fff;
+    }
+    .dash-card-value.accent { color: var(--accent); }
+    .dash-card-value.green { color: #43e97b; }
+    .dash-card-value.red { color: var(--accent2); }
+    .dash-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem; flex: 1;
+    }
+    .dash-table-panel {
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .dash-panel-title {
+      font-size: 0.8rem; font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 1rem;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .dash-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.82rem;
+    }
+    .dash-row:last-child { border-bottom: none; }
+    .dash-row-name { color: rgba(255,255,255,0.8); }
+    .dash-row-info { color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+    .badge {
+      font-size: 0.68rem; font-weight: 500;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50px;
+    }
+    .badge-green { background: rgba(67,233,123,0.15); color: #43e97b; }
+    .badge-yellow { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .badge-red { background: rgba(255,107,107,0.15); color: var(--accent2); }
+
+    /* ── INTEGRATIONS ── */
+    #integracoes { background: var(--bg); text-align: center; }
+    .integrations-list {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 1rem;
+      margin-top: 2.5rem;
+    }
+    .integration-chip {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.9rem; font-weight: 500;
+      display: flex; align-items: center; gap: 0.5rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .integration-chip:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(108,99,255,0.1);
+    }
+
+    /* ── PRICING ── */
+    #planos { background: var(--white); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 1rem;
+    }
+    .pricing-card {
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 2.2rem;
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .pricing-card:hover { transform: translateY(-4px); }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(108,99,255,0.04) 0%, rgba(255,107,107,0.03) 100%);
+    }
+    .featured-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff;
+      font-size: 0.75rem; font-weight: 600;
+      padding: 0.3rem 1rem; border-radius: 50px;
+    }
+    .plan-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 1rem;
+    }
+    .plan-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.8rem; font-weight: 800;
+      line-height: 1;
+    }
+    .plan-price sup { font-size: 1.2rem; vertical-align: top; margin-top: 0.4rem; display: inline-block; }
+    .plan-price sub { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
+    .plan-desc { font-size: 0.9rem; color: var(--muted); margin: 0.75rem 0 1.5rem; line-height: 1.6; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 2rem; }
+    .plan-features li {
+      font-size: 0.9rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .plan-features li::before {
+      content: '✓';
+      color: var(--accent3);
+      font-weight: 700; font-size: 0.85rem;
+    }
+    .plan-btn {
+      width: 100%;
+      padding: 0.85rem;
+      border-radius: 50px;
+      font-size: 0.95rem; font-weight: 500;
+      cursor: pointer; border: 1.5px solid var(--accent);
+      transition: all 0.2s;
+    }
+    .plan-btn-outline { background: transparent; color: var(--accent); }
+    .plan-btn-outline:hover { background: var(--accent); color: #fff; }
+    .plan-btn-filled { background: var(--accent); color: #fff; }
+    .plan-btn-filled:hover { opacity: 0.88; }
+
+    /* ── TESTIMONIALS ── */
+    #depoimentos { background: var(--bg); }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .testimonial-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+    .stars { color: #fbbf24; font-size: 0.9rem; margin-bottom: 1rem; letter-spacing: 2px; }
+    .testimonial-text {
+      font-size: 0.95rem; color: var(--brand);
+      line-height: 1.7; margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+    .author-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 0.85rem;
+    }
+    .author-name { font-weight: 500; font-size: 0.9rem; }
+    .author-role { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── CTA FINAL ── */
+    #cta-final {
+      background: linear-gradient(135deg, var(--accent) 0%, #9b59b6 100%);
+      text-align: center; padding: 6rem 5%;
+    }
+    #cta-final h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800; color: #fff;
+      letter-spacing: -1px; margin-bottom: 1rem;
+    }
+    #cta-final p { color: rgba(255,255,255,0.75); font-size: 1.1rem; margin-bottom: 2.5rem; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-white {
+      background: #fff; color: var(--accent);
+      border: none; padding: 0.9rem 2.2rem;
+      border-radius: 50px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: transform 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-white:hover { transform: translateY(-2px); }
+    .btn-ghost-white {
+      background: transparent; color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      padding: 0.9rem 2.2rem;
+      border-radius: 50px;
+      font-size: 1rem; font-weight: 500;
+      cursor: pointer; transition: border-color 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-ghost-white:hover { border-color: #fff; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--brand);
+      color: rgba(255,255,255,0.55);
+      padding: 3rem 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem; font-weight: 800;
+      color: #fff;
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a {
+      color: rgba(255,255,255,0.45);
+      text-decoration: none; font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: #fff; }
+    .footer-copy { font-size: 0.8rem; width: 100%; text-align: center; margin-top: 1rem; opacity: 0.4; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .dashboard-mock { grid-template-columns: 1fr; }
+      .dash-sidebar { display: none; }
+      .dash-cards-row { grid-template-columns: repeat(2, 1fr); }
+      .dash-bottom { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Agenda<span>Pro</span></div>
+    <ul class="nav-links">
+      <li><a href="#features">Funcionalidades</a></li>
+      <li><a href="#como-funciona">Como funciona</a></li>
+      <li><a href="#planos">Planos</a></li>
+      <li><a href="#depoimentos">Depoimentos</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('cta-final').scrollIntoView({behavior:'smooth'})">Começar grátis</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">🚀 Plataforma Premium de Agendamentos</div>
+    <h1>Organize sua agenda.<br/><span>Cresça seu negócio.</span></h1>
+    <p>O AgendaPro transforma a forma como profissionais e empresas gerenciam seus horários. Mais automação, mais organização, mais clientes.</p>
+    <div class="hero-btns">
+      <a href="#planos" class="btn-primary">Experimente grátis</a>
+      <a href="#como-funciona" class="btn-secondary">Ver como funciona</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item"><strong>+12 mil</strong><span>Profissionais ativos</span></div>
+    <div class="stat-item"><strong>+98%</strong><span>Taxa de satisfação</span></div>
+    <div class="stat-item"><strong>+350 mil</strong><span>Agendamentos realizados</span></div>
+    <div class="stat-item"><strong>24/7</strong><span>Suporte disponível</span></div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="section-header center">
+      <div class="section-label">Funcionalidades</div>
+      <h2 class="section-title">Tudo que você precisa em um só lugar</h2>
+      <p class="section-sub">Da página pública de agendamento ao controle financeiro completo, o AgendaPro cobre cada etapa do seu negócio.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Calendário Premium</h3>
+        <p>Visualize, filtre e gerencie todos os agendamentos com um calendário intuitivo e atualizado em tempo real.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>Gestão de Clientes</h3>
+        <p>Cadastro completo com histórico de atendimentos, preferências e anotações por cliente.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💼</div>
+        <h3>Cadastro de Serviços</h3>
+        <p>Crie e edite serviços com duração, preço e profissional responsável de forma simples e rápida.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Notificações Automáticas</h3>
+        <p>Lembretes automáticos via WhatsApp e e-mail para reduzir faltas e manter clientes engajados.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Controle Financeiro</h3>
+        <p>Acompanhe faturamento, recebimentos e relatórios detalhados de desempenho financeiro.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>100% Responsivo</h3>
+        <p>Interface totalmente adaptada para celular e computador. Gerencie de qualquer lugar, a qualquer hora.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Integração WhatsApp</h3>
+        <p>Conecte diretamente ao WhatsApp para confirmações, lembretes e comunicação com clientes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Tempo Real com Supabase</h3>
+        <p>Banco de dados online sincronizado automaticamente. O painel atualiza instantaneamente a cada agendamento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como-funciona">
+    <div class="section-header center">
+      <div class="section-label">Como funciona</div>
+      <h2 class="section-title">Simples para o cliente.<br/>Poderoso para você.</h2>
+      <p class="section-sub">Em poucos passos, o cliente agenda e você já recebe a informação organizada no painel.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <h3>Cliente acessa</h3>
+        <p>O cliente entra na sua página pública de agendamento, escolhe o serviço e o horário disponível.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <h3>Agendamento salvo</h3>
+        <p>Os dados são enviados ao Supabase e salvos no banco de dados automaticamente, sem intervenção manual.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <h3>Painel atualiza</h3>
+        <p>O painel administrativo reflete o novo agendamento em tempo real com status, cliente e serviço.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <h3>Notificação enviada</h3>
+        <p>Cliente e profissional recebem confirmação automática via WhatsApp ou e-mail.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAINEL MOCKUP -->
+  <section id="painel">
+    <div class="section-header">
+      <div class="section-label">Painel Administrativo</div>
+      <h2 class="section-title">Controle total<br/>na palma da mão.</h2>
+      <p class="section-sub">Uma interface premium com métricas, agenda, clientes e finanças — tudo integrado e atualizado automaticamente.</p>
+    </div>
+    <div class="dashboard-mock">
+      <div class="dash-sidebar">
+        <div class="dash-logo">Agenda<span>Pro</span></div>
+        <div class="dash-menu-item active"><span class="dash-menu-icon">📅</span> Dashboard</div>
+        <div class="dash-menu-item"><span class="dash-menu-icon">👥</span> Clientes</div>
+        <div class="dash-menu-item"><span class="dash-menu-icon">💼</span> Serviços</div>
+        <div class="dash-menu-item"><span class="dash-menu-icon">👤</span> Profissionais</div>
+        <div class="dash-menu-item"><span class="dash-menu-icon">📆</span> Agenda</div>
+        <div class="dash-menu-item"><span class="dash-menu-icon">💰</span> Financeiro</div>
+        <div class="dash-menu-item"><span class="dash-menu-icon">💬</span> Mensagens</div>
+        <div class="dash-menu-item"><span class="dash-menu-icon">⚙️</span> Configurações</div>
+      </div>
+      <div class="dash-main">
+        <div class="dash-cards-row">
+          <div class="dash-card">
+            <div class="dash-card-label">Agendamentos Hoje</div>
+            <div class="dash-card-value accent">24</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-label">Clientes Ativos</div>
+            <div class="dash-card-value">318</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-label">Faturamento Mês</div>
+            <div class="dash-card-value green">R$8.740</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-label">Cancelamentos</div>
+            <div class="dash-card-value red">3</div>
+          </div>
+        </div>
+        <div class="dash-bottom">
+          <div class="dash-table-panel">
+            <div class="dash-panel-title">Próximos Agendamentos</div>
+            <div class="dash-row">
+              <div>
+                <div class="dash-row-name">Arllison Santos</div>
+                <div class="dash-row-info">Designer · 14:00</div>
+              </div>
+              <span class="badge badge-green">Confirmado</span>
+            </div>
+            <div class="dash-row">
+              <div>
+                <div class="dash-row-name">Marina Costa</div>
+                <div class="dash-row-info">Corte · 15:30</div>
+              </div>
+              <span class="badge badge-yellow">Pendente</span>
+            </div>
+            <div class="dash-row">
+              <div>
+                <div class="dash-row-name">Lucas Ferreira</div>
+                <div class="dash-row-info">Consultoria · 16:00</div>
+              </div>
+              <span class="badge badge-green">Confirmado</span>
+            </div>
+            <div class="dash-row">
+              <div>
+                <div class="dash-row-name">Ana Beatriz</div>
+                <div class="dash-row-info">Manicure · 17:00</div>
+              </div>
+              <span class="badge badge-red">Cancelado</span>
+            </div>
+          </div>
+          <div class="dash-table-panel">
+            <div class="dash-panel-title">Serviços Mais Solicitados</div>
+            <div class="dash-row">
+              <div class="dash-row-name">Designer</div>
+              <span class="badge badge-green">87 agend.</span>
+            </div>
+            <div class="dash-row">
+              <div class="dash-row-name">Corte de Cabelo</div>
+              <span class="badge badge-green">64 agend.</span>
+            </div>
+            <div class="dash-row">
+              <div class="dash-row-name">Manicure</div>
+              <span class="badge badge-yellow">51 agend.</span>
+            </div>
+            <div class="dash-row">
+              <div class="dash-row-name">Consultoria</div>
+              <span class="badge badge-yellow">39 agend.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTEGRATIONS -->
+  <section id="integracoes">
+    <div class="section-header center">
+      <div class="section-label">Integrações</div>
+      <h2 class="section-title">Conecta com as ferramentas<br/>que você já usa</h2>
+    </div>
+    <div class="integrations-list">
+      <div class="integration-chip">💬 WhatsApp</div>
+      <div class="integration-chip">🗄️ Supabase</div>
+      <div class="integration-chip">📧 E-mail</div>
+      <div class="integration-chip">📊 Google Sheets</div>
+      <div class="integration-chip">📅 Google Calendar</div>
+      <div class="integration-chip">💳 Pix / Stripe</div>
+      <div class="integration-chip">📲 Telegram</div>
+      <div class="integration-chip">🔗 API REST</div>
+    </div>
+  </section>
+
+  <!-- PLANOS -->
+  <section id="planos">
+    <div class="section-header center">
+      <div class="section-label">Planos</div>
+      <h2 class="section-title">Escolha o plano ideal</h2>
+      <p class="section-sub">Sem taxas escondidas. Cancele quando quiser.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>R$</sup>0<sub>/mês</sub></div>
+        <p class="plan-desc">Ideal para autônomos que estão começando e querem organizar seus horários.</p>
+        <ul class="plan-features">
+          <li>Até 50 agendamentos/mês</li>
+          <li>1 profissional</li>
+          <li>Página pública de agendamento</li>
+          <li>Notificações por e-mail</li>
+          <li>Suporte por e-mail</li>
+        </ul>
+        <button class="plan-btn plan-btn-outline">Começar grátis</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="featured-badge">✨ Mais popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price"><sup>R$</sup>97<sub>/mês</sub></div>
+        <p class="plan-desc">Para profissionais e pequenas empresas que precisam de controle completo.</p>
+        <ul class="plan-features">
+          <li>Agendamentos ilimitados</li>
+          <li>Até 5 profissionais</li>
+          <li>Integração WhatsApp</li>
+          <li>Controle financeiro</li>
+          <li>Relatórios detalhados</li>
+          <li>Suporte prioritário</li>
+        </ul>
+        <button class="plan-btn plan-btn-filled">Assinar Pro</button>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-name">Business</div>
+        <div class="plan-price"><sup>R$</sup>247<sub>/mês</sub></div>
+        <p class="plan-desc">Para empresas e clínicas com múltiplas unidades e equipes maiores.</p>
+        <ul class="plan-features">
+          <li>Tudo do Pro</li>
+          <li>Profissionais ilimitados</li>
+          <li>Multi-unidades</li>
+          <li>API personalizada</li>
+          <li>Gestor de conta dedicado</li>
+          <li>SLA garantido</li>
+        </ul>
+        <button class="plan-btn plan-btn-outline">Falar com vendas</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPOIMENTOS -->
+  <section id="depoimentos">
+    <div class="section-header center">
+      <div class="section-label">Depoimentos</div>
+      <h2 class="section-title">O que dizem nossos clientes</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"O AgendaPro transformou meu salão. Antes perdia cliente por esquecer horário, agora tudo é automático. Meu faturamento aumentou 40%."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">CM</div>
+          <div>
+            <div class="author-name">Camila Moura</div>
+            <div class="author-role">Proprietária de Salão · São Paulo</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"Uso o plano Pro e amei a integração com WhatsApp. Meus clientes recebem lembrete automático e as faltas caíram quase a zero."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">RL</div>
+          <div>
+            <div class="author-name">Rafael Lima</div>
+            <div class="author-role">Personal Trainer · Rio de Janeiro</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"Gerencio 3 clínicas com o plano Business. O controle financeiro e os relatórios me deram clareza total sobre o negócio. Recomendo muito."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">JA</div>
+          <div>
+            <div class="author-name">Juliana Andrade</div>
+            <div class="author-role">Diretora de Clínicas · Brasília</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section id="cta-final">
+    <h2>Pronto para transformar<br/>sua agenda?</h2>
+    <p>Comece gratuitamente hoje. Sem cartão de crédito, sem compromisso.</p>
+    <div class="cta-btns">
+      <a href="#planos" class="btn-white">Começar gratuitamente</a>
+      <a href="#features" class="btn-ghost-white">Conhecer funcionalidades</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Agenda<span>Pro</span></div>
+    <div class="footer-links">
+      <a href="#features">Funcionalidades</a>
+      <a href="#planos">Planos</a>
+      <a href="#depoimentos">Depoimentos</a>
+      <a href="#">Política de Privacidade</a>
+      <a href="#">Termos de Uso</a>
+    </div>
+    <div class="footer-copy">© 2026 AgendaPro. Todos os direitos reservados.</div>
+  </footer>
+
+</body>
+</html>
