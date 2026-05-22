@@ -384,7 +384,6 @@ function showCadastro() {
 
     if (fc) {
         fc.style.display = 'block';
-        fc.innerHTML = fc.innerHTML;
     }
 
     const s1 = $('step1'),
@@ -392,8 +391,16 @@ function showCadastro() {
           s3 = $('step3');
 
     if (s1) s1.style.display = 'block';
-    if (s2) s2.style.display = 'none';
-    if (s3) s3.style.display = 'none';
+
+    if (s2) {
+        s2.style.display = 'none';
+        s2.classList.remove('active');
+    }
+
+    if (s3) {
+        s3.style.display = 'none';
+        s3.classList.remove('active');
+    }
 
     setStep(1);
     preencherSelectCategorias();
