@@ -176,7 +176,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Fecha menus ao rolar (evita dropdown desalinhado)
-document.addEventListener('scroll', closeAllMenus, { passive: true });
+// PATCH: não fecha dropdown ao rolar, para não sumir antes do clique.
 
 // ── INIT ──
 window.addEventListener('DOMContentLoaded', init);
@@ -374,6 +374,12 @@ function showLogin() {
   const fc = $('formCadastro');
   if (fl) fl.style.display = 'block';
   if (fc) fc.style.display = 'none';
+
+  ['step1','step2','step3'].forEach(id => {
+    const el = $(id);
+    if (el) el.style.display = id === 'step1' ? 'block' : 'none';
+  });
+  setStep(1);
 }
 
 function showCadastro() {
@@ -381,10 +387,12 @@ function showCadastro() {
   const fc = $('formCadastro');
   if (fl) fl.style.display = 'none';
   if (fc) fc.style.display = 'block';
+
   const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
   if (s1) s1.style.display = 'block';
   if (s2) s2.style.display = 'none';
   if (s3) s3.style.display = 'none';
+
   setStep(1);
   preencherSelectCategorias();
 }
@@ -403,17 +411,21 @@ function goStep2() {
   const senha = $('cadSenha')?.value?.trim();
   if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
   if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
-  const s1 = $('step1'), s2 = $('step2');
+
+  const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
   if (s1) s1.style.display = 'none';
   if (s2) s2.style.display = 'block';
+  if (s3) s3.style.display = 'none';
+
   setStep(2);
   preencherSelectCategorias();
 }
 
 function goStep1() {
-  const s1 = $('step1'), s2 = $('step2');
-  if (s2) s2.style.display = 'none';
+  const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
   if (s1) s1.style.display = 'block';
+  if (s2) s2.style.display = 'none';
+  if (s3) s3.style.display = 'none';
   setStep(1);
 }
 
@@ -424,9 +436,12 @@ function goStep3() {
   if (!empNome || !empSlug || !empWhatsapp) {
     return toast('Preencha nome, link e WhatsApp.', 'err');
   }
-  const s2 = $('step2'), s3 = $('step3');
+
+  const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
+  if (s1) s1.style.display = 'none';
   if (s2) s2.style.display = 'none';
   if (s3) s3.style.display = 'block';
+
   setStep(3);
 }
 
@@ -855,15 +870,18 @@ function setFilter(filter, btn) {
 function renderTimeline() {
   const el = $('agendaTimeline');
   if (!el) return;
+
   const ags = state.agendamentos || [];
-  if (!ags.length) {
-    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento ainda.</p></div>';
-    return;
-  }
+
   const statusMap = {
-    pendente: 'Pendente', confirmado: 'Confirmado', reagendado: 'Reagendado',
-    concluido: 'Concluído', recusado: 'Recusado', excluido: 'Excluído'
+    pendente: 'Pendente',
+    confirmado: 'Confirmado',
+    reagendado: 'Reagendado',
+    concluido: 'Concluído',
+    recusado: 'Recusado',
+    excluido: 'Excluído'
   };
+
   let filtered;
   if (_agendaFilter === 'excluido') {
     filtered = ags.filter(a => normStatus(a.status) === 'Excluído');
@@ -873,39 +891,59 @@ function renderTimeline() {
   } else {
     filtered = ags.filter(a => normStatus(a.status) !== 'Excluído');
   }
+
   if (!filtered.length) {
-    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento neste filtro.</p></div>';
+    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">📅</div><p>Nenhum agendamento neste filtro.</p></div>';
     return;
   }
+
   el.innerHTML = '';
+
   filtered.forEach(a => {
     const block = document.createElement('div');
-    block.className = 'tl-block';
+    block.className = 'tl-block agenda-premium-block';
     block.id = 'ag-' + a.id;
+
+    const telefone = a.cliente_telefone || a.telefone || '—';
+    const dataTxt = formatDate(a.data);
+    const horaTxt = a.hora || '—';
+    const statusTxt = normStatus(a.status);
+
     block.innerHTML = `
-      <div class="tl-time">${a.hora || '—'}</div>
-      <div class="tl-line"></div>
-      <div class="tl-content">
-        <div class="tl-card">
-          <div class="tl-card-top">
-            <div class="apt-av" style="width:34px;height:34px;border-radius:9px;flex-shrink:0">${initial(a.cliente_nome)}</div>
-            <div class="tl-card-info">
-              <div class="tl-card-name">${a.cliente_nome || 'Cliente'}</div>
-              <div class="tl-card-meta">${a.servico_nome || '—'} · ${a.profissional_nome || '—'} · ${formatDate(a.data)}${a.cliente_telefone ? ' · ' + a.cliente_telefone : ''}</div>
+      <div class="tl-time agenda-time-pill">${horaTxt}</div>
+      <div class="tl-content agenda-content">
+        <div class="tl-card agenda-premium-card">
+          <div class="agenda-main-row">
+            <div class="apt-av agenda-avatar">${initial(a.cliente_nome)}</div>
+
+            <div class="agenda-main-info">
+              <div class="agenda-title-line">
+                <div class="tl-card-name agenda-client-name">${a.cliente_nome || 'Cliente'}</div>
+                <span class="badge ${badgeClass(a.status)}">${statusTxt}</span>
+              </div>
+
+              <div class="agenda-info-grid">
+                <div class="agenda-info-item"><span>Serviço</span><b>${a.servico_nome || '—'}</b></div>
+                <div class="agenda-info-item"><span>Profissional</span><b>${a.profissional_nome || '—'}</b></div>
+                <div class="agenda-info-item"><span>Data</span><b>${dataTxt}</b></div>
+                <div class="agenda-info-item"><span>WhatsApp</span><b>${telefone}</b></div>
+              </div>
             </div>
-            <div class="tl-card-status"><span class="badge ${badgeClass(a.status)}">${normStatus(a.status)}</span></div>
           </div>
+
           ${renderAcoes(a)}
         </div>
-      </div>`;
+      </div>
+    `;
+
     const card = block.querySelector('.tl-card');
-    const cardTop = block.querySelector('.tl-card-top');
     const menu = buildActionMenu(a.id, [
       { icon: '✏️', label: 'Editar', action: () => editAgendamento(a.id) },
       { icon: '📋', label: 'Duplicar', action: () => duplicarAgendamento(a.id) },
       'sep',
       { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirAgendamento(a.id) }
     ]);
+
     if (card) card.appendChild(menu);
     el.appendChild(block);
   });
@@ -948,6 +986,7 @@ function buildActionMenu(id, items) {
   btn.className = 'action-menu-btn';
   btn.innerHTML = '⋮';
   btn.type = 'button';
+  btn.setAttribute('aria-label', 'Ações');
 
   const drop = document.createElement('div');
   drop.className = 'action-dropdown';
@@ -959,16 +998,16 @@ function buildActionMenu(id, items) {
       drop.appendChild(s);
       return;
     }
+
     const el = document.createElement('button');
     el.type = 'button';
     el.className = 'action-item' + (item.cls ? ' ' + item.cls : '');
-    el.innerHTML = `<span class="action-item-icon">${item.icon}</span>${item.label}`;
+    el.innerHTML = `<span class="action-item-icon">${item.icon || ''}</span>${item.label || ''}`;
     el.addEventListener('click', e => {
       e.stopPropagation();
       e.preventDefault();
       closeAllMenus();
-      // Pequeno delay para garantir que o menu fechou antes da ação
-      setTimeout(() => item.action(), 50);
+      if (typeof item.action === 'function') item.action();
     });
     drop.appendChild(el);
   });
@@ -984,56 +1023,50 @@ function buildActionMenu(id, items) {
 
     closeAllMenus();
 
-    // FIX CRÍTICO: posiciona o dropdown via fixed usando coordenadas reais do botão
-    const rect = btn.getBoundingClientRect();
-    const dropW = 200;
-    const viewportW = window.innerWidth;
-    const viewportH = window.innerHeight;
+    if (drop.parentElement !== document.body) {
+      document.body.appendChild(drop);
+    }
 
-    // Calcula posição: tenta abrir à direita do botão, alinhado pela direita
-    let left = rect.right - dropW;
-    let top = rect.bottom + 6;
-
-    // Se sair pela esquerda, abre pela esquerda do botão
-    if (left < 8) left = rect.left;
-    // Se sair pela direita, recua
-    if (left + dropW > viewportW - 8) left = viewportW - dropW - 8;
-    // Se sair por baixo, abre para cima
-    if (top + 200 > viewportH - 8) top = rect.top - 210;
-
-    drop.style.top = top + 'px';
-    drop.style.left = left + 'px';
-    drop.style.minWidth = dropW + 'px';
-
-    // Adiciona ao body para escapar de qualquer overflow:hidden
-    document.body.appendChild(drop);
     drop.classList.add('open');
+
+    const rect = btn.getBoundingClientRect();
+    const dropW = Math.min(230, window.innerWidth - 24);
+    const dropH = Math.min(260, window.innerHeight - 24);
+
+    let left = rect.right - dropW;
+    let top = rect.bottom + 8;
+
+    if (left < 12) left = 12;
+    if (left + dropW > window.innerWidth - 12) left = window.innerWidth - dropW - 12;
+
+    if (top + dropH > window.innerHeight - 12) {
+      top = rect.top - dropH - 8;
+    }
+    if (top < 12) top = 12;
+
+    drop.style.position = 'fixed';
+    drop.style.left = left + 'px';
+    drop.style.top = top + 'px';
+    drop.style.width = dropW + 'px';
+    drop.style.maxHeight = dropH + 'px';
+
     _openMenu = drop;
     _openMenuBtn = btn;
   });
 
   wrap.appendChild(btn);
-  // drop fica no body quando aberto, não dentro do wrap
-  // mas começa dentro para não poluir o DOM
-  wrap.appendChild(drop);
   return wrap;
 }
 
 function closeAllMenus() {
-  if (_openMenu) {
-    _openMenu.classList.remove('open');
-    // Remove do body se foi movido para lá
-    if (_openMenu.parentElement === document.body) {
-      document.body.removeChild(_openMenu);
-    }
-    _openMenu = null;
-    _openMenuBtn = null;
-  }
-  // Limpa qualquer dropdown órfão
-  document.querySelectorAll('body > .action-dropdown').forEach(d => {
+  document.querySelectorAll('.action-dropdown.open').forEach(d => {
     d.classList.remove('open');
-    if (d.parentElement === document.body) document.body.removeChild(d);
+    if (d.parentElement === document.body) {
+      document.body.removeChild(d);
+    }
   });
+  _openMenu = null;
+  _openMenuBtn = null;
 }
 
 // ── CLIENTES ──
@@ -1996,21 +2029,5 @@ Object.assign(window, {
 });
 
 
-
-/* PATCH FINAL — proteção da página pública */
-(function(){
-  function forcePublicIsolation(){
-    if(!location.hash || !location.hash.startsWith('#agendar/')) return;
-    const landing = document.getElementById('landingView');
-    const dashboard = document.getElementById('dashboardView');
-    const publicView = document.getElementById('publicView');
-    if(landing) landing.style.display = 'none';
-    if(dashboard) dashboard.style.display = 'none';
-    if(publicView) publicView.style.display = 'block';
-    document.body.classList.add('public-mode');
-  }
-  window.addEventListener('hashchange', forcePublicIsolation);
-  window.addEventListener('DOMContentLoaded', forcePublicIsolation);
-  setTimeout(forcePublicIsolation, 300);
-  setTimeout(forcePublicIsolation, 1000);
-})();
+// PATCH_MENU_RESIZE_CLOSE
+window.addEventListener('resize', closeAllMenus);
