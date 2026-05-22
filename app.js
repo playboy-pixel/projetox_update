@@ -1,8 +1,23 @@
-/* ═══════════════════════════════════════════════
-   AGENDAPRO — app.js CORRIGIDO COMPLETO
-═══════════════════════════════════════════════ */
+const SUPABASE_URL = "https://wyjrjioipqfltdyupfna.supabase.co";
+const SUPABASE_KEY = "sb_publishable_PkDkt5S-_rdrT0HhANoPAw_ZWluV2_H";
 
-// ── STATE ──
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false
+    }
+  }
+);
+
+/* =========================================
+   AGENDAPRO — app.js CORRIGIDO COMPLETO
+========================================= */
+
+// — STATE —
 let state = {
   user: null, empresa: null, perfil: null,
   categorias: [], clientes: [], servicos: [],
