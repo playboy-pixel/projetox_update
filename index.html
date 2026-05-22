@@ -709,6 +709,17 @@ Aguardamos você!</textarea></div>
 <div class="notif-stack" id="notifStack"></div>
 
 <script src="supabase.js"></script>
+<script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const agendar = params.get("agendar");
+
+  if (agendar) {
+    window.location.hash = "agendar/" + agendar;
+  }
+})();
+</script>
+
 <script src="app.js"></script>
 <script>
 function openMobileMenu(){
@@ -724,19 +735,5 @@ function closeMobileMenu(){
   if(drawer) drawer.classList.remove('open');
 }
 </script>
-
-<div id="datePickerOverlay" class="date-overlay" onclick="if(event.target===this) closeDatePicker()">
-  <div class="date-card">
-    <div class="date-head">
-      <button type="button" onclick="changeMonth(-1)">‹</button>
-      <strong id="dateMonthLabel">Mês</strong>
-      <button type="button" onclick="changeMonth(1)">›</button>
-    </div>
-    <div class="weekdays"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
-    <div id="dateDays" class="date-days"></div>
-    <button type="button" class="btn btn-ghost btn-full" onclick="closeDatePicker()">Cancelar</button>
-  </div>
-</div>
-
 </body>
 </html>
