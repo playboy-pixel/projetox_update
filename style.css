@@ -1419,10 +1419,375 @@ body.menu-open { overflow: hidden; touch-action: none; }
 }
 
 
-/* PATCH TESTE SEGURO — AGENDA, MENUS E DATAS */
-html,body{max-width:100%!important;overflow-x:hidden!important}.view,.dash-main,.panel,.card,.cards-grid,.timeline,#agendaTimeline,#clientesCards,#servicosCards,#profCards,.client-card,.svc-card,.prof-card,.tl-card,.apt-card{overflow:visible!important}
-#agendaTimeline{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))!important;gap:16px!important;align-items:stretch!important}.tl-block,.tl-card,.tl-apt,.apt-card{width:100%!important;min-width:0!important;border-radius:22px!important;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.022))!important;border:1px solid var(--border,rgba(255,255,255,.08))!important;box-shadow:0 18px 55px rgba(0,0,0,.22)!important;overflow:visible!important}.tl-block{display:block!important;position:relative!important}.tl-timestamp,.tl-line{display:none!important}.tl-content{width:100%!important;min-width:0!important}.tl-apt,.apt-card{padding:18px 70px 18px 18px!important;position:relative!important}.tl-apt-main,.apt-card>div:first-child{display:flex!important;align-items:flex-start!important;gap:14px!important;min-width:0!important}.apt-avatar{width:54px!important;height:54px!important;border-radius:16px!important;flex-shrink:0!important;font-size:20px!important}.tl-apt-info,.apt-card .apt-meta,.apt-name{min-width:0!important}.apt-name{color:var(--text,#fff)!important;font-size:18px!important;font-weight:900!important;white-space:normal!important;overflow:visible!important;text-overflow:unset!important;line-height:1.2!important}.apt-meta{color:var(--text2,#aaa)!important;font-size:13px!important;line-height:1.55!important;white-space:normal!important}.tl-apt-status{margin-left:auto!important;flex-shrink:0!important}.apt-actions{margin-top:16px!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;width:100%!important}.act-btn{width:100%!important;min-height:40px!important;border-radius:13px!important;justify-content:center!important;white-space:nowrap!important;font-weight:800!important}
-.action-menu-wrap,.action-menu{position:absolute!important;top:16px!important;right:16px!important;z-index:300!important}.action-menu-btn{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;border-radius:15px!important;display:grid!important;place-items:center!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.14)!important;color:var(--accent2,#818cf8)!important;font-size:24px!important;font-weight:900!important;line-height:1!important;padding:0!important;box-shadow:0 12px 30px rgba(0,0,0,.28)!important}.action-menu-dropdown,.action-dropdown{display:none;position:absolute!important;top:54px!important;right:0!important;min-width:210px!important;max-width:calc(100vw - 28px)!important;z-index:999999!important;padding:8px!important;border-radius:18px!important;background:rgba(14,14,18,.985)!important;border:1px solid rgba(255,255,255,.14)!important;box-shadow:0 26px 80px rgba(0,0,0,.78)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;overflow:hidden!important}.action-menu-dropdown.open,.action-dropdown.open{display:block!important}.action-menu-item,.action-item{width:100%!important;min-height:42px!important;border:0!important;border-radius:12px!important;background:transparent!important;color:var(--text,#fff)!important;display:flex!important;align-items:center!important;gap:10px!important;padding:10px 12px!important;text-align:left!important;font-weight:800!important}.action-menu-item:hover,.action-item:hover{background:rgba(99,102,241,.14)!important}.action-menu-item.danger,.action-item.danger{color:#fb7185!important}.action-menu-sep,.action-sep{height:1px!important;background:rgba(255,255,255,.08)!important;margin:7px 2px!important}.client-card,.svc-card,.prof-card{position:relative!important;overflow:visible!important}
-.date-overlay{display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.72);align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.date-overlay.open{display:flex}.date-card{width:min(430px,100%);padding:22px;border-radius:26px;background:rgba(14,14,18,.985);border:1px solid rgba(255,255,255,.14);box-shadow:0 34px 120px rgba(0,0,0,.75)}.date-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.date-head button{width:46px;height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.055);color:#fff;font-size:28px;cursor:pointer}.date-head strong{text-transform:capitalize;font-size:15px}.weekdays,.date-days{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.weekdays span{text-align:center;color:var(--text3,#777);font-size:12px;font-weight:900}.date-days button{height:44px;border-radius:14px;border:1px solid transparent;background:transparent;color:var(--text,#fff);font-weight:800;cursor:pointer}.date-days button:hover{background:linear-gradient(135deg,var(--accent,#6366f1),var(--accent2,#8b5cf6))}.date-days button.disabled,.date-days button.dp-empty{opacity:.28;cursor:not-allowed}
-@media(max-width:768px){#agendaTimeline{grid-template-columns:1fr!important}.tl-apt,.apt-card{padding:16px 62px 16px 16px!important}.tl-apt-main,.apt-card>div:first-child{gap:11px!important}.apt-avatar{width:46px!important;height:46px!important;border-radius:14px!important;font-size:17px!important}.apt-name{font-size:15px!important}.apt-meta{font-size:12px!important}.tl-apt-status{margin-top:6px!important;margin-left:0!important}.apt-actions{grid-template-columns:1fr!important}.action-menu-wrap,.action-menu{top:14px!important;right:14px!important}.action-menu-dropdown,.action-dropdown{right:0!important;top:52px!important;min-width:190px!important}}
+/* ═══════════════════════════════════════════════
+   PATCH FINAL SEGURO — SOMENTE AJUSTES PEDIDOS
+   - voltar do cadastro sem multiplicar telas
+   - agenda premium igual cards de clientes
+   - dropdown dos 3 pontinhos sem cortar
+   - datas/inputs mais premium sem quebrar lógica
+═══════════════════════════════════════════════ */
+
+html, body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.auth-overlay,
+.auth-modal,
+.auth-form-area,
+#formCadastro,
+#formLogin,
+#step1,
+#step2,
+#step3 {
+  min-width: 0 !important;
+}
+
+#step1[style*="display: none"],
+#step2[style*="display: none"],
+#step3[style*="display: none"],
+#formLogin[style*="display: none"],
+#formCadastro[style*="display: none"] {
+  display: none !important;
+}
+
+/* Agenda em card cheio, sem quebrar em pedaços */
+#agendaTimeline {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)) !important;
+  gap: 16px !important;
+  align-items: start !important;
+  overflow: visible !important;
+}
+
+.tl-block.agenda-premium-block {
+  display: block !important;
+  position: relative !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  overflow: visible !important;
+}
+
+.agenda-time-pill {
+  display: inline-flex !important;
+  width: auto !important;
+  min-width: 78px !important;
+  height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 0 8px 0 !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.045) !important;
+  border: 1px solid var(--border2) !important;
+  color: var(--text2) !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+}
+
+.tl-line {
+  display: none !important;
+}
+
+.agenda-content,
+.tl-content {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.agenda-premium-card {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 18px 74px 18px 18px !important;
+  border-radius: 22px !important;
+  overflow: visible !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(99,102,241,.10), transparent 42%),
+    linear-gradient(145deg, rgba(255,255,255,.058), rgba(255,255,255,.023)) !important;
+  border: 1px solid var(--border2) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.25) !important;
+}
+
+.agenda-main-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+.agenda-avatar,
+.apt-av.agenda-avatar {
+  width: 58px !important;
+  height: 58px !important;
+  min-width: 58px !important;
+  border-radius: 17px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: var(--accent4) !important;
+  border: 1px solid var(--accent-border) !important;
+  color: var(--accent2) !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+}
+
+.agenda-main-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.agenda-title-line {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
+
+.agenda-client-name {
+  min-width: 0 !important;
+  color: var(--text) !important;
+  font-size: 20px !important;
+  line-height: 1.18 !important;
+  font-weight: 900 !important;
+  letter-spacing: -.01em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: normal !important;
+}
+
+.agenda-info-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+}
+
+.agenda-info-item {
+  min-width: 0 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.026) !important;
+  padding: 10px 11px !important;
+}
+
+.agenda-info-item span {
+  display: block !important;
+  margin-bottom: 3px !important;
+  color: var(--text3) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .10em !important;
+}
+
+.agenda-info-item b {
+  display: block !important;
+  color: var(--text2) !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  font-weight: 700 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Ações da agenda */
+.apt-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+  margin-top: 16px !important;
+  width: 100% !important;
+}
+
+.act-btn {
+  width: 100% !important;
+  min-height: 40px !important;
+  border-radius: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  font-weight: 800 !important;
+  overflow: hidden !important;
+}
+
+.act-btn.whatsapp {
+  grid-column: 1 / -1 !important;
+}
+
+/* Dropdown dos 3 pontinhos */
+.action-menu {
+  position: absolute !important;
+  top: 16px !important;
+  right: 16px !important;
+  z-index: 200 !important;
+}
+
+.action-menu-btn {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  min-height: 46px !important;
+  border-radius: 15px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  border: 1px solid var(--border2) !important;
+  background: rgba(255,255,255,.06) !important;
+  color: var(--accent2) !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.28) !important;
+}
+
+.action-dropdown {
+  display: none;
+  z-index: 999999 !important;
+  padding: 8px !important;
+  border-radius: 18px !important;
+  background: rgba(14,14,18,.985) !important;
+  border: 1px solid var(--border2) !important;
+  box-shadow: 0 28px 80px rgba(0,0,0,.78) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.action-dropdown.open {
+  display: block !important;
+}
+
+.action-item {
+  width: 100% !important;
+  min-height: 42px !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+  text-align: left !important;
+  font-weight: 800 !important;
+}
+
+.action-item:hover {
+  background: rgba(99,102,241,.14) !important;
+}
+
+.action-item.danger {
+  color: #fb7185 !important;
+}
+
+.action-sep {
+  height: 1px !important;
+  background: var(--border) !important;
+  margin: 7px 2px !important;
+}
+
+/* Inputs de data e hora mais premium usando input nativo */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark !important;
+  min-height: 46px !important;
+  border-radius: var(--radius) !important;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.025)),
+    var(--bg2) !important;
+  border: 1px solid var(--border2) !important;
+  color: var(--text) !important;
+  font-weight: 800 !important;
+  letter-spacing: .02em !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(.75) !important;
+  cursor: pointer !important;
+}
+
+/* Evita qualquer card cortar menu */
+.client-card,
+.svc-card,
+.prof-card,
+.tl-card,
+.tl-block,
+.dash-card,
+.card,
+.panel {
+  overflow: visible !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #agendaTimeline {
+    grid-template-columns: 1fr !important;
+  }
+
+  .agenda-premium-card {
+    padding: 16px 62px 16px 16px !important;
+  }
+
+  .agenda-main-row {
+    gap: 11px !important;
+  }
+
+  .agenda-avatar,
+  .apt-av.agenda-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    border-radius: 14px !important;
+    font-size: 18px !important;
+  }
+
+  .agenda-title-line {
+    display: block !important;
+  }
+
+  .agenda-title-line .badge {
+    margin-top: 8px !important;
+  }
+
+  .agenda-client-name {
+    font-size: 16px !important;
+  }
+
+  .agenda-info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .apt-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act-btn.whatsapp {
+    grid-column: auto !important;
+  }
+
+  .action-menu {
+    top: 14px !important;
+    right: 14px !important;
+  }
+
+  .action-menu-btn {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+  }
+
+  .auth-modal {
+    max-height: calc(100dvh - 24px) !important;
+    overflow-y: auto !important;
+  }
+}
 
