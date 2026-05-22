@@ -1,2016 +1,1554 @@
-const SUPABASE_URL = "https://wyjrjioipqfltdyupfna.supabase.co";
-const SUPABASE_KEY = "sb_publishable_PkDkt5S-_rdrT0HhANoPAw_ZWluV2_H";
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap');
 
-const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: false
-    }
+:root {
+  --bg: #09090b;
+  --bg1: #0f0f12;
+  --bg2: #141418;
+  --bg3: #1a1a20;
+  --bg4: #1f1f26;
+  --surface: rgba(255,255,255,0.03);
+  --surface2: rgba(255,255,255,0.055);
+  --surface3: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.11);
+  --border3: rgba(255,255,255,0.16);
+  --text: #f4f4f5;
+  --text2: #a1a1aa;
+  --text3: #71717a;
+  --text4: #52525b;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --accent3: rgba(99,102,241,0.15);
+  --accent4: rgba(99,102,241,0.08);
+  --accent-border: rgba(99,102,241,0.3);
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.08);
+  --green-border: rgba(34,197,94,0.2);
+  --yellow: #eab308;
+  --yellow-bg: rgba(234,179,8,0.08);
+  --yellow-border: rgba(234,179,8,0.2);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --red-border: rgba(239,68,68,0.2);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --blue-border: rgba(59,130,246,0.2);
+  --purple: #a855f7;
+  --purple-bg: rgba(168,85,247,0.08);
+  --purple-border: rgba(168,85,247,0.2);
+  --sidebar-w: 248px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.serif { font-family: 'Instrument Serif', serif; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border3); border-radius: 99px; }
+
+/* ── BACKGROUNDS ── */
+.bg-noise {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.6;
+}
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 70%);
+}
+.bg-glow-tl {
+  position: fixed; top: -200px; left: -200px; width: 600px; height: 600px;
+  border-radius: 50%; pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%);
+  filter: blur(40px);
+}
+.bg-glow-br {
+  position: fixed; bottom: -200px; right: -200px; width: 500px; height: 500px;
+  border-radius: 50%; pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 65%);
+  filter: blur(40px);
+}
+
+/* ── TYPOGRAPHY ── */
+h1, h2, h3, h4 { line-height: 1.1; font-weight: 600; }
+p { color: var(--text2); }
+a { text-decoration: none; color: inherit; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 16px; border-radius: var(--radius); border: none;
+  font-family: 'Geist', sans-serif; font-size: 13.5px; font-weight: 500;
+  cursor: pointer; transition: all 0.18s ease; white-space: nowrap; line-height: 1;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.4), 0 4px 16px rgba(99,102,241,0.25);
+}
+.btn-primary:hover {
+  background: var(--accent2);
+  box-shadow: 0 0 0 1px rgba(129,140,248,0.5), 0 6px 22px rgba(99,102,241,0.35);
+}
+.btn-secondary {
+  background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border2);
+}
+.btn-secondary:hover { background: var(--surface3); border-color: var(--border3); }
+.btn-ghost {
+  background: transparent; color: var(--text2); border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--surface); color: var(--text); border-color: var(--border2); }
+.btn-danger {
+  background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border);
+}
+.btn-danger:hover { background: rgba(239,68,68,0.15); }
+.btn-sm { padding: 6px 12px; font-size: 12.5px; border-radius: 8px; }
+.btn-lg { padding: 12px 22px; font-size: 14.5px; border-radius: var(--radius-lg); }
+.btn-full { width: 100%; }
+.btn-icon {
+  width: 34px; height: 34px; padding: 0;
+  background: var(--surface2); color: var(--text2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.btn-icon:hover { background: var(--surface3); color: var(--text); }
+
+/* ── INPUTS ── */
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label {
+  font-size: 11.5px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.field input, .field select, .field textarea {
+  background: var(--bg2); color: var(--text);
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  padding: 10px 12px; font-size: 14px; font-family: 'Geist', sans-serif;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%; min-width: 0;
+}
+/* FIX: select não corta texto — aparência nativa para permitir scroll */
+.field select {
+  appearance: auto;
+  -webkit-appearance: auto;
+  padding-right: 8px;
+}
+.field select option { background: var(--bg2); color: var(--text); }
+.field textarea { min-height: 80px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent4);
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--text4); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  white-space: nowrap; flex-shrink: 0;
+}
+.badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge-green::before { background: var(--green); }
+.badge-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.badge-yellow::before { background: var(--yellow); }
+.badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.badge-red::before { background: var(--red); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.badge-blue::before { background: var(--blue); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.badge-purple::before { background: var(--purple); }
+.badge-gray { background: var(--surface2); color: var(--text3); border: 1px solid var(--border2); }
+.badge-gray::before { background: var(--text4); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 48px 24px; gap: 10px; text-align: center;
+  border: 1px dashed var(--border2); border-radius: var(--radius-xl);
+}
+.empty-state .es-icon { font-size: 32px; opacity: 0.4; }
+.empty-state p { color: var(--text3); font-size: 13.5px; }
+
+/* ══════════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════════ */
+#landingView { position: relative; z-index: 1; }
+
+.land-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 60px;
+  background: rgba(9,9,11,0.7); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+}
+.land-nav.scrolled { background: rgba(9,9,11,0.9); }
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Instrument Serif', serif; font-size: 20px; cursor: pointer;
+}
+.nav-dot {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent); display: grid; place-items: center;
+  font-size: 13px; box-shadow: 0 0 16px rgba(99,102,241,0.5);
+}
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-link {
+  background: none; border: none; color: var(--text2); font-family: 'Geist', sans-serif;
+  font-size: 13.5px; padding: 7px 13px; border-radius: 8px; cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.nav-link:hover { color: var(--text); background: var(--surface); }
+.nav-actions { display: flex; gap: 8px; align-items: center; }
+
+.land-hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 120px 24px 80px; text-align: center; position: relative;
+  max-width: 1180px; margin-inline: auto;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 99px;
+  background: var(--accent4); border: 1px solid var(--accent-border);
+  color: var(--accent2); font-size: 12px; font-weight: 500; margin-bottom: 28px;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 8px var(--green); animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 1.0; letter-spacing: -0.02em;
+  max-width: 820px; margin: 0 auto;
+}
+.hero-title em {
+  font-style: italic; color: transparent;
+  background: linear-gradient(135deg, var(--accent2) 0%, var(--purple) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+.hero-sub {
+  max-width: 480px; margin: 20px auto 0;
+  font-size: 16px; line-height: 1.7; color: var(--text2);
+}
+.hero-cta { display: flex; gap: 10px; justify-content: center; margin-top: 36px; flex-wrap: wrap; }
+.hero-trust {
+  display: flex; align-items: center; gap: 20px; margin-top: 40px;
+  color: var(--text3); font-size: 12.5px; flex-wrap: wrap; justify-content: center;
+}
+.trust-sep { width: 1px; height: 14px; background: var(--border2); }
+
+.hero-mockup {
+  max-width: 960px; margin: 60px auto 0; position: relative; padding: 0 24px;
+}
+.mockup-glow {
+  position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 200px; pointer-events: none;
+  background: radial-gradient(ellipse, rgba(99,102,241,0.2), transparent 70%);
+  filter: blur(30px);
+}
+.mockup-window {
+  background: var(--bg1); border: 1px solid var(--border2);
+  border-radius: var(--radius-2xl); overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  position: relative; z-index: 1;
+}
+.mockup-bar {
+  height: 44px; background: var(--bg2); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; gap: 12px;
+}
+.mockup-dots { display: flex; gap: 6px; }
+.mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mockup-dot.r { background: #ff5f57; }
+.mockup-dot.y { background: #febc2e; }
+.mockup-dot.g { background: #28c840; }
+.mockup-bar-title {
+  flex: 1; text-align: center; font-size: 11px; color: var(--text4); letter-spacing: 0.04em;
+}
+.mockup-body { display: flex; min-height: 320px; }
+.mockup-sidebar {
+  width: 180px; border-right: 1px solid var(--border);
+  padding: 12px 10px; background: var(--bg1); flex-shrink: 0;
+}
+.ms-label {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--text4); font-weight: 600; padding: 8px 8px 4px;
+}
+.ms-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px;
+  border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--text2); cursor: default;
+}
+.ms-item.active { background: var(--accent4); color: var(--accent2); border: 1px solid var(--accent-border); }
+.ms-icon { width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; font-size: 10px; background: var(--surface2); }
+.ms-item.active .ms-icon { background: var(--accent3); }
+.mockup-content { flex: 1; padding: 16px; min-width: 0; }
+.mc-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+.mc-stat {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 10px;
+}
+.mc-sl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text4); font-weight: 600; }
+.mc-sv { font-family: 'Instrument Serif', serif; font-size: 22px; color: var(--text); margin-top: 3px; }
+.mc-sg { font-size: 10px; color: var(--green); margin-top: 1px; font-weight: 600; }
+.mc-list-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text4); margin-bottom: 8px; }
+.mc-rows { display: flex; flex-direction: column; gap: 5px; }
+.mc-row {
+  display: flex; align-items: center; gap: 9px; padding: 7px 9px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+}
+.mc-av {
+  width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+  background: var(--accent4); color: var(--accent2); display: grid; place-items: center;
+  font-size: 10px; font-weight: 700; border: 1px solid var(--accent-border);
+}
+.mc-name { font-size: 11.5px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mc-meta { font-size: 10px; color: var(--text4); }
+
+.land-section { padding: 100px 24px; position: relative; z-index: 1; }
+.section-wrap { max-width: 1040px; margin: 0 auto; }
+.section-header { margin-bottom: 56px; }
+.section-tag {
+  display: inline-flex; align-items: center; gap: 7px; margin-bottom: 14px;
+  padding: 4px 12px; border-radius: 99px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text3); font-size: 11.5px; font-weight: 500;
+}
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(32px, 4vw, 52px); line-height: 1.05; letter-spacing: -0.02em;
+}
+.section-title em { font-style: italic; color: var(--accent2); }
+.section-sub { color: var(--text2); font-size: 15px; line-height: 1.7; max-width: 520px; margin-top: 12px; }
+
+.steps-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.step-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 28px 24px;
+  position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.2s;
+}
+.step-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.step-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 100% 0%, rgba(99,102,241,0.06), transparent 55%);
+  pointer-events: none;
+}
+.step-num {
+  font-family: 'Instrument Serif', serif; font-size: 56px; line-height: 1;
+  color: transparent; background: linear-gradient(135deg, var(--border3), var(--surface3));
+  -webkit-background-clip: text; background-clip: text;
+  margin-bottom: 16px; letter-spacing: -0.03em;
+}
+.step-icon {
+  width: 44px; height: 44px; border-radius: 12px; margin-bottom: 14px;
+  background: var(--accent4); border: 1px solid var(--accent-border);
+  display: grid; place-items: center; font-size: 18px;
+}
+.step-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.step-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+.features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; }
+.feat-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 22px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.feat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.feat-icon {
+  width: 40px; height: 40px; border-radius: 10px; margin-bottom: 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: grid; place-items: center; font-size: 17px;
+}
+.feat-title { font-size: 14.5px; font-weight: 600; margin-bottom: 5px; }
+.feat-desc { font-size: 12.5px; color: var(--text3); line-height: 1.6; }
+
+.segs-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
+.seg-pill {
+  display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px;
+  border-radius: 99px; background: var(--surface); border: 1px solid var(--border);
+  font-size: 13px; color: var(--text2); cursor: default;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.seg-pill:hover { border-color: var(--accent-border); color: var(--accent2); background: var(--accent4); }
+
+.test-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.test-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+  transition: border-color 0.2s;
+}
+.test-card:hover { border-color: var(--border2); }
+.test-stars { color: var(--yellow); font-size: 13px; letter-spacing: 2px; }
+.test-quote {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: 15.5px; line-height: 1.65; color: var(--text); flex: 1;
+}
+.test-author { display: flex; align-items: center; gap: 10px; margin-top: auto; }
+.test-av {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  background: var(--accent4); border: 1px solid var(--accent-border);
+  color: var(--accent2); display: grid; place-items: center;
+  font-weight: 700; font-size: 15px;
+}
+.test-name { font-weight: 600; font-size: 13.5px; }
+.test-role { font-size: 11.5px; color: var(--text3); margin-top: 1px; }
+
+.land-cta { padding: 100px 24px; text-align: center; position: relative; z-index: 1; }
+.cta-inner { max-width: 620px; margin: 0 auto; }
+.cta-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 5vw, 64px); line-height: 1.05;
+}
+.cta-title em { font-style: italic; color: var(--accent2); }
+.cta-sub { color: var(--text2); font-size: 15px; line-height: 1.7; margin: 16px auto 0; max-width: 440px; }
+.cta-actions { display: flex; gap: 10px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
+
+.land-footer {
+  border-top: 1px solid var(--border); padding: 28px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--text3); font-size: 12.5px; position: relative; z-index: 1;
+}
+
+/* ══════════════════════════════════════════
+   AUTH MODAL
+══════════════════════════════════════════ */
+.auth-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(9,9,11,0.85); backdrop-filter: blur(16px);
+  align-items: center; justify-content: center; padding: 16px;
+  overflow: auto;
+}
+.auth-overlay.open { display: flex; }
+.auth-modal {
+  width: 100%; max-width: 860px; margin: auto;
+  background: var(--bg1); border: 1px solid var(--border2);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+  display: grid; grid-template-columns: 1fr 1fr;
+  overflow: hidden; position: relative; max-height: 92vh; overflow-y: auto;
+  animation: modalIn 0.22s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: scale(0.97) translateY(10px); } to { opacity:1; transform: none; } }
+.auth-panel-left {
+  background: linear-gradient(155deg, var(--accent4) 0%, transparent 60%);
+  border-right: 1px solid var(--border); padding: 40px 36px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.auth-panel-left::before {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 65%);
+  pointer-events: none;
+}
+.auth-left-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.auth-left-title { font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1.1; margin-bottom: 12px; }
+.auth-left-title em { font-style: italic; color: var(--accent2); }
+.auth-left-desc { color: var(--text2); font-size: 13.5px; line-height: 1.7; max-width: 260px; }
+.auth-left-perks { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.auth-perk {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 13px; color: var(--text2); font-weight: 500;
+}
+.auth-perk-icon {
+  width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+  background: var(--accent4); border: 1px solid var(--accent-border);
+  display: grid; place-items: center; font-size: 10px; color: var(--accent2);
+}
+.auth-left-footer { color: var(--text4); font-size: 11.5px; margin-top: auto; padding-top: 20px; }
+.auth-form-area { padding: 36px; display: flex; flex-direction: column; justify-content: center; }
+.auth-close {
+  position: absolute; top: 14px; right: 14px; z-index: 10;
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text2); cursor: pointer;
+  display: grid; place-items: center; font-size: 14px; transition: all 0.15s;
+}
+.auth-close:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); }
+.auth-form-title { font-family: 'Instrument Serif', serif; font-size: 26px; margin-bottom: 4px; }
+.auth-form-sub { color: var(--text3); font-size: 13px; margin-bottom: 24px; }
+.stepper { display: flex; gap: 6px; margin-bottom: 24px; }
+.step-dot { flex: 1; height: 3px; border-radius: 99px; background: var(--border2); position: relative; overflow: hidden; }
+.step-dot.active::after, .step-dot.done::after {
+  content: ''; position: absolute; inset: 0; border-radius: 99px; background: var(--accent);
+}
+.step-dot.active::after { animation: fillBar 0.35s ease forwards; }
+.step-dot.done::after { width: 100%; }
+@keyframes fillBar { from{width:0} to{width:100%} }
+.auth-switch { margin-top: 16px; text-align: center; font-size: 12.5px; color: var(--text3); }
+.auth-switch button { background: none; border: none; color: var(--accent2); font-weight: 600; cursor: pointer; font-family: 'Geist', sans-serif; font-size: 12.5px; }
+.form-gap { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.form-actions { display: flex; gap: 9px; margin-top: 4px; }
+
+/* ══════════════════════════════════════════
+   DASHBOARD LAYOUT
+══════════════════════════════════════════ */
+#dashboardView { min-height: 100vh; position: relative; z-index: 1; }
+
+.sidebar {
+  position: fixed; left: 12px; top: 12px; bottom: 12px;
+  width: var(--sidebar-w); z-index: 50;
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-2xl); padding: 16px 12px;
+  display: flex; flex-direction: column; gap: 0;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  overflow-y: auto; overflow-x: hidden;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.side-brand {
+  display: flex; align-items: center; gap: 9px; padding: 4px 8px;
+  margin-bottom: 20px; flex-shrink: 0;
+  font-family: 'Instrument Serif', serif; font-size: 19px;
+}
+.side-nav-section { flex-shrink: 0; }
+.side-nav-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text4); font-weight: 600; padding: 10px 10px 5px;
+}
+.side-nav-sep { height: 1px; background: var(--border); margin: 8px 0; }
+.nav-btn {
+  width: 100%; background: none; border: none; color: var(--text2);
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: 9px; text-align: left;
+  font-family: 'Geist', sans-serif; font-size: 13.5px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+}
+.nav-btn .ni {
+  width: 26px; height: 26px; border-radius: 7px;
+  display: grid; place-items: center; font-size: 13px;
+  background: var(--surface); flex-shrink: 0; transition: background 0.15s;
+}
+.nav-btn:hover { background: var(--surface2); color: var(--text); }
+.nav-btn.active { background: var(--accent4); color: var(--accent2); border: 1px solid var(--accent-border); }
+.nav-btn.active .ni { background: var(--accent3); }
+.side-bottom { margin-top: auto; padding-top: 12px; flex-shrink: 0; }
+.side-user-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 12px; margin-bottom: 8px;
+}
+.side-user-row { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+.side-avatar {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: var(--accent); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 14px;
+  box-shadow: 0 0 12px rgba(99,102,241,0.3);
+}
+.side-name { font-weight: 600; font-size: 13px; }
+.side-plan { font-size: 11px; color: var(--text4); margin-top: 1px; }
+.side-link-box {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 10px;
+  font-size: 10.5px; color: var(--text4); word-break: break-all;
+  cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  line-height: 1.4;
+}
+.side-link-box:hover { border-color: var(--accent-border); color: var(--accent2); }
+
+.dash-main {
+  margin-left: calc(var(--sidebar-w) + 22px);
+  padding: 12px 16px 48px; min-height: 100vh;
+  max-width: 1600px;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; margin-bottom: 20px;
+  background: rgba(15,15,18,0.8); backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: var(--radius-xl);
+  position: sticky; top: 12px; z-index: 40;
+  overflow: visible;
+}
+.topbar-title h2 { font-family: 'Instrument Serif', serif; font-size: 22px; line-height: 1; }
+.topbar-title p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.topbar-actions-clean { flex: 1; display: flex; justify-content: flex-end; }
+
+.top-notify-slot {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px; border-radius: 99px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  font-size: 11.5px; font-weight: 500; color: var(--text4);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 260px; transition: all 0.2s;
+}
+.top-notify-slot.has-notif { color: var(--text2); border-color: var(--border2); background: rgba(255,255,255,0.055); }
+.top-notify-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 6px var(--green); flex-shrink: 0;
+  animation: blink 2s ease-in-out infinite;
+}
+
+.notif-wrap { position: relative; }
+.notif-dot {
+  position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 6px var(--red);
+  display: none; animation: blink 2s ease-in-out infinite;
+}
+.notif-dot.on { display: block; }
+
+.view { display: none; animation: fadeUp 0.22s ease; }
+.view.active { display: block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.mobile-nav-bar { display: none; }
+
+/* ══════════════════════════════════════════
+   DASHBOARD CARDS / STATS
+══════════════════════════════════════════ */
+.dash-hero {
+  background: linear-gradient(135deg, var(--accent4) 0%, transparent 50%);
+  border: 1px solid var(--border); border-radius: var(--radius-2xl);
+  padding: 24px 28px; margin-bottom: 20px; position: relative; overflow: hidden;
+}
+.dash-hero::after {
+  content: ''; position: absolute; right: -60px; top: -60px;
+  width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 65%);
+  pointer-events: none;
+}
+.dash-hero-inner {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap;
+}
+.dash-hero-inner h1 { font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1; }
+.dash-hero-inner h1 em { font-style: italic; color: var(--accent2); }
+.dash-hero-inner p { color: var(--text2); margin-top: 6px; font-size: 13px; }
+
+.section-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text4); font-weight: 600; margin: 20px 0 10px; padding-left: 2px;
+}
+
+.stats-grid { display: grid; gap: 10px; margin-bottom: 10px; }
+.stats-grid-4 { grid-template-columns: repeat(4,1fr); }
+.stats-grid-3 { grid-template-columns: repeat(3,1fr); }
+.stats-grid-2 { grid-template-columns: repeat(2,1fr); }
+.stats-grid-6 { grid-template-columns: repeat(6,1fr); }
+
+.stat-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 14px 16px; position: relative; overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.stat-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 100% 0%, var(--surface2), transparent 55%);
+  pointer-events: none;
+}
+.stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+.stat-value { font-family: 'Instrument Serif', serif; font-size: 26px; line-height: 1; margin-top: 4px; color: var(--text); }
+.stat-value.green { color: var(--green); }
+.stat-value.yellow { color: var(--yellow); }
+.stat-value.red { color: var(--red); }
+.stat-value.blue { color: var(--blue); }
+.stat-value.purple { color: var(--purple); }
+.stat-note { font-size: 11px; color: var(--text4); margin-top: 3px; }
+.stat-note.up { color: var(--green); }
+.stat-icon { position: absolute; right: 12px; top: 12px; font-size: 16px; opacity: 0.15; }
+
+.content-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; }
+
+.panel {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); overflow: hidden;
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.panel-title { font-family: 'Instrument Serif', serif; font-size: 17px; font-weight: 600; }
+.panel-sub { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
+.panel-action { font-size: 12.5px; color: var(--accent2); background: none; border: none; cursor: pointer; font-family: 'Geist', sans-serif; font-weight: 600; }
+.panel-action:hover { color: var(--text); }
+.panel-body { padding: 14px 16px; }
+
+.apt-list { display: flex; flex-direction: column; gap: 8px; }
+.apt-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px; border-radius: var(--radius-lg); border: 1px solid var(--border);
+  background: var(--surface); transition: border-color 0.15s; flex-direction: column;
+}
+.apt-item:hover { border-color: var(--border2); }
+.apt-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+.apt-av {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: var(--accent4); border: 1px solid var(--accent-border);
+  color: var(--accent2); display: grid; place-items: center;
+  font-weight: 700; font-size: 13px;
+}
+.apt-info { flex: 1; min-width: 0; }
+.apt-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apt-meta { font-size: 11px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.cal-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text4); font-weight: 600; text-align: center; padding: 3px 0; }
+.cal-day {
+  aspect-ratio: 1; border-radius: 8px; display: grid; place-items: center;
+  font-size: 11px; font-weight: 500; color: var(--text3); cursor: default;
+  background: var(--surface); transition: background 0.15s, color 0.15s;
+}
+.cal-day.busy { background: var(--accent4); color: var(--accent2); border: 1px solid var(--accent-border); }
+.cal-day.today { background: var(--accent); color: #fff; font-weight: 700; box-shadow: 0 0 12px rgba(99,102,241,0.3); }
+
+/* ══════════════════════════════════════════
+   AGENDA VIEW
+══════════════════════════════════════════ */
+.form-panel {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 18px; margin-bottom: 14px;
+}
+.form-panel-title { font-family: 'Instrument Serif', serif; font-size: 17px; margin-bottom: 14px; }
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 10px; align-items: end;
+}
+
+.filter-bar {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px;
+  margin-bottom: 14px; scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 7px 13px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2);
+  font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.filter-btn:hover { border-color: var(--border2); color: var(--text); }
+.filter-btn.active { background: var(--accent4); color: var(--accent2); border-color: var(--accent-border); }
+.filter-count {
+  background: var(--surface3); color: var(--text3); padding: 1px 6px;
+  border-radius: 99px; font-size: 10px; font-weight: 700;
+}
+.filter-btn.active .filter-count { background: var(--accent3); color: var(--accent2); }
+
+.timeline { display: flex; flex-direction: column; }
+.tl-block { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.tl-block:last-child { border-bottom: none; }
+.tl-time { font-size: 11px; font-weight: 600; color: var(--text4); min-width: 40px; text-align: right; padding-top: 14px; flex-shrink: 0; }
+.tl-line { width: 1px; background: var(--border2); position: relative; flex-shrink: 0; }
+.tl-line::before {
+  content: ''; position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px rgba(99,102,241,0.5);
+}
+.tl-content { flex: 1; min-width: 0; }
+
+/* FIX: card com overflow visible para o dropdown não ser cortado */
+.tl-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 0;
+  transition: border-color 0.15s;
+  position: relative;
+  overflow: visible; /* ESSENCIAL: permite dropdown sair do card */
+}
+.tl-card:hover { border-color: var(--border2); }
+
+/* FIX: top-row com padding-right maior para não sobrepor o botão ⋮ */
+.tl-card-top {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding-right: 44px; /* espaço para o botão ⋮ */
+}
+.tl-card-info { flex: 1; min-width: 0; }
+.tl-card-name {
+  font-weight: 600; font-size: 13px;
+  /* FIX: permite quebra de linha em vez de cortar */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.tl-card-meta {
+  font-size: 11.5px; color: var(--text3); margin-top: 2px;
+  /* FIX: permite quebra de linha em mobile */
+  word-break: break-word;
+  white-space: normal;
+}
+.tl-card-status { flex-shrink: 0; }
+.tl-card .action-menu { position: absolute; top: 10px; right: 10px; }
+
+/* FIX: ações com flex-wrap e tamanho mínimo garantido */
+.apt-actions {
+  display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+  border-top: 1px solid var(--border); padding-top: 10px;
+}
+.act-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 7px 11px; border-radius: 8px; border: none; cursor: pointer;
+  font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 600;
+  transition: transform 0.12s, opacity 0.12s; line-height: 1;
+  white-space: nowrap; flex-shrink: 0;
+}
+.act-btn:hover { transform: translateY(-1px); }
+.act-btn:active { transform: scale(0.97); }
+.act-btn.confirm { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.act-btn.refuse { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.act-btn.reschedule { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.act-btn.conclude { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.act-btn.whatsapp { background: rgba(37,211,102,0.1); color: #25d366; border: 1px solid rgba(37,211,102,0.2); }
+.muted-actions { opacity: 0.65; }
+
+/* ══════════════════════════════════════════
+   CLIENTES / SERVIÇOS / PROFISSIONAIS
+══════════════════════════════════════════ */
+/* FIX: cards com overflow visible para dropdown não ser cortado */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
+  gap: 12px;
+}
+
+.client-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 16px;
+  padding-right: 54px; /* espaço para o ⋮ */
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+  overflow: visible; /* FIX: dropdown não é cortado */
+}
+.client-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.client-card.inactive { opacity: 0.5; }
+.cc-top { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+.cc-av {
+  width: 42px; height: 42px; border-radius: 11px; flex-shrink: 0;
+  background: var(--accent4); border: 1px solid var(--accent-border);
+  color: var(--accent2); display: grid; place-items: center;
+  font-weight: 700; font-size: 17px;
+}
+.cc-name {
+  font-weight: 600; font-size: 13.5px;
+  word-break: break-word; overflow-wrap: anywhere;
+}
+.cc-phone { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.cc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+.cc-stat {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 9px 10px;
+}
+.cc-sl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text4); font-weight: 600; }
+.cc-sv { font-family: 'Instrument Serif', serif; font-size: 16px; color: var(--text); margin-top: 3px; }
+
+.svc-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 16px;
+  padding-right: 54px;
+  position: relative; overflow: visible;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.svc-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.svc-card.inactive { opacity: 0.5; }
+/* FIX: preço não corta — sem text-overflow aqui */
+.svc-price {
+  font-family: 'Instrument Serif', serif; font-size: 24px; color: var(--text);
+  word-break: break-word;
+}
+.svc-name { font-weight: 600; font-size: 14px; margin-top: 4px; word-break: break-word; }
+.svc-dur { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.svc-status { margin-top: 10px; }
+
+.prof-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 50px 16px 16px; text-align: center;
+  position: relative; overflow: visible;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.prof-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.prof-card.inactive { opacity: 0.5; }
+.prof-av {
+  width: 52px; height: 52px; border-radius: 14px; margin: 0 auto 10px;
+  background: var(--accent4); border: 1px solid var(--accent-border);
+  color: var(--accent2); display: grid; place-items: center;
+  font-weight: 700; font-size: 20px;
+}
+.prof-name { font-weight: 600; font-size: 14px; word-break: break-word; }
+.prof-esp { font-size: 12px; color: var(--text3); margin-top: 3px; }
+.prof-phone { font-size: 11.5px; color: var(--text4); margin-top: 4px; }
+.online-dot {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 600; color: var(--green); margin-top: 10px;
+}
+.online-dot::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 6px var(--green);
+}
+.online-dot.off { color: var(--text4); }
+.online-dot.off::before { background: var(--text4); box-shadow: none; }
+
+/* ══════════════════════════════════════════
+   FINANCEIRO
+══════════════════════════════════════════ */
+.fin-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+.fin-card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 22px;
+  position: relative; overflow: hidden; transition: border-color 0.2s;
+}
+.fin-card:hover { border-color: var(--border2); }
+.fin-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 90% 10%, var(--surface3), transparent 50%);
+  pointer-events: none;
+}
+.fin-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; position: relative; }
+.fin-value { font-family: 'Instrument Serif', serif; font-size: 34px; color: var(--text); margin-top: 6px; position: relative; }
+.fin-sub { font-size: 12px; color: var(--text4); margin-top: 4px; position: relative; }
+
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+.config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.config-section {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 20px;
+}
+.config-title { font-family: 'Instrument Serif', serif; font-size: 17px; margin-bottom: 16px; display: flex; align-items: center; gap: 9px; }
+.config-icon {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: grid; place-items: center; font-size: 13px;
+}
+.schedule-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 12px; }
+.sch-day { border: 1px solid var(--border); border-radius: 9px; padding: 10px 8px; text-align: center; }
+.sch-day-name { font-size: 10px; font-weight: 700; color: var(--text4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 7px; }
+
+/* ══════════════════════════════════════════
+   ACTION MENU (⋮) — FIX COMPLETO
+══════════════════════════════════════════ */
+.action-menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 80;
+  display: inline-block;
+}
+
+.action-menu-btn {
+  width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text3); cursor: pointer;
+  display: grid; place-items: center; font-size: 18px; font-weight: 800;
+  transition: all 0.15s; line-height: 1; padding: 0;
+  /* FIX: botão não some em mobile — touch events */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.action-menu-btn:hover { background: var(--accent4); border-color: var(--accent-border); color: var(--accent2); }
+
+/* FIX PRINCIPAL: dropdown não some — pointer-events persistente durante transição */
+.action-dropdown {
+  position: fixed; /* FIX: fixed em vez de absolute evita ser cortado por overflow:hidden do pai */
+  min-width: 190px;
+  z-index: 99999; /* altíssimo para ficar acima de tudo */
+  background: rgba(15,15,18,0.99);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg); padding: 5px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: scale(0.97) translateY(-4px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.action-dropdown.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: scale(1) translateY(0);
+}
+
+.action-item {
+  display: flex; align-items: center; gap: 8px; padding: 10px 11px;
+  border-radius: 8px; font-size: 13.5px; font-weight: 500; color: var(--text2);
+  cursor: pointer; background: none; border: none; width: 100%; text-align: left;
+  font-family: 'Geist', sans-serif; transition: background 0.12s, color 0.12s;
+  min-height: 42px; /* FIX: área de toque maior */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.action-item:hover { background: var(--surface3); color: var(--text); }
+.action-item.danger { color: var(--red); }
+.action-item.danger:hover { background: var(--red-bg); }
+.action-item.success { color: var(--green); }
+.action-item.success:hover { background: var(--green-bg); }
+.action-item-icon {
+  width: 24px; height: 24px; border-radius: 6px;
+  display: grid; place-items: center; font-size: 12px;
+  background: var(--surface2); flex-shrink: 0;
+}
+.action-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ══════════════════════════════════════════
+   MODAIS
+══════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(9,9,11,0.85); backdrop-filter: blur(12px);
+  align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg1); border: 1px solid var(--border2);
+  border-radius: var(--radius-2xl); padding: 28px;
+  width: 100%; max-width: 440px; position: relative;
+  box-shadow: 0 32px 90px rgba(0,0,0,0.65);
+  animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-family: 'Instrument Serif', serif; font-size: 22px; margin-bottom: 6px; }
+.modal-sub {
+  font-size: 13px; color: var(--text3); margin-bottom: 20px;
+  padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); line-height: 1.55;
+}
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text3); cursor: pointer;
+  display: grid; place-items: center; font-size: 14px; transition: all 0.15s;
+  z-index: 10;
+}
+.modal-close:hover { background: var(--surface3); color: var(--text); }
+.modal-actions { display: flex; gap: 9px; margin-top: 20px; }
+.modal-actions .btn { flex: 1; }
+
+.motivo-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.motivo-item {
+  display: flex; align-items: center; gap: 10px; padding: 11px 13px;
+  border: 1px solid var(--border2); border-radius: var(--radius-lg);
+  background: var(--surface); cursor: pointer; font-size: 13px; font-weight: 500;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.motivo-item:hover { border-color: var(--border3); background: var(--surface2); }
+.motivo-item.sel { border-color: var(--red-border); background: var(--red-bg); color: var(--red); }
+.motivo-radio {
+  width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border3);
+  flex-shrink: 0; display: grid; place-items: center; transition: border-color 0.15s;
+}
+.motivo-item.sel .motivo-radio { border-color: var(--red); background: var(--red); }
+.motivo-item.sel .motivo-radio::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+
+.confirm-modal { text-align: center; max-width: 360px; }
+.confirm-icon-wrap {
+  width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 16px;
+  display: grid; place-items: center; font-size: 22px;
+}
+.confirm-icon-wrap.danger { background: var(--red-bg); border: 1px solid var(--red-border); }
+.confirm-icon-wrap.warn { background: var(--yellow-bg); border: 1px solid var(--yellow-border); }
+.confirm-icon-wrap.info { background: var(--accent4); border: 1px solid var(--accent-border); }
+.confirm-title { font-family: 'Instrument Serif', serif; font-size: 21px; margin-bottom: 8px; }
+.confirm-body { color: var(--text3); font-size: 13px; line-height: 1.6; margin-bottom: 0; }
+
+.edit-overlay {
+  display: none; position: fixed; inset: 0; z-index: 450;
+  background: rgba(9,9,11,0.85); backdrop-filter: blur(12px);
+  align-items: center; justify-content: center; padding: 16px;
+}
+.edit-overlay.open { display: flex; }
+.edit-modal {
+  background: var(--bg1); border: 1px solid var(--border2);
+  border-radius: var(--radius-2xl); padding: 28px;
+  width: 100%; max-width: 500px; position: relative;
+  box-shadow: 0 32px 90px rgba(0,0,0,0.65);
+  animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto;
+}
+.edit-title { font-family: 'Instrument Serif', serif; font-size: 22px; margin-bottom: 20px; }
+
+/* ══════════════════════════════════════════
+   PÁGINA PÚBLICA
+══════════════════════════════════════════ */
+#publicView { min-height: 100vh; position: relative; z-index: 1; padding: 20px 16px 120px; }
+.pub-wrap { max-width: 680px; margin: 0 auto; }
+.pub-back {
+  display: inline-flex; align-items: center; gap: 7px; margin-bottom: 18px;
+  padding: 9px 16px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2);
+  font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s;
+}
+.pub-back:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+.pub-hero {
+  background: linear-gradient(135deg, var(--accent4) 0%, transparent 55%);
+  border: 1px solid var(--border); border-radius: var(--radius-2xl);
+  padding: 28px 26px 24px; margin-bottom: 16px; position: relative; overflow: hidden;
+}
+.pub-hero::after {
+  content: ''; position: absolute; right: -40px; top: -40px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 65%);
+  pointer-events: none;
+}
+.pub-hero-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-family: 'Instrument Serif', serif; font-size: 16px; opacity: 0.6; }
+.pub-hero h1 { font-family: 'Instrument Serif', serif; font-size: clamp(26px,6vw,44px); line-height: 1; position: relative; z-index: 1; }
+.pub-hero p { color: var(--text2); margin-top: 9px; font-size: 14px; line-height: 1.6; position: relative; z-index: 1; }
+.pub-socials { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; position: relative; z-index: 1; }
+.pub-social {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px;
+  border-radius: 99px; font-size: 12.5px; font-weight: 600; text-decoration: none;
+  border: 1px solid var(--border2); background: var(--surface); color: var(--text2);
+  transition: all 0.15s;
+}
+.pub-social:hover { border-color: var(--accent-border); color: var(--accent2); background: var(--accent4); }
+.pub-body { display: flex; flex-direction: column; gap: 14px; }
+.pub-panel { background: var(--bg1); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 20px; }
+.pub-panel-title { font-family: 'Instrument Serif', serif; font-size: 17px; margin-bottom: 14px; }
+.choices { display: flex; flex-direction: column; gap: 7px; }
+.choice {
+  display: flex; align-items: center; gap: 12px; padding: 13px 15px;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); cursor: pointer; transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.choice:hover { border-color: var(--border2); background: var(--surface2); }
+.choice.active { border-color: var(--accent-border); background: var(--accent4); }
+.choice-icon {
+  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: grid; place-items: center; font-size: 15px; transition: background 0.15s;
+}
+.choice.active .choice-icon { background: var(--accent4); border-color: var(--accent-border); }
+.choice-title { font-weight: 600; font-size: 13.5px; flex: 1; min-width: 0; word-break: break-word; }
+.choice-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.choice-price {
+  margin-left: auto; font-family: 'Instrument Serif', serif; font-size: 16px;
+  color: var(--text); flex-shrink: 0; white-space: nowrap;
+}
+.pub-confirm-screen { text-align: center; padding: 40px 20px; }
+.pub-tick {
+  width: 68px; height: 68px; border-radius: 20px; margin: 0 auto 16px;
+  background: var(--green-bg); border: 1px solid var(--green-border);
+  display: grid; place-items: center; font-size: 28px;
+}
+.pub-confirm-screen h2 { font-family: 'Instrument Serif', serif; font-size: 28px; }
+.pub-confirm-screen p { color: var(--text2); font-size: 14px; margin-top: 8px; line-height: 1.6; }
+.pub-wa-fab {
+  position: fixed; bottom: 24px; right: 20px; z-index: 9990;
+  display: none; align-items: center; gap: 8px; padding: 12px 18px;
+  border-radius: 99px; background: #25d366; color: #fff;
+  font-family: 'Geist', sans-serif; font-weight: 700; font-size: 13.5px;
+  text-decoration: none; box-shadow: 0 8px 28px rgba(37,211,102,0.4);
+  transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;
+}
+.pub-wa-fab:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(37,211,102,0.5); }
+
+/* ══════════════════════════════════════════
+   NOTIFICAÇÕES
+══════════════════════════════════════════ */
+.notif-stack {
+  position: fixed; right: 16px; top: 68px; z-index: 9998;
+  display: flex; flex-direction: column; gap: 6px;
+  width: min(320px, calc(100vw - 24px)); pointer-events: none;
+}
+.notif-item {
+  display: flex; align-items: flex-start; gap: 9px; padding: 10px 12px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+  pointer-events: all; animation: notifSlide 0.22s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.notif-item.out { opacity: 0; transform: translateX(10px); }
+@keyframes notifSlide { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:none} }
+.notif-icon {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 13px;
+}
+.notif-icon.new { background: var(--accent4); border: 1px solid var(--accent-border); }
+.notif-icon.ok { background: var(--green-bg); border: 1px solid var(--green-border); }
+.notif-icon.err { background: var(--red-bg); border: 1px solid var(--red-border); }
+.notif-icon.info { background: var(--surface2); border: 1px solid var(--border2); }
+.notif-body { flex: 1; min-width: 0; }
+.notif-title { font-weight: 700; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notif-msg { font-size: 11px; color: var(--text3); margin-top: 1px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notif-time { font-size: 9.5px; color: var(--text4); margin-top: 2px; font-weight: 600; }
+.notif-close { width: 18px; height: 18px; border-radius: 5px; background: var(--surface2); border: none; color: var(--text4); cursor: pointer; display: grid; place-items: center; font-size: 10px; flex-shrink: 0; transition: all 0.12s; }
+.notif-close:hover { background: var(--surface3); color: var(--text); }
+
+/* ══════════════════════════════════════════
+   MOBILE MENU DRAWER
+══════════════════════════════════════════ */
+.mobile-menu-overlay {
+  display: none; position: fixed; inset: 0; z-index: 99990;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.mobile-menu-overlay.open { display: block; }
+
+.mobile-menu-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(86vw, 340px); height: 100dvh;
+  z-index: 99991;
+  background: rgba(14,14,18,0.98);
+  border-left: 1px solid var(--border2);
+  box-shadow: -28px 0 80px rgba(0,0,0,0.7);
+  transform: translateX(105%);
+  transition: transform 0.22s ease;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.mobile-menu-drawer.open { transform: translateX(0); }
+
+.mobile-menu-header {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-menu-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 12px 14px 24px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.mobile-menu-body .nav-btn { width: 100%; min-height: 46px; justify-content: flex-start; }
+.mobile-menu-body .side-nav-sep { margin: 8px 0; }
+.mobile-menu-body .side-nav-label { padding: 8px 10px 4px; }
+
+body.menu-open { overflow: hidden; touch-action: none; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE TABLET
+══════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .stats-grid-4 { grid-template-columns: repeat(2,1fr); }
+  .stats-grid-6 { grid-template-columns: repeat(3,1fr); }
+  .config-grid { grid-template-columns: 1fr; }
+  .fin-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 220px; }
+  .land-nav { padding: 0 24px; }
+  .steps-grid, .test-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: repeat(2,1fr); }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE MOBILE
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+  body { padding-bottom: 84px; overscroll-behavior-x: none; -webkit-text-size-adjust: 100%; }
+  button, input, select, textarea { font-family: 'Geist', sans-serif; -webkit-tap-highlight-color: transparent; }
+  input, select, textarea { font-size: 16px !important; }
+
+  .land-nav { padding: 0 14px; height: 56px; }
+  .nav-brand { font-size: 18px; }
+  .nav-links { display: none; }
+  .nav-actions { gap: 6px; }
+  .nav-actions .btn { padding: 7px 10px; font-size: 12px; }
+
+  .land-hero { min-height: auto; padding: 88px 18px 48px; text-align: center; align-items: center; justify-content: flex-start; }
+  .hero-title { font-size: clamp(40px, 11vw, 56px); max-width: 340px; }
+  .hero-sub { font-size: 14.5px; max-width: 320px; }
+  .hero-cta, .hero-trust, .cta-actions { justify-content: center; flex-wrap: wrap; }
+  .hero-cta .btn, .cta-actions .btn { width: 100%; max-width: 320px; }
+  .hero-trust { gap: 10px; max-width: 320px; }
+  .trust-sep { display: none; }
+
+  .hero-mockup { margin-top: 28px; padding: 0 12px; }
+  .mockup-sidebar { display: none; }
+  .mc-stats { grid-template-columns: 1fr 1fr; }
+  .mockup-body { min-height: auto; }
+
+  .land-section { padding: 52px 16px; }
+  .section-header { text-align: center; margin-bottom: 30px; }
+  .section-title { text-align: center; font-size: clamp(30px, 9vw, 42px); }
+  .section-sub { text-align: center; margin-inline: auto; }
+  .segs-wrap { justify-content: center; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .test-grid { grid-template-columns: 1fr; }
+  .land-cta { padding: 56px 16px; }
+  .land-footer { flex-direction: column; gap: 8px; text-align: center; padding: 20px 16px; }
+
+  /* Auth mobile */
+  .auth-overlay { align-items: flex-start; padding: 10px; }
+  .auth-modal { grid-template-columns: 1fr; max-width: 420px; max-height: calc(100dvh - 20px); border-radius: 22px; }
+  .auth-panel-left { display: none; }
+  .auth-form-area { padding: 22px 18px; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  .form-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-actions .btn { width: 100%; }
+
+  /* Dashboard mobile */
+  .sidebar { display: none; }
+  .dash-main { margin-left: 0; padding: 10px 12px 96px; width: 100%; max-width: 100%; }
+
+  .topbar {
+    position: relative; top: 0; flex-direction: column; align-items: flex-start;
+    gap: 10px; padding: 14px; border-radius: 16px;
   }
-);
+  .topbar-actions-clean { width: 100%; }
+  .top-notify-slot { width: 100%; max-width: 100%; font-size: 11.5px; }
 
-/* ═══════════════════════════════════════════════
-   AGENDAPRO — app.js CORRIGIDO COMPLETO
-═══════════════════════════════════════════════ */
-
-// ── STATE ──
-let state = {
-  user: null, empresa: null, perfil: null,
-  categorias: [], clientes: [], servicos: [],
-  profissionais: [], agendamentos: [], pagamentos: [],
-  pubEmpresa: null, pubServico: null, pubProfissional: null
-};
-
-let _agendaFilter = 'todos';
-let _confirmCb = null;
-let _editSaveCb = null;
-let _recusaId = null;
-let _recusaMotivo = null;
-let _reagendarId = null;
-let _openMenu = null;
-let _openMenuBtn = null;
-let autoSyncTimer = null;
-let lastIds = new Set();
-let realtimeChannel = null;
-
-// ── UTILS ──
-function $(id) { return document.getElementById(id); }
-
-function setText(id, v) {
-  const el = $(id);
-  if (el) el.textContent = v;
-}
-
-function money(v) {
-  return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-function slugify(s) {
-  return (s || '').toString()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '').substring(0, 60);
-}
-
-function hojeISO() { return new Date().toISOString().slice(0, 10); }
-function mesPrefixo() { return new Date().toISOString().slice(0, 7); }
-function publicUrl(slug) { 
-return location.origin + location.pathname + 'agendar/' + slug + '/'; }
-function initial(name) { return (name || '?').trim().substring(0, 1).toUpperCase(); }
-
-function formatDate(d) {
-  if (!d) return '—';
-  const [y, m, dd] = d.split('-');
-  return `${dd}/${m}/${y}`;
-}
-
-function buildWaLink(tel, msg) {
-  const n = (tel || '').replace(/\D/g, '');
-  if (!n) return null;
-  const f = n.startsWith('55') ? n : '55' + n;
-  return 'https://wa.me/' + f + '?text=' + encodeURIComponent(msg);
-}
-
-function normStatus(s) {
-  const r = (s || 'pendente').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  if (r === 'confirmado' || r === 'confirmada') return 'Confirmado';
-  if (r === 'pendente') return 'Pendente';
-  if (r === 'concluido' || r === 'concluida') return 'Concluído';
-  if (r === 'recusado' || r === 'recusada' || r === 'cancelado') return 'Recusado';
-  if (r === 'reagendado' || r === 'reagendada') return 'Reagendado';
-  if (r === 'excluido' || r === 'excluida') return 'Excluído';
-  return s || 'Pendente';
-}
-
-function badgeClass(s) {
-  const n = normStatus(s);
-  const m = {
-    Confirmado: 'badge-green', Pendente: 'badge-yellow',
-    'Concluído': 'badge-blue', Recusado: 'badge-red',
-    Reagendado: 'badge-purple', 'Excluído': 'badge-gray'
-  };
-  return m[n] || 'badge-gray';
-}
-
-function isFinanceiro(a) {
-  if (normStatus(a.status) === 'Concluído') return true;
-  if (normStatus(a.status) === 'Excluído' && a.financeiro_status === 'Concluído') return true;
-  return false;
-}
-
-function isAtivoCliente(c) {
-  const st = (c?.status || '').toLowerCase().trim();
-  if (st === 'inativo' || st === 'excluido' || st === 'excluído') return false;
-  if (c?.ativo === false) return false;
-  return true;
-}
-
-function podeTerAcoes(a) {
-  return !['Excluído', 'Recusado', 'Concluído'].includes(normStatus(a.status));
-}
-
-// ── TOAST / NOTIF ──
-function toast(msg, type = 'info') {
-  const typeMap = { ok: 'ok', err: 'err', warn: 'info', info: 'info' };
-  showNotif(msg, '', typeMap[type] || 'info');
-}
-
-function showNotif(title, msg = '', type = 'info', duration = 5000) {
-  const stack = $('notifStack');
-  if (!stack) return;
-  const item = document.createElement('div');
-  item.className = 'notif-item';
-  const now = new Date();
-  const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-  const icons = { new: '📅', ok: '✅', err: '⚠️', info: '💬' };
-  item.innerHTML = `
-    <div class="notif-icon ${type}">${icons[type] || '🔔'}</div>
-    <div class="notif-body">
-      <div class="notif-title">${title}</div>
-      ${msg ? `<div class="notif-msg">${msg}</div>` : ''}
-      <div class="notif-time">${t}</div>
-    </div>
-    <button class="notif-close" onclick="this.parentElement.remove()">✕</button>
-  `;
-  stack.prepend(item);
-  while (stack.children.length > 4) stack.lastChild.remove();
-  setTimeout(() => {
-    item.classList.add('out');
-    setTimeout(() => { if (item.parentElement) item.remove(); }, 450);
-  }, duration);
-  const dot = $('notifDot');
-  if (dot) dot.classList.add('on');
-}
-
-function clearNotifDot() {
-  const dot = $('notifDot');
-  if (dot) dot.classList.remove('on');
-}
-
-// ── SCROLL NAV ──
-window.addEventListener('scroll', () => {
-  const nav = $('landNav');
-  if (nav) nav.classList.toggle('scrolled', scrollY > 40);
-});
-
-// ── HASH ROUTING ──
-window.addEventListener('hashchange', () => {
-  const slug = getPublicSlug();
-  if (slug) loadPublic(slug);
-});
-
-// ── FECHAR MENUS AO CLICAR FORA ──
-// FIX: só fecha se o clique NÃO foi dentro do dropdown aberto
-document.addEventListener('click', function(e) {
-  if (_openMenu) {
-    // Se clicou no próprio botão que abriu — o handler do btn já trata
-    if (_openMenuBtn && _openMenuBtn.contains(e.target)) return;
-    // Se clicou dentro do dropdown — não fecha
-    if (_openMenu.contains(e.target)) return;
-    closeAllMenus();
+  .mobile-nav-bar {
+    display: grid; grid-template-columns: repeat(5,1fr); gap: 3px;
+    position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 9990;
+    padding: 7px; border-radius: var(--radius-2xl);
+    background: rgba(15,15,18,0.97); backdrop-filter: blur(28px);
+    border: 1px solid var(--border2);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+    align-items: center;
   }
-});
-
-// Fecha menus ao rolar (evita dropdown desalinhado)
-document.addEventListener('scroll', closeAllMenus, { passive: true });
-
-// ── INIT ──
-window.addEventListener('DOMContentLoaded', init);
-
-async function init() {
-  await loadCategorias();
-
-  const slug = getPublicSlug();
-  if (slug) {
-    await loadPublic(slug);
-    return;
+  .mob-nav-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; padding: 7px 4px; border-radius: var(--radius-lg);
+    background: none; border: 1px solid transparent; color: var(--text3);
+    font-family: 'Geist', sans-serif; font-size: 9.5px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; min-width: 0; width: 100%; min-height: 52px;
+    -webkit-tap-highlight-color: transparent;
   }
-
-  try {
-    const { data: { session } } = await db.auth.getSession();
-    if (session?.user) {
-      const ok = await carregarConta(session.user);
-      if (!ok) {
-        await db.auth.signOut();
-      }
-    }
-  } catch (e) {
-    console.error('Erro ao verificar sessão:', e);
+  .mob-nav-btn.active { background: var(--accent4); border-color: var(--accent-border); color: var(--accent2); }
+  .mob-nav-btn .mni { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 13px; background: var(--surface); transition: background 0.15s; }
+  .mob-nav-btn.active .mni { background: var(--accent3); }
+  .mob-nav-fab {
+    background: var(--accent) !important; border-color: rgba(99,102,241,0.4) !important;
+    color: #fff !important; box-shadow: 0 6px 20px rgba(99,102,241,0.4);
   }
-}
+  .mob-nav-fab .mni { background: rgba(255,255,255,0.15) !important; width: 30px !important; height: 30px !important; font-size: 15px !important; }
 
-function getPublicSlug() {
-  if (location.hash.startsWith('#agendar/')) {
-    return location.hash.replace('#agendar/', '').trim();
+  .dash-hero { border-radius: 18px; padding: 18px 20px; }
+  .dash-hero-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .dash-hero-inner h1 { font-size: 32px; }
+  .dash-hero-inner .btn { width: 100%; }
+
+  .stats-grid-4,
+  .stats-grid-3,
+  .stats-grid-6,
+  .stats-grid-2 { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+  .stat-card { padding: 12px; min-height: 0; }
+  .stat-value { font-size: 22px; }
+
+  .content-grid { grid-template-columns: 1fr; }
+
+  /* FIX mobile: cards em coluna única, dropdown livre */
+  .cards-grid { grid-template-columns: 1fr; }
+  .config-grid { grid-template-columns: 1fr; }
+  .fin-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr !important; }
+
+  /* FIX mobile: padding para não sobrepor botão ⋮ */
+  .client-card { padding: 14px; padding-right: 52px; }
+  .svc-card { padding: 14px; padding-right: 52px; }
+  .prof-card { padding: 48px 14px 14px; }
+
+  /* FIX timeline mobile */
+  .tl-block { gap: 6px; }
+  .tl-time { min-width: 32px; font-size: 10px; }
+  .tl-line { display: none; }
+  .tl-card-top { padding-right: 44px; }
+  .tl-card-name { white-space: normal; word-break: break-word; }
+  .tl-card-meta { white-space: normal; word-break: break-word; }
+
+  /* FIX ações mobile: grid 2 colunas */
+  .apt-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
   }
-  return null;
-}
-
-async function carregarConta(user) {
-  try {
-    const { data: perfil, error: pe } = await db.from('agenda_perfis')
-      .select('*').eq('auth_user_id', user.id).single();
-    if (pe || !perfil) { console.warn('Perfil não encontrado para', user.id); return false; }
-
-    const { data: empresa, error: ee } = await db.from('agenda_empresas')
-      .select('*').eq('id', perfil.empresa_id).single();
-    if (ee || !empresa) { console.warn('Empresa não encontrada para perfil', perfil.id); return false; }
-
-    state.user = user;
-    state.perfil = perfil;
-    state.empresa = empresa;
-    showDashboard();
-    await loadAll();
-    return true;
-  } catch (e) {
-    console.error('Erro em carregarConta:', e);
-    return false;
-  }
-}
-
-// ── CARREGAR CATEGORIAS ──
-async function loadCategorias() {
-  try {
-    const { data, error } = await db.from('agenda_categorias').select('*').order('nome');
-    if (error) {
-      console.warn('Erro ao carregar categorias:', error.message);
-      state.categorias = [];
-    } else {
-      state.categorias = data || [];
-    }
-  } catch (e) {
-    console.warn('Exceção ao carregar categorias:', e);
-    state.categorias = [];
-  }
-  preencherSelectCategorias();
-}
-
-function preencherSelectCategorias() {
-  const sel = $('empCategoria');
-  if (!sel) return;
-
-  if (!state.categorias || state.categorias.length === 0) {
-    const fallback = [
-      { id: 'beleza', nome: 'Beleza & Estética', icone: '💅' },
-      { id: 'saude', nome: 'Saúde', icone: '🏥' },
-      { id: 'barbearia', nome: 'Barbearia', icone: '✂️' },
-      { id: 'fitness', nome: 'Fitness & Bem-estar', icone: '🏋️' },
-      { id: 'tatuagem', nome: 'Tatuagem & Piercing', icone: '🎨' },
-      { id: 'pet', nome: 'Pet Shop', icone: '🐾' },
-      { id: 'educacao', nome: 'Educação', icone: '📚' },
-      { id: 'consultoria', nome: 'Consultoria', icone: '💼' },
-      { id: 'fotografia', nome: 'Fotografia', icone: '📸' },
-      { id: 'outro', nome: 'Outro', icone: '✦' }
-    ];
-    sel.innerHTML = fallback.map(c =>
-      `<option value="${c.id}">${c.icone} ${c.nome}</option>`
-    ).join('');
-  } else {
-    sel.innerHTML = state.categorias.map(c =>
-      `<option value="${c.id}">${c.icone || ''} ${c.nome}</option>`
-    ).join('');
-  }
-}
-
-// ── SHOW DASHBOARD ──
-function showDashboard() {
-  const lv = $('landingView');
-  const dv = $('dashboardView');
-  const pv = $('publicView');
-  if (lv) lv.style.display = 'none';
-  if (dv) dv.style.display = 'block';
-  if (pv) pv.style.display = 'none';
-
-  closeAuth();
-
-  if (state.empresa) {
-    setText('sideAvatar', initial(state.empresa.nome));
-    setText('sideNome', state.empresa.nome);
-    setText('sidePlan', state.empresa.plano || 'Grátis');
-    const lb = $('sideLinkBox');
-    if (lb) lb.textContent = publicUrl(state.empresa.slug);
-  }
-
-  document.body.style.overflow = '';
-  setView('dashboard');
-  setupRealtime();
-  startAutoSync();
-}
-
-function openMobileMenu() {
-  const overlay = $('mobileMenuOverlay');
-  const drawer = $('mobileMenuDrawer');
-  if (overlay) overlay.classList.add('open');
-  if (drawer) drawer.classList.add('open');
-  document.body.classList.add('menu-open');
-}
-
-function closeMobileMenu() {
-  const overlay = $('mobileMenuOverlay');
-  const drawer = $('mobileMenuDrawer');
-  if (overlay) overlay.classList.remove('open');
-  if (drawer) drawer.classList.remove('open');
-  document.body.classList.remove('menu-open');
-}
-
-function menuOpenPublic() { closeMobileMenu(); openPublic(); }
-function menuCopyPublicLink() { closeMobileMenu(); copyPublicLink(); }
-function menuNotifications() {
-  closeMobileMenu(); clearNotifDot();
-  const stack = $('notifStack');
-  if (stack) stack.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ── VIEW NAVIGATION ──
-function setView(view) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  const target = $('view-' + view);
-  if (target) target.classList.add('active');
-
-  const navMap = {
-    dashboard: ['Dashboard', 'Controle completo do seu negócio.'],
-    agenda: ['Agenda', 'Criar e acompanhar horários.'],
-    clientes: ['Clientes', 'Cadastro de clientes.'],
-    servicos: ['Serviços', 'Catálogo e preços.'],
-    profissionais: ['Profissionais', 'Equipe de atendimento.'],
-    financeiro: ['Financeiro', 'Valores e resultados.'],
-    relatorios: ['Relatórios', 'Dados e métricas.'],
-    config: ['Configurações', 'Dados do negócio.']
-  };
-  const info = navMap[view] || ['', ''];
-  setText('pageTitle', info[0]);
-  setText('pageSub', info[1]);
-
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.toggle('active', (b.getAttribute('onclick') || '').includes(`'${view}'`));
-  });
-  document.querySelectorAll('.mob-nav-btn').forEach(b => {
-    b.classList.toggle('active', (b.getAttribute('onclick') || '').includes(`'${view}'`));
-  });
-}
-
-// ── AUTH ──
-function openAuth(mode) {
-  const overlay = $('authOverlay');
-  if (!overlay) return;
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  if (mode === 'login') showLogin();
-  else showCadastro();
-}
-
-function closeAuth() {
-  const overlay = $('authOverlay');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function showLogin() {
-  const fl = $('formLogin');
-  const fc = $('formCadastro');
-  if (fl) fl.style.display = 'block';
-  if (fc) fc.style.display = 'none';
-}
-
-function showCadastro() {
-  const fl = $('formLogin');
-  const fc = $('formCadastro');
-  if (fl) fl.style.display = 'none';
-  if (fc) fc.style.display = 'block';
-  const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
-  if (s1) s1.style.display = 'block';
-  if (s2) s2.style.display = 'none';
-  if (s3) s3.style.display = 'none';
-  setStep(1);
-  preencherSelectCategorias();
-}
-
-function setStep(n) {
-  ['st1', 'st2', 'st3'].forEach((id, i) => {
-    const el = $(id);
-    if (!el) return;
-    el.className = 'step-dot' + (i + 1 === n ? ' active' : i + 1 < n ? ' done' : '');
-  });
-}
-
-function goStep2() {
-  const nome = $('cadNome')?.value?.trim();
-  const email = $('cadEmail')?.value?.trim();
-  const senha = $('cadSenha')?.value?.trim();
-  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
-  if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
-  const s1 = $('step1'), s2 = $('step2');
-  if (s1) s1.style.display = 'none';
-  if (s2) s2.style.display = 'block';
-  setStep(2);
-  preencherSelectCategorias();
-}
-
-function goStep1() {
-  const s1 = $('step1'), s2 = $('step2');
-  if (s2) s2.style.display = 'none';
-  if (s1) s1.style.display = 'block';
-  setStep(1);
-}
-
-function goStep3() {
-  const empNome = $('empNome')?.value?.trim();
-  const empSlug = $('empSlug')?.value?.trim();
-  const empWhatsapp = $('empWhatsapp')?.value?.trim();
-  if (!empNome || !empSlug || !empWhatsapp) {
-    return toast('Preencha nome, link e WhatsApp.', 'err');
-  }
-  const s2 = $('step2'), s3 = $('step3');
-  if (s2) s2.style.display = 'none';
-  if (s3) s3.style.display = 'block';
-  setStep(3);
-}
-
-function autoSlug() {
-  const el = $('empSlug');
-  if (!el || el.dataset.manual === '1') return;
-  const nomeEl = $('empNome');
-  if (nomeEl) el.value = slugify(nomeEl.value || '');
-}
-
-document.addEventListener('input', function(e) {
-  if (e.target && e.target.id === 'empSlug') {
-    e.target.dataset.manual = '1';
-  }
-});
-
-// ── LOGIN ──
-async function loginComSenha() {
-  const email = ($('loginEmail')?.value || '').trim();
-  const senha = ($('loginSenha')?.value || '').trim();
-  if (!email || !senha) return toast('Digite e-mail e senha.', 'err');
-
-  try {
-    const { data, error } = await db.auth.signInWithPassword({ email, password: senha });
-    if (error || !data.user) return toast(error?.message || 'E-mail ou senha incorretos.', 'err');
-
-    const ok = await carregarConta(data.user);
-    if (!ok) {
-      await db.auth.signOut();
-      return toast('Perfil ou empresa não encontrado. Refaça o cadastro.', 'err');
-    }
-    showNotif('Login realizado!', 'Bem-vindo de volta.', 'ok', 4000);
-  } catch (e) {
-    console.error('Erro no login:', e);
-    toast('Erro ao fazer login. Tente novamente.', 'err');
-  }
-}
-
-// ── CADASTRO ──
-async function finalizarCadastro() {
-  const servNome = $('servNome')?.value?.trim();
-  const servPreco = $('servPreco')?.value;
-  const servDuracao = $('servDuracao')?.value;
-  const profNomeVal = $('profNome')?.value?.trim();
-
-  if (!servNome || !servPreco || !servDuracao || !profNomeVal) {
-    return toast('Preencha serviço, preço, duração e profissional.', 'err');
-  }
-
-  const email = ($('cadEmail')?.value || '').trim();
-  const senha = ($('cadSenha')?.value || '').trim();
-  const nomeUser = ($('cadNome')?.value || '').trim();
-  const empNomeVal = ($('empNome')?.value || '').trim();
-  const empSlugVal = slugify($('empSlug')?.value || empNomeVal);
-  const empWhatsappVal = ($('empWhatsapp')?.value || '').trim();
-
-  const catSelect = $('empCategoria');
-  const areaAtuacao = catSelect
-    ? (catSelect.options[catSelect.selectedIndex]?.textContent?.trim() || 'Outro')
-    : 'Outro';
-
-  const btnFin = $('btnFinalizar');
-  if (btnFin) { btnFin.disabled = true; btnFin.textContent = 'Criando...'; }
-
-  try {
-    const { data: authData, error: authErr } = await db.auth.signUp({
-      email,
-      password: senha,
-      options: { data: { nome: nomeUser } }
-    });
-
-    if (authErr) {
-      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
-      if (authErr.message && authErr.message.toLowerCase().includes('already registered')) {
-        return toast('Este e-mail já está cadastrado. Faça login.', 'err');
-      }
-      return toast('Erro ao criar conta: ' + authErr.message, 'err');
-    }
-
-    if (!authData?.user) {
-      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
-      return toast('Erro ao criar conta. Tente novamente.', 'err');
-    }
-
-    const user = authData.user;
-
-    const { data: slugExiste } = await db.from('agenda_empresas')
-      .select('id').eq('slug', empSlugVal).maybeSingle();
-    const slugFinal = slugExiste ? empSlugVal + '-' + Date.now().toString().slice(-4) : empSlugVal;
-
-    const { data: empresa, error: errEmp } = await db.from('agenda_empresas').insert({
-      nome: empNomeVal,
-      slug: slugFinal,
-      area_atuacao: areaAtuacao,
-      whatsapp: empWhatsappVal,
-      email: email,
-      plano: 'Grátis',
-      onboarding_finalizado: true
-    }).select('*').single();
-
-    if (errEmp || !empresa) {
-      console.error('Erro ao criar empresa:', errEmp);
-      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
-      return toast('Erro ao criar empresa: ' + (errEmp?.message || 'tente novamente.'), 'err');
-    }
-
-    const { error: perfilErr } = await db.from('agenda_perfis').insert({
-      auth_user_id: user.id,
-      empresa_id: empresa.id,
-      nome: nomeUser,
-      email: email,
-      whatsapp: empWhatsappVal,
-      cargo: 'Administrador'
-    });
-
-    if (perfilErr) {
-      console.error('Erro ao criar perfil:', perfilErr);
-    }
-
-    await db.from('agenda_servicos').insert({
-      empresa_id: empresa.id,
-      nome: servNome,
-      preco: Number(servPreco || 0),
-      duracao_minutos: Number(servDuracao || 60),
-      status: 'ativo',
-      descricao: 'Serviço inicial.'
-    });
-
-    await db.from('agenda_profissionais').insert({
-      empresa_id: empresa.id,
-      nome: profNomeVal,
-      especialidade: ($('profEsp')?.value || 'Profissional').trim(),
-      telefone: empWhatsappVal,
-      status: 'ativo'
-    });
-
-    const { data: loginData, error: loginErr } = await db.auth.signInWithPassword({
-      email,
-      password: senha
-    });
-
-    if (loginErr || !loginData?.user) {
-      if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
-      closeAuth();
-      toast('Conta criada! Faça login para acessar.', 'ok');
-      setTimeout(() => openAuth('login'), 1500);
-      return;
-    }
-
-    state.user = loginData.user;
-    state.perfil = { auth_user_id: loginData.user.id, empresa_id: empresa.id, nome: nomeUser, email };
-    state.empresa = empresa;
-    showDashboard();
-    await loadAll();
-    showNotif('Bem-vindo ao AgendaPro!', empresa.nome + ' — painel criado com sucesso.', 'ok', 7000);
-
-  } catch (e) {
-    console.error('Erro em finalizarCadastro:', e);
-    if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
-    toast('Erro inesperado. Verifique o console e tente novamente.', 'err');
-  }
-}
-
-async function logout() {
-  try {
-    if (autoSyncTimer) { clearInterval(autoSyncTimer); autoSyncTimer = null; }
-    if (realtimeChannel) {
-      try { db.removeChannel(realtimeChannel); } catch(e) {}
-      realtimeChannel = null;
-    }
-    await db.auth.signOut();
-  } catch(e) {}
-  state.user = null; state.perfil = null; state.empresa = null;
-  state.clientes = []; state.servicos = []; state.profissionais = [];
-  state.agendamentos = []; state.pagamentos = [];
-  location.href = location.pathname;
-}
-
-// ── REALTIME ──
-function setupRealtime() {
-  if (!state?.empresa?.id || !db?.channel) return;
-  if (realtimeChannel) {
-    try { db.removeChannel(realtimeChannel); } catch(e) {}
-    realtimeChannel = null;
-  }
-  const id = state.empresa.id;
-  const tables = ['agenda_agendamentos', 'agenda_clientes', 'agenda_servicos', 'agenda_profissionais'];
-  let ch = db.channel('ap-realtime-' + id);
-  tables.forEach(table => {
-    ch = ch.on('postgres_changes', {
-      event: '*', schema: 'public', table,
-      filter: `empresa_id=eq.${id}`
-    }, payload => {
-      if (table === 'agenda_agendamentos' && payload.eventType === 'INSERT') {
-        showNotif('Novo agendamento!', `${payload.new?.cliente_nome || 'Cliente'} acabou de agendar.`, 'new', 6000);
-      }
-      scheduleReload();
-    });
-  });
-  realtimeChannel = ch.subscribe();
-}
-
-let _reloadTimer = null;
-function scheduleReload() {
-  if (_reloadTimer) clearTimeout(_reloadTimer);
-  _reloadTimer = setTimeout(async () => {
-    if (state?.empresa?.id) await loadAll();
-  }, 400);
-}
-
-function startAutoSync() {
-  if (autoSyncTimer) clearInterval(autoSyncTimer);
-  lastIds = new Set((state.agendamentos || []).map(a => String(a.id)));
-  autoSyncTimer = setInterval(async () => {
-    if (!state?.empresa?.id) return;
-    try {
-      const { data } = await db.from('agenda_agendamentos').select('*')
-        .eq('empresa_id', state.empresa.id)
-        .order('data', { ascending: true })
-        .order('hora', { ascending: true });
-      const novos = (data || []).filter(a => !lastIds.has(String(a.id)));
-      state.agendamentos = data || [];
-      if (novos.length) {
-        novos.forEach(a => showNotif('Novo agendamento!', `${a.cliente_nome || 'Cliente'} agendou.`, 'new', 6000));
-      }
-      lastIds = new Set(state.agendamentos.map(a => String(a.id)));
-      renderAll();
-    } catch (e) {}
-  }, 5000);
-}
-
-function preserveAgendaFormValues(callback) {
-  const values = {
-    cliente: $('agCliente')?.value || '',
-    telefone: $('agTelefone')?.value || '',
-    servico: $('agServico')?.value || '',
-    profissional: $('agProfissional')?.value || '',
-    data: $('agData')?.value || '',
-    hora: $('agHora')?.value || '',
-    status: $('agStatus')?.value || ''
-  };
-
-  if (typeof callback === 'function') callback();
-
-  if ($('agCliente') && values.cliente) $('agCliente').value = values.cliente;
-  if ($('agTelefone') && values.telefone) $('agTelefone').value = values.telefone;
-  if ($('agServico') && values.servico && [...$('agServico').options].some(o => o.value === values.servico)) $('agServico').value = values.servico;
-  if ($('agProfissional') && values.profissional && [...$('agProfissional').options].some(o => o.value === values.profissional)) $('agProfissional').value = values.profissional;
-  if ($('agData') && values.data) $('agData').value = values.data;
-  if ($('agHora') && values.hora) $('agHora').value = values.hora;
-  if ($('agStatus') && values.status) $('agStatus').value = values.status;
-}
-
-// ── LOAD ALL ──
-async function loadAll() {
-  if (!state.empresa) return;
-  const id = state.empresa.id;
-  try {
-    const [cli, svc, prof, ag, pag] = await Promise.all([
-      db.from('agenda_clientes').select('*').eq('empresa_id', id).order('criado_em', { ascending: false }),
-      db.from('agenda_servicos').select('*').eq('empresa_id', id).order('criado_em', { ascending: false }),
-      db.from('agenda_profissionais').select('*').eq('empresa_id', id).order('criado_em', { ascending: false }),
-      db.from('agenda_agendamentos').select('*').eq('empresa_id', id).order('data', { ascending: true }).order('hora', { ascending: true }),
-      db.from('agenda_pagamentos').select('*').eq('empresa_id', id).order('criado_em', { ascending: false })
-    ]);
-    state.clientes = cli.data || [];
-    state.servicos = svc.data || [];
-    state.profissionais = prof.data || [];
-    state.agendamentos = ag.data || [];
-    state.pagamentos = pag.data || [];
-    lastIds = new Set(state.agendamentos.map(a => String(a.id)));
-    renderAll();
-  } catch (e) {
-    console.error('Erro ao carregar dados:', e);
-  }
-}
-
-function isEditingConfig() {
-  const active = document.activeElement;
-  if (!active) return false;
-  return !!active.closest('#view-config');
-}
-
-function renderAll() {
-  preserveAgendaFormValues(() => {
-    renderStats();
-    renderDashList();
-    renderCalendar();
-    renderSelects();
-    renderTimeline();
-    renderClientes();
-    renderServicos();
-    renderProfissionais();
-    renderFinanceiro();
-
-    const active = document.activeElement;
-    const editingConfig = active && active.closest && active.closest('#view-config');
-    if (!editingConfig) renderConfig();
-  });
-}
-
-// ── STATS ──
-function renderStats() {
-  const hoje = hojeISO(), mes = mesPrefixo(), ags = state.agendamentos || [];
-  const ativos = ags.filter(a => normStatus(a.status) !== 'Excluído');
-  const st = s => ativos.filter(a => normStatus(a.status) === s).length;
-  const stAll = s => ags.filter(a => normStatus(a.status) === s).length;
-  const concluidos = st('Concluído');
-  const base = ativos.filter(a => normStatus(a.status) !== 'Recusado').length;
-  const taxa = base > 0 ? Math.round(concluidos / base * 100) : 0;
-  const fin = ags.filter(isFinanceiro);
-  const fatHoje = fin.filter(a => a.data === hoje).reduce((s, a) => s + Number(a.valor || 0), 0);
-  const fatMes = fin.filter(a => (a.data || '').startsWith(mes)).reduce((s, a) => s + Number(a.valor || 0), 0);
-
-  setText('statHoje', ativos.filter(a => a.data === hoje).length);
-  setText('statPendentes', st('Pendente'));
-  setText('statConfirmados', st('Confirmado'));
-  setText('statReagendados', st('Reagendado'));
-  setText('statConcluidos', concluidos);
-  setText('statRecusados', st('Recusado'));
-  setText('statExcluidos', stAll('Excluído'));
-  setText('statTaxa', taxa + '%');
-  setText('statFatHoje', money(fatHoje).replace(',00', ''));
-  setText('statFatMes', money(fatMes).replace(',00', ''));
-  setText('statClientes', (state.clientes || []).filter(isAtivoCliente).length);
-  setText('statServicos', (state.servicos || []).filter(s => s.status === 'ativo').length);
-  setText('statProfissionais', (state.profissionais || []).filter(p => p.status === 'ativo').length);
-  setText('statTotal', ativos.length);
-  setText('fc-todos', ativos.length);
-  setText('fc-pendente', st('Pendente'));
-  setText('fc-confirmado', st('Confirmado'));
-  setText('fc-reagendado', st('Reagendado'));
-  setText('fc-concluido', concluidos);
-  setText('fc-recusado', st('Recusado'));
-  setText('fc-excluido', stAll('Excluído'));
-}
-
-// ── DASHBOARD LIST ──
-function renderDashList() {
-  const el = $('dashAptList');
-  if (!el) return;
-  const visibles = (state.agendamentos || [])
-    .filter(a => ['Pendente', 'Confirmado', 'Reagendado'].includes(normStatus(a.status)))
-    .slice(0, 6);
-  if (!visibles.length) {
-    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento pendente.</p></div>';
-    return;
-  }
-  el.innerHTML = visibles.map(a => `
-    <div class="apt-item">
-      <div class="apt-row">
-        <div class="apt-av">${initial(a.cliente_nome)}</div>
-        <div class="apt-info">
-          <div class="apt-name">${a.cliente_nome || 'Cliente'}</div>
-          <div class="apt-meta">${a.servico_nome || '—'} · ${a.profissional_nome || '—'} · ${formatDate(a.data)} ${a.hora || ''}</div>
-        </div>
-        <span class="badge ${badgeClass(a.status)}">${normStatus(a.status)}</span>
-      </div>
-      ${renderAcoes(a)}
-    </div>`).join('');
-}
-
-// ── CALENDAR ──
-function renderCalendar() {
-  const el = $('calGrid');
-  if (!el) return;
-  const days = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
-  const busy = new Set(
-    (state.agendamentos || [])
-      .filter(a => normStatus(a.status) !== 'Excluído')
-      .map(a => String(new Date((a.data || '') + 'T00:00:00').getDate()))
-  );
-  const today = String(new Date().getDate());
-  let html = days.map(d => `<div class="cal-label">${d}</div>`).join('');
-  for (let i = 1; i <= 28; i++) {
-    const d = String(i);
-    html += `<div class="cal-day${busy.has(d) ? ' busy' : ''}${d === today ? ' today' : ''}">${i}</div>`;
-  }
-  el.innerHTML = html;
-}
-
-// ── SELECTS ──
-function renderSelects() {
-  const agS = $('agServico');
-  const agP = $('agProfissional');
-
-  const selectedServico = agS ? agS.value : '';
-  const selectedProfissional = agP ? agP.value : '';
-
-  if (agS) {
-    agS.innerHTML =
-      '<option value="">Escolha serviço</option>' +
-      (state.servicos || [])
-        .filter(s => (s.status || 'ativo') === 'ativo')
-        .map(s => `<option value="${s.id}">${s.nome} — ${money(s.preco).replace(',00','')}</option>`)
-        .join('');
-
-    if (selectedServico && [...agS.options].some(o => o.value === selectedServico)) {
-      agS.value = selectedServico;
-    }
-  }
-
-  if (agP) {
-    agP.innerHTML =
-      '<option value="">Escolha profissional</option>' +
-      (state.profissionais || [])
-        .filter(p => (p.status || 'ativo') === 'ativo')
-        .map(p => `<option value="${p.id}">${p.nome}</option>`)
-        .join('');
-
-    if (selectedProfissional && [...agP.options].some(o => o.value === selectedProfissional)) {
-      agP.value = selectedProfissional;
-    }
-  }
-}
-
-// ── FILTER ──
-function setFilter(filter, btn) {
-  _agendaFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderTimeline();
-}
-
-// ── TIMELINE ──
-function renderTimeline() {
-  const el = $('agendaTimeline');
-  if (!el) return;
-  const ags = state.agendamentos || [];
-  if (!ags.length) {
-    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento ainda.</p></div>';
-    return;
-  }
-  const statusMap = {
-    pendente: 'Pendente', confirmado: 'Confirmado', reagendado: 'Reagendado',
-    concluido: 'Concluído', recusado: 'Recusado', excluido: 'Excluído'
-  };
-  let filtered;
-  if (_agendaFilter === 'excluido') {
-    filtered = ags.filter(a => normStatus(a.status) === 'Excluído');
-  } else if (_agendaFilter !== 'todos') {
-    const target = statusMap[_agendaFilter];
-    filtered = ags.filter(a => normStatus(a.status) === target);
-  } else {
-    filtered = ags.filter(a => normStatus(a.status) !== 'Excluído');
-  }
-  if (!filtered.length) {
-    el.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><p>Nenhum agendamento neste filtro.</p></div>';
-    return;
-  }
-  el.innerHTML = '';
-  filtered.forEach(a => {
-    const block = document.createElement('div');
-    block.className = 'tl-block';
-    block.id = 'ag-' + a.id;
-    block.innerHTML = `
-      <div class="tl-time">${a.hora || '—'}</div>
-      <div class="tl-line"></div>
-      <div class="tl-content">
-        <div class="tl-card">
-          <div class="tl-card-top">
-            <div class="apt-av" style="width:34px;height:34px;border-radius:9px;flex-shrink:0">${initial(a.cliente_nome)}</div>
-            <div class="tl-card-info">
-              <div class="tl-card-name">${a.cliente_nome || 'Cliente'}</div>
-              <div class="tl-card-meta">${a.servico_nome || '—'} · ${a.profissional_nome || '—'} · ${formatDate(a.data)}${a.cliente_telefone ? ' · ' + a.cliente_telefone : ''}</div>
-            </div>
-            <div class="tl-card-status"><span class="badge ${badgeClass(a.status)}">${normStatus(a.status)}</span></div>
-          </div>
-          ${renderAcoes(a)}
-        </div>
-      </div>`;
-    const card = block.querySelector('.tl-card');
-    const cardTop = block.querySelector('.tl-card-top');
-    const menu = buildActionMenu(a.id, [
-      { icon: '✏️', label: 'Editar', action: () => editAgendamento(a.id) },
-      { icon: '📋', label: 'Duplicar', action: () => duplicarAgendamento(a.id) },
-      'sep',
-      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirAgendamento(a.id) }
-    ]);
-    if (card) card.appendChild(menu);
-    el.appendChild(block);
-  });
-}
-
-// ── RENDER ACOES ──
-function renderAcoes(a) {
-  const tel = (a.cliente_telefone || a.telefone || '').replace(/\D/g, '');
-  const s = normStatus(a.status);
-  if (s === 'Excluído') {
-    return `<div class="apt-actions muted-actions"><span class="badge badge-gray">🗑 Excluído</span></div>`;
-  }
-  if (s === 'Recusado') {
-    return `<div class="apt-actions muted-actions"><span class="badge badge-red">✕ Recusado</span></div>`;
-  }
-  if (s === 'Concluído') {
-    return `<div class="apt-actions muted-actions">
-      <span class="badge badge-blue">✓ Concluído</span>
-      ${tel ? `<button class="act-btn whatsapp" onclick="abrirWA('${a.id}')">💬 WA</button>` : ''}
-      <button class="act-btn refuse" onclick="excluirAgendamento('${a.id}')">🗑 Arquivar</button>
-    </div>`;
-  }
-  return `<div class="apt-actions">
-    ${s !== 'Confirmado' ? `<button class="act-btn confirm" onclick="confirmarAg('${a.id}')">✅ Confirmar</button>` : ''}
-    <button class="act-btn refuse" onclick="openModalRecusa('${a.id}')">✕ Recusar</button>
-    <button class="act-btn reschedule" onclick="openModalReagendar('${a.id}')">📅 Reagendar</button>
-    <button class="act-btn conclude" onclick="concluirAg('${a.id}')">✓ Concluir</button>
-    ${tel ? `<button class="act-btn whatsapp" onclick="abrirWA('${a.id}')">💬 WA</button>` : ''}
-  </div>`;
-}
-
-// ── ACTION MENU — FIX COMPLETO ──
-// Usa position:fixed com coordenadas calculadas do getBoundingClientRect
-// para que o dropdown nunca seja cortado por qualquer overflow:hidden do pai
-function buildActionMenu(id, items) {
-  const wrap = document.createElement('div');
-  wrap.className = 'action-menu';
-
-  const btn = document.createElement('button');
-  btn.className = 'action-menu-btn';
-  btn.innerHTML = '⋮';
-  btn.type = 'button';
-
-  const drop = document.createElement('div');
-  drop.className = 'action-dropdown';
-
-  items.forEach(item => {
-    if (item === 'sep') {
-      const s = document.createElement('div');
-      s.className = 'action-sep';
-      drop.appendChild(s);
-      return;
-    }
-    const el = document.createElement('button');
-    el.type = 'button';
-    el.className = 'action-item' + (item.cls ? ' ' + item.cls : '');
-    el.innerHTML = `<span class="action-item-icon">${item.icon}</span>${item.label}`;
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      e.preventDefault();
-      closeAllMenus();
-      // Pequeno delay para garantir que o menu fechou antes da ação
-      setTimeout(() => item.action(), 50);
-    });
-    drop.appendChild(el);
-  });
-
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    if (_openMenu === drop) {
-      closeAllMenus();
-      return;
-    }
-
-    closeAllMenus();
-
-    // FIX CRÍTICO: posiciona o dropdown via fixed usando coordenadas reais do botão
-    const rect = btn.getBoundingClientRect();
-    const dropW = 200;
-    const viewportW = window.innerWidth;
-    const viewportH = window.innerHeight;
-
-    // Calcula posição: tenta abrir à direita do botão, alinhado pela direita
-    let left = rect.right - dropW;
-    let top = rect.bottom + 6;
-
-    // Se sair pela esquerda, abre pela esquerda do botão
-    if (left < 8) left = rect.left;
-    // Se sair pela direita, recua
-    if (left + dropW > viewportW - 8) left = viewportW - dropW - 8;
-    // Se sair por baixo, abre para cima
-    if (top + 200 > viewportH - 8) top = rect.top - 210;
-
-    drop.style.top = top + 'px';
-    drop.style.left = left + 'px';
-    drop.style.minWidth = dropW + 'px';
-
-    // Adiciona ao body para escapar de qualquer overflow:hidden
-    document.body.appendChild(drop);
-    drop.classList.add('open');
-    _openMenu = drop;
-    _openMenuBtn = btn;
-  });
-
-  wrap.appendChild(btn);
-  // drop fica no body quando aberto, não dentro do wrap
-  // mas começa dentro para não poluir o DOM
-  wrap.appendChild(drop);
-  return wrap;
-}
-
-function closeAllMenus() {
-  if (_openMenu) {
-    _openMenu.classList.remove('open');
-    // Remove do body se foi movido para lá
-    if (_openMenu.parentElement === document.body) {
-      document.body.removeChild(_openMenu);
-    }
-    _openMenu = null;
-    _openMenuBtn = null;
-  }
-  // Limpa qualquer dropdown órfão
-  document.querySelectorAll('body > .action-dropdown').forEach(d => {
-    d.classList.remove('open');
-    if (d.parentElement === document.body) document.body.removeChild(d);
-  });
-}
-
-// ── CLIENTES ──
-function renderClientes() {
-  const el = $('clientesGrid');
-  if (!el) return;
-  const clientes = state.clientes || [];
-  if (!clientes.length) {
-    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">👥</div><p>Nenhum cliente ainda.</p></div>';
-    return;
-  }
-  el.innerHTML = '';
-  clientes.forEach(c => {
-    const agts = (state.agendamentos || []).filter(a => a.cliente_nome === c.nome && normStatus(a.status) !== 'Excluído').length;
-    const gasto = (state.agendamentos || []).filter(a => a.cliente_nome === c.nome && isFinanceiro(a)).reduce((s, a) => s + Number(a.valor || 0), 0);
-    const ativo = isAtivoCliente(c);
-    const card = document.createElement('div');
-    card.className = 'client-card' + (ativo ? '' : ' inactive');
-    card.innerHTML = `
-      <div class="cc-top">
-        <div class="cc-av">${initial(c.nome)}</div>
-        <div style="flex:1;min-width:0"><div class="cc-name">${c.nome}</div><div class="cc-phone">${c.telefone || '—'}</div></div>
-      </div>
-      ${c.email ? `<div style="font-size:11.5px;color:var(--text4);margin-bottom:8px;word-break:break-all">✉ ${c.email}</div>` : ''}
-      <div style="margin-bottom:9px"><span class="badge ${ativo ? 'badge-green' : 'badge-gray'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>
-      <div class="cc-stats">
-        <div class="cc-stat"><div class="cc-sl">Atendimentos</div><div class="cc-sv">${agts}</div></div>
-        <div class="cc-stat"><div class="cc-sl">Total gasto</div><div class="cc-sv" style="font-size:14px">${money(gasto).replace(',00', '')}</div></div>
-      </div>`;
-    const menu = buildActionMenu(c.id, [
-      { icon: '✏️', label: 'Editar', action: () => editCliente(c.id) },
-      { icon: '📋', label: 'Duplicar', action: () => duplicarCliente(c.id) },
-      'sep',
-      ativo
-        ? { icon: '⏸', label: 'Desativar', cls: 'danger', action: () => toggleCliente(c.id, false) }
-        : { icon: '▶️', label: 'Ativar', cls: 'success', action: () => toggleCliente(c.id, true) },
-      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirCliente(c.id) }
-    ]);
-    card.appendChild(menu);
-    el.appendChild(card);
-  });
-}
-
-// ── SERVIÇOS ──
-function renderServicos() {
-  const el = $('servicosGrid');
-  if (!el) return;
-  const vis = (state.servicos || []).filter(s => s.status !== 'excluido');
-  if (!vis.length) {
-    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">✦</div><p>Nenhum serviço ainda.</p></div>';
-    return;
-  }
-  el.innerHTML = '';
-  vis.forEach(s => {
-    const ativo = s.status === 'ativo';
-    const card = document.createElement('div');
-    card.className = 'svc-card' + (ativo ? '' : ' inactive');
-    card.innerHTML = `
-      <div class="svc-price">${money(s.preco).replace(',00', '')}</div>
-      <div class="svc-name">${s.nome}</div>
-      <div class="svc-dur">⏱ ${s.duracao_minutos || 60} min</div>
-      <div class="svc-status"><span class="badge ${ativo ? 'badge-green' : 'badge-gray'}">${ativo ? 'Ativo' : 'Inativo'}</span></div>`;
-    const menu = buildActionMenu(s.id, [
-      { icon: '✏️', label: 'Editar', action: () => editServico(s.id) },
-      { icon: '📋', label: 'Duplicar', action: () => duplicarServico(s.id) },
-      'sep',
-      ativo
-        ? { icon: '⏸', label: 'Desativar', cls: 'danger', action: () => toggleServico(s.id, 'inativo') }
-        : { icon: '▶️', label: 'Ativar', cls: 'success', action: () => toggleServico(s.id, 'ativo') },
-      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirServico(s.id) }
-    ]);
-    card.appendChild(menu);
-    el.appendChild(card);
-  });
-}
-
-// ── PROFISSIONAIS ──
-function renderProfissionais() {
-  const el = $('profGrid');
-  if (!el) return;
-  const vis = (state.profissionais || []).filter(p => p.status !== 'excluido');
-  if (!vis.length) {
-    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">👤</div><p>Nenhum profissional ainda.</p></div>';
-    return;
-  }
-  el.innerHTML = '';
-  vis.forEach(p => {
-    const ativo = p.status === 'ativo';
-    const card = document.createElement('div');
-    card.className = 'prof-card' + (ativo ? '' : ' inactive');
-    card.innerHTML = `
-      <div class="prof-av">${initial(p.nome)}</div>
-      <div class="prof-name">${p.nome}</div>
-      <div class="prof-esp">${p.especialidade || 'Profissional'}</div>
-      ${p.telefone ? `<div class="prof-phone">📱 ${p.telefone}</div>` : ''}
-      <div class="online-dot${ativo ? '' : ' off'}">${ativo ? 'Online' : 'Offline'}</div>`;
-    const menu = buildActionMenu(p.id, [
-      { icon: '✏️', label: 'Editar', action: () => editProfissional(p.id) },
-      { icon: '📋', label: 'Duplicar', action: () => duplicarProfissional(p.id) },
-      'sep',
-      ativo
-        ? { icon: '⏸', label: 'Desativar', cls: 'danger', action: () => toggleProfissional(p.id, 'inativo') }
-        : { icon: '▶️', label: 'Ativar', cls: 'success', action: () => toggleProfissional(p.id, 'ativo') },
-      { icon: '🗑', label: 'Excluir', cls: 'danger', action: () => excluirProfissional(p.id) }
-    ]);
-    card.appendChild(menu);
-    el.appendChild(card);
-  });
-}
-
-// ── FINANCEIRO ──
-function renderFinanceiro() {
-  const fin = (state.agendamentos || []).filter(isFinanceiro);
-  const total = fin.reduce((s, a) => s + Number(a.valor || 0), 0);
-  const ticket = fin.length ? total / fin.length : 0;
-  setText('finReceita', money(total).replace(',00', ''));
-  setText('finTicket', money(ticket).replace(',00', ''));
-  setText('finPagos', fin.length);
-  setText('finPlano', state.empresa?.plano || 'Grátis');
-}
-
-// ── CONFIG ──
-function renderConfig() {
-  const e = state.empresa || {};
-  const set = (id, v) => { const el = $(id); if (el) el.value = v || ''; };
-  set('cfgNome', e.nome);
-  set('cfgWhatsapp', e.whatsapp);
-  set('cfgSlug', e.slug);
-  set('cfgEndereco', e.endereco);
-  set('cfgCidade', e.cidade);
-  set('cfgInstagram', e.instagram);
-  set('cfgFacebook', e.facebook);
-  set('cfgTiktok', e.tiktok);
-  set('cfgSite', e.site);
-  const lb = $('cfgLinkBox');
-  if (lb) lb.textContent = '🔗 ' + publicUrl(e.slug || '');
-}
-
-// ── SALVAR ──
-async function salvarCliente() {
-  const nome = ($('cliNome')?.value || '').trim();
-  if (!nome) return toast('Digite o nome.', 'err');
-  const { error } = await db.from('agenda_clientes').insert({
-    empresa_id: state.empresa.id, nome,
-    telefone: ($('cliTel')?.value || '').trim(),
-    email: ($('cliEmail')?.value || '').trim(),
-    status: 'ativo'
-  });
-  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
-  if ($('cliNome')) $('cliNome').value = '';
-  if ($('cliTel')) $('cliTel').value = '';
-  if ($('cliEmail')) $('cliEmail').value = '';
-  await loadAll();
-  showNotif('Cliente adicionado', nome + ' salvo com sucesso.', 'ok');
-}
-
-async function salvarServico() {
-  const nome = ($('srvNome')?.value || '').trim();
-  if (!nome) return toast('Digite o nome.', 'err');
-  const { error } = await db.from('agenda_servicos').insert({
-    empresa_id: state.empresa.id, nome,
-    preco: Number($('srvPreco')?.value || 0),
-    duracao_minutos: Number($('srvDur')?.value || 60),
-    status: 'ativo'
-  });
-  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
-  if ($('srvNome')) $('srvNome').value = '';
-  if ($('srvPreco')) $('srvPreco').value = '';
-  if ($('srvDur')) $('srvDur').value = '';
-  await loadAll();
-  showNotif('Serviço adicionado', '', 'ok');
-}
-
-async function salvarProfissional() {
-  const nome = ($('proNome')?.value || '').trim();
-  if (!nome) return toast('Digite o nome.', 'err');
-  const { error } = await db.from('agenda_profissionais').insert({
-    empresa_id: state.empresa.id, nome,
-    especialidade: ($('proEsp')?.value || '').trim(),
-    telefone: ($('proTel')?.value || '').trim(),
-    status: 'ativo'
-  });
-  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
-  if ($('proNome')) $('proNome').value = '';
-  if ($('proEsp')) $('proEsp').value = '';
-  if ($('proTel')) $('proTel').value = '';
-  await loadAll();
-  showNotif('Profissional adicionado', '', 'ok');
-}
-
-async function salvarAgendamento() {
-  const agCli = $('agCliente')?.value?.trim();
-  const agSvc = $('agServico')?.value;
-  const agProf = $('agProfissional')?.value;
-  const agData = $('agData')?.value;
-  const agHora = $('agHora')?.value;
-  if (!agCli || !agSvc || !agProf || !agData || !agHora) {
-    return toast('Preencha todos os campos.', 'err');
-  }
-  const serv = (state.servicos || []).find(s => s.id === agSvc);
-  const prof = (state.profissionais || []).find(p => p.id === agProf);
-
-  let clienteId = null;
-  try {
-    const { data: cli } = await db.from('agenda_clientes').insert({
-      empresa_id: state.empresa.id,
-      nome: agCli,
-      telefone: ($('agTelefone')?.value || '').trim(),
-      status: 'ativo'
-    }).select('*').single();
-    if (cli) clienteId = cli.id;
-  } catch(e) {}
-
-  const { error } = await db.from('agenda_agendamentos').insert({
-    empresa_id: state.empresa.id,
-    cliente_id: clienteId,
-    servico_id: serv?.id || null,
-    profissional_id: prof?.id || null,
-    cliente_nome: agCli,
-    cliente_telefone: ($('agTelefone')?.value || '').trim(),
-    servico_nome: serv?.nome || '',
-    profissional_nome: prof?.nome || '',
-    data: agData,
-    hora: agHora,
-    status: $('agStatus')?.value || 'Pendente',
-    valor: Number(serv?.preco || 0)
-  });
-  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
-  if ($('agCliente')) $('agCliente').value = '';
-  if ($('agTelefone')) $('agTelefone').value = '';
-  if ($('agData')) $('agData').value = '';
-  if ($('agHora')) $('agHora').value = '';
-  await loadAll();
-  showNotif('Agendamento criado!', `${agCli} — ${formatDate(agData)} às ${agHora}.`, 'ok');
-}
-
-async function salvarConfig() {
-  if (!state?.empresa?.id) return;
-  const nome = ($('cfgNome')?.value || '').trim();
-  if (!nome) return toast('Digite o nome.', 'err');
-  const slugAtual = slugify(state.empresa.slug || '');
-  const slugNovo = slugify($('cfgSlug')?.value || slugAtual);
-  const updates = {
-    nome,
-    whatsapp: ($('cfgWhatsapp')?.value || '').trim(),
-    endereco: ($('cfgEndereco')?.value || '').trim(),
-    cidade: ($('cfgCidade')?.value || '').trim()
-  };
-  if (slugNovo !== slugAtual) {
-    const { data: slugExiste } = await db.from('agenda_empresas')
-      .select('id').eq('slug', slugNovo).neq('id', state.empresa.id).maybeSingle();
-    if (slugExiste) return toast('Esse link já está em uso.', 'err');
-    updates.slug = slugNovo;
-  }
-  const { data, error } = await db.from('agenda_empresas')
-    .update(updates).eq('id', state.empresa.id).select('*').single();
-  if (error) return toast('Erro ao salvar: ' + error.message, 'err');
-  state.empresa = data || { ...state.empresa, ...updates };
-  setText('sideNome', state.empresa.nome);
-  setText('sideAvatar', initial(state.empresa.nome));
-  const lb = $('sideLinkBox');
-  if (lb) lb.textContent = publicUrl(state.empresa.slug);
-  renderConfig();
-  showNotif('Configurações salvas', '', 'ok');
-}
-
-async function salvarRedesSociais() {
-  if (!state?.empresa?.id) return;
-  const updates = {
-    instagram: ($('cfgInstagram')?.value || '').trim(),
-    facebook: ($('cfgFacebook')?.value || '').trim(),
-    tiktok: ($('cfgTiktok')?.value || '').trim(),
-    site: ($('cfgSite')?.value || '').trim()
-  };
-  const { data, error } = await db.from('agenda_empresas')
-    .update(updates).eq('id', state.empresa.id).select('*').single();
-  if (error) return toast('Erro ao salvar redes: ' + error.message, 'err');
-  state.empresa = data || { ...state.empresa, ...updates };
-  showNotif('Redes sociais salvas', '', 'ok');
-}
-
-// ── AÇÕES AGENDAMENTO ──
-async function confirmarAg(id) {
-  const ag = (state.agendamentos || []).find(a => a.id === id);
-  if (!ag) return;
-  const { error } = await db.from('agenda_agendamentos').update({ status: 'Confirmado' }).eq('id', id);
-  if (error) return toast('Erro ao confirmar.', 'err');
-  ag.status = 'Confirmado';
-  renderAll();
-  showNotif('Confirmado!', ag.cliente_nome + ' — ' + formatDate(ag.data) + ' às ' + (ag.hora || '—'), 'ok');
-  const tel = (ag.cliente_telefone || '').replace(/\D/g, '');
-  if (tel) {
-    const msg = `Olá, ${ag.cliente_nome}! Seu agendamento foi confirmado ✅\nServiço: ${ag.servico_nome || '—'}\nData: ${formatDate(ag.data)} às ${ag.hora || '—'}\nAguardamos você!`;
-    const link = buildWaLink(tel, msg);
-    if (link) window.open(link, '_blank');
-  }
-}
-
-async function concluirAg(id) {
-  const ag = (state.agendamentos || []).find(a => a.id === id);
-  if (!ag) return;
-  const { error } = await db.from('agenda_agendamentos')
-    .update({ status: 'Concluído', financeiro_status: 'Concluído' }).eq('id', id);
-  if (error) return toast('Erro ao concluir.', 'err');
-  ag.status = 'Concluído'; ag.financeiro_status = 'Concluído';
-  renderAll();
-  showNotif('Concluído!', ag.cliente_nome + ' — ' + (ag.servico_nome || '—'), 'ok');
-}
-
-function abrirWA(id) {
-  const ag = (state.agendamentos || []).find(a => a.id === id);
-  if (!ag) return;
-  const tel = (ag.cliente_telefone || ag.telefone || '').replace(/\D/g, '');
-  if (!tel) return toast('Telefone não cadastrado.', 'err');
-  const msg = `Olá, ${ag.cliente_nome}! 👋\nServiço: ${ag.servico_nome || '—'}\nData: ${formatDate(ag.data)} às ${ag.hora || '—'}\nAté lá! 😊`;
-  const link = buildWaLink(tel, msg);
-  if (link) window.open(link, '_blank');
-}
-
-// ── MODAL RECUSA ──
-function openModalRecusa(id) {
-  const ag = (state.agendamentos || []).find(a => a.id === id);
-  if (!ag) return;
-  if (!podeTerAcoes(ag)) return toast('Este agendamento não permite recusa.', 'warn');
-  _recusaId = id; _recusaMotivo = null;
-  setText('recusaInfo', `${ag.cliente_nome} · ${formatDate(ag.data)} às ${ag.hora || '—'}`);
-  document.querySelectorAll('.motivo-item').forEach(el => {
-    el.classList.remove('sel');
-    const r = el.querySelector('.motivo-radio');
-    if (r) r.innerHTML = '';
-  });
-  const rmc = $('recusaMotivoCustom');
-  if (rmc) rmc.value = '';
-  const overlay = $('modalRecusaOverlay');
-  if (overlay) overlay.classList.add('open');
-}
-
-function closeModalRecusa() {
-  const overlay = $('modalRecusaOverlay');
-  if (overlay) overlay.classList.remove('open');
-  _recusaId = null; _recusaMotivo = null;
-}
-
-function selectMotivo(el, motivo) {
-  document.querySelectorAll('.motivo-item').forEach(o => {
-    o.classList.remove('sel');
-    const r = o.querySelector('.motivo-radio');
-    if (r) r.innerHTML = '';
-  });
-  el.classList.add('sel');
-  _recusaMotivo = motivo;
-}
-
-async function confirmarRecusa() {
-  if (!_recusaId) return;
-  const motivo = ($('recusaMotivoCustom')?.value || '').trim() || _recusaMotivo;
-  if (!motivo) return toast('Escolha um motivo.', 'err');
-  const ag = (state.agendamentos || []).find(a => a.id === _recusaId);
-  if (!ag) return;
-  const { error } = await db.from('agenda_agendamentos')
-    .update({ status: 'Recusado', observacoes: motivo }).eq('id', _recusaId);
-  if (error) return toast('Erro ao recusar.', 'err');
-  ag.status = 'Recusado';
-  closeModalRecusa();
-  renderAll();
-  showNotif('Recusado', ag.cliente_nome + ' — ' + motivo, 'info');
-  const tel = (ag.cliente_telefone || '').replace(/\D/g, '');
-  if (tel) {
-    const pubLink = state.empresa ? publicUrl(state.empresa.slug) : '';
-    const msg = `Olá, ${ag.cliente_nome}!\nInfelizmente não conseguimos confirmar seu agendamento para ${formatDate(ag.data)}.\nMotivo: ${motivo}\nEscolha outro horário: ${pubLink}`;
-    const link = buildWaLink(tel, msg);
-    if (link) window.open(link, '_blank');
-  }
-}
-
-// ── MODAL REAGENDAR ──
-function openModalReagendar(id) {
-  const ag = (state.agendamentos || []).find(a => a.id === id);
-  if (!ag) return;
-  if (!podeTerAcoes(ag)) return toast('Este agendamento não permite reagendamento.', 'warn');
-  _reagendarId = id;
-  setText('reagendarInfo', `${ag.cliente_nome} · ${formatDate(ag.data)} às ${ag.hora || '—'}`);
-  const rd = $('reagendarData'); if (rd) rd.value = ag.data || '';
-  const rh = $('reagendarHora'); if (rh) rh.value = ag.hora || '';
-  const overlay = $('modalReagendarOverlay');
-  if (overlay) overlay.classList.add('open');
-}
-
-function closeModalReagendar() {
-  const overlay = $('modalReagendarOverlay');
-  if (overlay) overlay.classList.remove('open');
-  _reagendarId = null;
-}
-
-async function confirmarReagendar() {
-  if (!_reagendarId) return;
-  const data = $('reagendarData')?.value;
-  const hora = $('reagendarHora')?.value;
-  if (!data || !hora) return toast('Escolha nova data e hora.', 'err');
-  const ag = (state.agendamentos || []).find(a => a.id === _reagendarId);
-  if (!ag) return;
-  const { error } = await db.from('agenda_agendamentos')
-    .update({ data, hora, status: 'Reagendado' }).eq('id', _reagendarId);
-  if (error) return toast('Erro ao reagendar.', 'err');
-  ag.data = data; ag.hora = hora; ag.status = 'Reagendado';
-  closeModalReagendar();
-  renderAll();
-  showNotif('Reagendado!', ag.cliente_nome + ' → ' + formatDate(data) + ' às ' + hora, 'ok');
-  const tel = (ag.cliente_telefone || '').replace(/\D/g, '');
-  if (tel) {
-    const msg = `Olá, ${ag.cliente_nome}!\nSeu agendamento foi reagendado 📅\nNova data: ${formatDate(data)} às ${hora}\nAguardamos você! 😊`;
-    const link = buildWaLink(tel, msg);
-    if (link) window.open(link, '_blank');
-  }
-}
-
-// ── CONFIRM MODAL ──
-function openConfirmModal({ icon = '⚠️', type = 'danger', title = 'Tem certeza?', body = 'Esta ação não pode ser desfeita.', btnLabel = 'Confirmar', cb }) {
-  const wrap = $('confirmIconWrap');
-  if (wrap) { wrap.className = 'confirm-icon-wrap ' + type; wrap.textContent = icon; }
-  setText('confirmTitle', title);
-  setText('confirmBody', body);
-  const btn = $('confirmActionBtn');
-  if (btn) {
-    btn.textContent = btnLabel;
-    btn.className = 'btn ' + (type === 'danger' ? 'btn-danger' : 'btn-primary');
-  }
-  _confirmCb = cb;
-  const overlay = $('confirmOverlay');
-  if (overlay) overlay.classList.add('open');
-}
-
-function closeConfirmModal() {
-  const overlay = $('confirmOverlay');
-  if (overlay) overlay.classList.remove('open');
-  _confirmCb = null;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  const confirmBtn = $('confirmActionBtn');
-  if (confirmBtn) {
-    confirmBtn.addEventListener('click', () => {
-      if (_confirmCb) _confirmCb();
-      closeConfirmModal();
-    });
+  .apt-actions .act-btn { justify-content: center; width: 100%; }
+  .muted-actions { display: flex; flex-wrap: wrap; }
+
+  /* FIX: botão ⋮ maior em mobile */
+  .action-menu-btn {
+    width: 38px !important; height: 38px !important;
+    font-size: 20px !important;
   }
 
-  const confirmOverlay = $('confirmOverlay');
-  if (confirmOverlay) {
-    confirmOverlay.addEventListener('click', e => {
-      if (e.target === confirmOverlay) closeConfirmModal();
-    });
+  .notif-stack { left: 10px; right: 10px; top: 10px; width: auto; }
+
+  .pub-wa-fab { bottom: 90px; padding: 14px; border-radius: 50%; width: 50px; height: 50px; justify-content: center; }
+  .pub-wa-fab span { display: none; }
+
+  .schedule-grid { grid-template-columns: repeat(4,1fr); }
+
+  /* FIX: select mostra texto completo em mobile */
+  .field select { padding-right: 8px; }
+}
+
+@media (max-width: 480px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .stats-grid-4,
+  .stats-grid-3,
+  .stats-grid-6,
+  .stats-grid-2 { grid-template-columns: 1fr 1fr !important; }
+  /* Em telas muito pequenas, ações em coluna */
+  .apt-actions { grid-template-columns: 1fr; }
+  .form-actions { grid-template-columns: 1fr; }
+  .hero-title { font-size: clamp(36px, 10vw, 48px); }
+}
+
+
+/* PATCH FINAL — TELA DE AGENDAMENTO / PÁGINA PÚBLICA */
+html, body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+#publicView {
+  min-height: 100vh !important;
+  width: 100% !important;
+  padding: 90px 18px 60px !important;
+  background: transparent !important;
+  color: var(--text) !important;
+}
+
+#publicView[style*="display: block"],
+#publicView.active {
+  display: block !important;
+}
+
+#publicView .public-shell,
+#publicView .public-wrap,
+#publicView .public-container {
+  width: min(980px, 100%) !important;
+  margin: 0 auto !important;
+}
+
+.public-head,
+.public-header,
+.pub-header {
+  width: min(860px, 100%) !important;
+  margin: 0 auto 22px !important;
+  padding: 22px !important;
+  border-radius: var(--radius-2xl) !important;
+  border: 1px solid var(--border) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.02)) !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.28) !important;
+}
+
+.public-card,
+.pub-card,
+#publicView .card,
+#publicView .panel,
+#publicView form,
+#publicView .form-card {
+  width: min(860px, 100%) !important;
+  margin: 16px auto !important;
+  padding: 22px !important;
+  border-radius: var(--radius-2xl) !important;
+  border: 1px solid var(--border) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.052), rgba(255,255,255,.02)) !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,.24) !important;
+  overflow: visible !important;
+}
+
+#publicView h1,
+#publicView h2 {
+  font-family: 'Instrument Serif', serif !important;
+  color: var(--text) !important;
+  line-height: 1.02 !important;
+}
+
+#publicView h1 {
+  font-size: clamp(42px, 8vw, 76px) !important;
+}
+
+#publicView h3 {
+  color: var(--text) !important;
+}
+
+#publicView p,
+#publicView small,
+#publicView label {
+  color: var(--text2) !important;
+}
+
+#publicView input,
+#publicView select,
+#publicView textarea,
+#publicView .date-input {
+  width: 100% !important;
+  min-height: 52px !important;
+  background: var(--bg2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border2) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 11px 13px !important;
+}
+
+#publicView button,
+#publicView .btn {
+  min-height: 44px;
+}
+
+#publicView .choice,
+#publicView .service-card,
+#publicView .professional-card,
+#publicView .pub-choice {
+  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-radius: var(--radius-xl) !important;
+}
+
+#publicView .choice.active,
+#publicView .selected,
+#publicView .active {
+  border-color: var(--accent-border) !important;
+  background: var(--accent4) !important;
+}
+
+@media (max-width: 768px) {
+  #publicView {
+    padding: 76px 14px 100px !important;
   }
 
-  const editOverlay = $('editOverlay');
-  if (editOverlay) {
-    editOverlay.addEventListener('click', e => {
-      if (e.target === editOverlay) closeEditModal();
-    });
+  .public-head,
+  .public-header,
+  .pub-header,
+  .public-card,
+  .pub-card,
+  #publicView .card,
+  #publicView .panel,
+  #publicView form,
+  #publicView .form-card {
+    padding: 18px !important;
+    border-radius: 22px !important;
   }
 
-  const modalRecusaOverlay = $('modalRecusaOverlay');
-  if (modalRecusaOverlay) {
-    modalRecusaOverlay.addEventListener('click', e => {
-      if (e.target === modalRecusaOverlay) closeModalRecusa();
-    });
-  }
-
-  const modalReagendarOverlay = $('modalReagendarOverlay');
-  if (modalReagendarOverlay) {
-    modalReagendarOverlay.addEventListener('click', e => {
-      if (e.target === modalReagendarOverlay) closeModalReagendar();
-    });
-  }
-});
-
-// ── EDIT MODAL ──
-function openEditModal(title, bodyHtml, saveCb) {
-  setText('editModalTitle', title);
-  const body = $('editModalBody');
-  if (body) body.innerHTML = bodyHtml;
-  _editSaveCb = saveCb;
-  const saveBtn = $('editSaveBtn');
-  if (saveBtn) saveBtn.onclick = () => { if (_editSaveCb) _editSaveCb(); };
-  const overlay = $('editOverlay');
-  if (overlay) overlay.classList.add('open');
-}
-
-function closeEditModal() {
-  const overlay = $('editOverlay');
-  if (overlay) overlay.classList.remove('open');
-  _editSaveCb = null;
-}
-
-// ── EDITAR ──
-function editServico(id) {
-  const s = (state.servicos || []).find(x => x.id === id);
-  if (!s) return;
-  openEditModal('Editar Serviço', `
-    <div class="form-gap">
-      <div class="field"><label>Nome</label><input id="ed_sn" value="${s.nome || ''}"></div>
-      <div class="field-row">
-        <div class="field"><label>Preço (R$)</label><input id="ed_sp" type="number" value="${s.preco || 0}"></div>
-        <div class="field"><label>Duração (min)</label><input id="ed_sd" type="number" value="${s.duracao_minutos || 60}"></div>
-      </div>
-    </div>`, async () => {
-    const nome = ($('ed_sn')?.value || '').trim();
-    if (!nome) return toast('Preencha o nome.', 'err');
-    const { error } = await db.from('agenda_servicos').update({
-      nome,
-      preco: Number($('ed_sp')?.value || 0),
-      duracao_minutos: Number($('ed_sd')?.value || 60)
-    }).eq('id', id);
-    if (error) return toast('Erro ao salvar.', 'err');
-    closeEditModal(); await loadAll();
-    showNotif('Serviço atualizado', '', 'ok');
-  });
-}
-
-function editProfissional(id) {
-  const p = (state.profissionais || []).find(x => x.id === id);
-  if (!p) return;
-  openEditModal('Editar Profissional', `
-    <div class="form-gap">
-      <div class="field"><label>Nome</label><input id="ed_pn" value="${p.nome || ''}"></div>
-      <div class="field"><label>Especialidade</label><input id="ed_pe" value="${p.especialidade || ''}"></div>
-      <div class="field"><label>Telefone</label><input id="ed_pt" value="${p.telefone || ''}"></div>
-    </div>`, async () => {
-    const nome = ($('ed_pn')?.value || '').trim();
-    if (!nome) return toast('Preencha o nome.', 'err');
-    const { error } = await db.from('agenda_profissionais').update({
-      nome,
-      especialidade: ($('ed_pe')?.value || '').trim(),
-      telefone: ($('ed_pt')?.value || '').trim()
-    }).eq('id', id);
-    if (error) return toast('Erro ao salvar.', 'err');
-    closeEditModal(); await loadAll();
-    showNotif('Profissional atualizado', '', 'ok');
-  });
-}
-
-function editCliente(id) {
-  const c = (state.clientes || []).find(x => x.id === id);
-  if (!c) return;
-  openEditModal('Editar Cliente', `
-    <div class="form-gap">
-      <div class="field"><label>Nome</label><input id="ed_cn" value="${c.nome || ''}"></div>
-      <div class="field"><label>Telefone</label><input id="ed_ct" value="${c.telefone || ''}"></div>
-      <div class="field"><label>E-mail</label><input id="ed_ce" value="${c.email || ''}"></div>
-    </div>`, async () => {
-    const nome = ($('ed_cn')?.value || '').trim();
-    if (!nome) return toast('Preencha o nome.', 'err');
-    const { error } = await db.from('agenda_clientes').update({
-      nome,
-      telefone: ($('ed_ct')?.value || '').trim(),
-      email: ($('ed_ce')?.value || '').trim()
-    }).eq('id', id);
-    if (error) return toast('Erro ao salvar.', 'err');
-    closeEditModal(); await loadAll();
-    showNotif('Cliente atualizado', '', 'ok');
-  });
-}
-
-function editAgendamento(id) {
-  const a = (state.agendamentos || []).find(x => x.id === id);
-  if (!a) return;
-  const svcopts = (state.servicos || []).filter(s => s.status === 'ativo')
-    .map(s => `<option value="${s.id}"${s.id === a.servico_id ? ' selected' : ''}>${s.nome}</option>`).join('');
-  const profopts = (state.profissionais || []).filter(p => p.status === 'ativo')
-    .map(p => `<option value="${p.id}"${p.id === a.profissional_id ? ' selected' : ''}>${p.nome}</option>`).join('');
-  openEditModal('Editar Agendamento', `
-    <div class="form-gap">
-      <div class="field-row">
-        <div class="field"><label>Cliente</label><input id="ed_ac" value="${a.cliente_nome || ''}"></div>
-        <div class="field"><label>Telefone</label><input id="ed_atel" value="${a.cliente_telefone || ''}"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Serviço</label><select id="ed_as">${svcopts}</select></div>
-        <div class="field"><label>Profissional</label><select id="ed_ap">${profopts}</select></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Data</label><input id="ed_ad" type="date" value="${a.data || ''}"></div>
-        <div class="field"><label>Hora</label><input id="ed_ah" type="time" value="${a.hora || ''}"></div>
-      </div>
-      <div class="field"><label>Status</label><select id="ed_ast">
-        <option${normStatus(a.status) === 'Confirmado' ? ' selected' : ''}>Confirmado</option>
-        <option${normStatus(a.status) === 'Pendente' ? ' selected' : ''}>Pendente</option>
-        <option${normStatus(a.status) === 'Reagendado' ? ' selected' : ''}>Reagendado</option>
-        <option${normStatus(a.status) === 'Concluído' ? ' selected' : ''}>Concluído</option>
-        <option${normStatus(a.status) === 'Recusado' ? ' selected' : ''}>Recusado</option>
-        <option${normStatus(a.status) === 'Excluído' ? ' selected' : ''}>Excluído</option>
-      </select></div>
-    </div>`, async () => {
-    const cli = ($('ed_ac')?.value || '').trim();
-    const data = $('ed_ad')?.value;
-    const hora = $('ed_ah')?.value;
-    if (!cli || !data || !hora) return toast('Preencha cliente, data e hora.', 'err');
-    const serv = (state.servicos || []).find(s => s.id === $('ed_as')?.value);
-    const prof = (state.profissionais || []).find(p => p.id === $('ed_ap')?.value);
-    const { error } = await db.from('agenda_agendamentos').update({
-      cliente_nome: cli,
-      cliente_telefone: ($('ed_atel')?.value || '').trim(),
-      servico_id: $('ed_as')?.value || null,
-      profissional_id: $('ed_ap')?.value || null,
-      servico_nome: serv?.nome || a.servico_nome,
-      profissional_nome: prof?.nome || a.profissional_nome,
-      data, hora,
-      status: $('ed_ast')?.value || 'Pendente',
-      valor: Number(serv?.preco || a.valor || 0)
-    }).eq('id', id);
-    if (error) return toast('Erro ao salvar.', 'err');
-    closeEditModal(); await loadAll();
-    showNotif('Agendamento atualizado', '', 'ok');
-  });
-}
-
-// ── DUPLICAR ──
-async function duplicarServico(id) {
-  const s = (state.servicos || []).find(x => x.id === id);
-  if (!s) return;
-  await db.from('agenda_servicos').insert({
-    empresa_id: state.empresa.id, nome: s.nome + ' (cópia)',
-    preco: s.preco, duracao_minutos: s.duracao_minutos, status: 'ativo'
-  });
-  await loadAll(); showNotif('Serviço duplicado', '', 'info');
-}
-
-async function duplicarProfissional(id) {
-  const p = (state.profissionais || []).find(x => x.id === id);
-  if (!p) return;
-  await db.from('agenda_profissionais').insert({
-    empresa_id: state.empresa.id, nome: p.nome + ' (cópia)',
-    especialidade: p.especialidade, telefone: p.telefone, status: 'ativo'
-  });
-  await loadAll(); showNotif('Profissional duplicado', '', 'info');
-}
-
-async function duplicarCliente(id) {
-  const c = (state.clientes || []).find(x => x.id === id);
-  if (!c) return;
-  await db.from('agenda_clientes').insert({
-    empresa_id: state.empresa.id, nome: c.nome + ' (cópia)',
-    telefone: c.telefone, email: c.email, status: 'ativo'
-  });
-  await loadAll(); showNotif('Cliente duplicado', '', 'info');
-}
-
-async function duplicarAgendamento(id) {
-  const a = (state.agendamentos || []).find(x => x.id === id);
-  if (!a) return;
-  await db.from('agenda_agendamentos').insert({
-    empresa_id: state.empresa.id,
-    cliente_id: a.cliente_id, servico_id: a.servico_id,
-    profissional_id: a.profissional_id,
-    cliente_nome: a.cliente_nome, cliente_telefone: a.cliente_telefone,
-    servico_nome: a.servico_nome, profissional_nome: a.profissional_nome,
-    data: a.data, hora: a.hora, status: 'Pendente', valor: a.valor
-  });
-  await loadAll(); showNotif('Agendamento duplicado como Pendente', '', 'info');
-}
-
-// ── TOGGLE ──
-function toggleServico(id, ns) {
-  const s = (state.servicos || []).find(x => x.id === id); if (!s) return;
-  openConfirmModal({
-    icon: ns === 'ativo' ? '▶️' : '⏸', type: ns === 'ativo' ? 'info' : 'danger',
-    title: ns === 'ativo' ? 'Ativar serviço?' : 'Desativar serviço?',
-    body: `"${s.nome}"`, btnLabel: ns === 'ativo' ? 'Ativar' : 'Desativar',
-    cb: async () => {
-      await db.from('agenda_servicos').update({ status: ns }).eq('id', id);
-      await loadAll();
-      showNotif(ns === 'ativo' ? 'Serviço ativado' : 'Serviço desativado', '', 'ok');
-    }
-  });
-}
-
-function toggleProfissional(id, ns) {
-  const p = (state.profissionais || []).find(x => x.id === id); if (!p) return;
-  openConfirmModal({
-    icon: ns === 'ativo' ? '▶️' : '⏸', type: ns === 'ativo' ? 'info' : 'danger',
-    title: ns === 'ativo' ? 'Ativar profissional?' : 'Desativar?',
-    body: `"${p.nome}"`, btnLabel: ns === 'ativo' ? 'Ativar' : 'Desativar',
-    cb: async () => {
-      await db.from('agenda_profissionais').update({ status: ns }).eq('id', id);
-      await loadAll();
-      showNotif(ns === 'ativo' ? 'Profissional ativado' : 'Profissional desativado', '', 'ok');
-    }
-  });
-}
-
-function toggleCliente(id, ativar) {
-  const c = (state.clientes || []).find(x => x.id === id); if (!c) return;
-  openConfirmModal({
-    icon: ativar ? '▶️' : '⏸', type: ativar ? 'info' : 'danger',
-    title: ativar ? 'Ativar cliente?' : 'Desativar?',
-    body: `"${c.nome}"`, btnLabel: ativar ? 'Ativar' : 'Desativar',
-    cb: async () => {
-      await db.from('agenda_clientes').update({ status: ativar ? 'ativo' : 'inativo' }).eq('id', id);
-      await loadAll();
-      showNotif(ativar ? 'Cliente ativado' : 'Cliente desativado', '', 'ok');
-    }
-  });
-}
-
-// ── EXCLUIR ──
-function excluirServico(id) {
-  const s = (state.servicos || []).find(x => x.id === id); if (!s) return;
-  openConfirmModal({
-    icon: '🗑', type: 'danger', title: 'Excluir serviço?', body: `"${s.nome}"`, btnLabel: 'Excluir',
-    cb: async () => {
-      await db.from('agenda_servicos').update({ status: 'excluido' }).eq('id', id);
-      await loadAll(); showNotif('Serviço excluído', '', 'info');
-    }
-  });
-}
-
-function excluirProfissional(id) {
-  const p = (state.profissionais || []).find(x => x.id === id); if (!p) return;
-  openConfirmModal({
-    icon: '🗑', type: 'danger', title: 'Excluir profissional?', body: `"${p.nome}"`, btnLabel: 'Excluir',
-    cb: async () => {
-      await db.from('agenda_profissionais').update({ status: 'excluido' }).eq('id', id);
-      await loadAll(); showNotif('Profissional excluído', '', 'info');
-    }
-  });
-}
-
-function excluirCliente(id) {
-  const c = (state.clientes || []).find(x => x.id === id); if (!c) return;
-  openConfirmModal({
-    icon: '🗑', type: 'danger', title: 'Excluir cliente?', body: `"${c.nome}"`, btnLabel: 'Excluir',
-    cb: async () => {
-      await db.from('agenda_clientes').update({ status: 'inativo' }).eq('id', id);
-      await loadAll(); showNotif('Cliente removido', '', 'info');
-    }
-  });
-}
-
-function excluirAgendamento(id) {
-  const a = (state.agendamentos || []).find(x => x.id === id); if (!a) return;
-  const jaFoi = normStatus(a.status) === 'Concluído' || a.financeiro_status === 'Concluído';
-  openConfirmModal({
-    icon: '🗑', type: 'danger',
-    title: jaFoi ? 'Arquivar agendamento?' : 'Excluir agendamento?',
-    body: `"${a.cliente_nome}" em ${formatDate(a.data)}.${jaFoi ? ' O faturamento será preservado.' : ''}`,
-    btnLabel: jaFoi ? 'Arquivar' : 'Excluir',
-    cb: async () => {
-      const payload = jaFoi
-        ? { status: 'Excluído', financeiro_status: 'Concluído' }
-        : { status: 'Excluído' };
-      const { error } = await db.from('agenda_agendamentos').update(payload).eq('id', id);
-      if (error) return toast('Erro ao excluir.', 'err');
-      await loadAll();
-      showNotif(jaFoi ? 'Agendamento arquivado' : 'Agendamento excluído', jaFoi ? 'Faturamento mantido.' : '', 'info');
-    }
-  });
-}
-
-// ── PUBLIC PAGE ──
-function copyPublicLink() {
-  if (!state?.empresa?.slug) return;
-  const link = publicUrl(state.empresa.slug);
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(link).catch(() => {});
-  }
-  showNotif('Link copiado!', link, 'ok', 3000);
-}
-
-function openPublic() {
-  if (!state?.empresa?.slug) return;
-  history.pushState(null, '', '#agendar/' + state.empresa.slug);
-  loadPublic(state.empresa.slug);
-}
-
-async function loadPublic(slug) {
-  const lv = $('landingView');
-  const dv = $('dashboardView');
-  const pv = $('publicView');
-  if (lv) lv.style.display = 'none';
-  if (dv) dv.style.display = 'none';
-  if (pv) pv.style.display = 'block';
-
-  const { data: empresa, error } = await db.from('agenda_empresas')
-    .select('*').eq('slug', slug).single();
-
-  if (error || !empresa) {
-    setText('pubNomeEmpresa', 'Agenda não encontrada');
-    setText('pubDescEmpresa', 'Verifique se o link está correto.');
-    return;
-  }
-
-  state.pubEmpresa = empresa;
-  setText('pubNomeEmpresa', empresa.nome);
-  setText('pubDescEmpresa', (empresa.area_atuacao || 'Agendamento Online') + ' • WhatsApp: ' + (empresa.whatsapp || 'Não informado'));
-
-  const sociais = $('pubSociais');
-  if (sociais) {
-    let html = '';
-    if (empresa.instagram) {
-      const h = empresa.instagram.replace('@', '').replace(/.*instagram\.com\//, '');
-      html += `<a href="https://instagram.com/${h}" target="_blank" rel="noopener" class="pub-social">📸 @${h}</a>`;
-    }
-    if (empresa.site) {
-      const url = empresa.site.startsWith('http') ? empresa.site : 'https://' + empresa.site;
-      const lbl = empresa.site.replace(/^https?:\/\//, '').replace(/\/$/, '');
-      html += `<a href="${url}" target="_blank" rel="noopener" class="pub-social">🌐 ${lbl}</a>`;
-    }
-    sociais.innerHTML = html;
-    sociais.style.display = html ? 'flex' : 'none';
-  }
-
-  const waFab = $('pubWaFab');
-  if (waFab) {
-    const tel = (empresa.whatsapp || '').replace(/\D/g, '');
-    if (tel) {
-      const f = tel.startsWith('55') ? tel : '55' + tel;
-      waFab.href = 'https://wa.me/' + f + '?text=' + encodeURIComponent('Olá, tenho uma dúvida antes de agendar.');
-      waFab.style.display = 'flex';
-    } else {
-      waFab.style.display = 'none';
-    }
-  }
-
-  const [svcs, profs] = await Promise.all([
-    db.from('agenda_servicos').select('*').eq('empresa_id', empresa.id).eq('status', 'ativo').order('nome'),
-    db.from('agenda_profissionais').select('*').eq('empresa_id', empresa.id).eq('status', 'ativo').order('nome')
-  ]);
-  state.servicos = svcs.data || [];
-  state.profissionais = profs.data || [];
-
-  const ps = $('pubServicos');
-  if (ps) {
-    ps.innerHTML = state.servicos.map(s => `
-      <div class="choice" onclick="selectPubSvc('${s.id}',this)">
-        <div class="choice-icon">✦</div>
-        <div style="flex:1;min-width:0"><div class="choice-title">${s.nome}</div><div class="choice-sub">${s.duracao_minutos || 60} min</div></div>
-        <div class="choice-price">${money(s.preco).replace(',00', '')}</div>
-      </div>`).join('') ||
-      '<div class="empty-state"><div class="es-icon">✦</div><p>Nenhum serviço disponível.</p></div>';
-  }
-
-  const pp = $('pubProfissionais');
-  if (pp) {
-    pp.innerHTML = state.profissionais.map(p => `
-      <div class="choice" onclick="selectPubProf('${p.id}',this)">
-        <div class="choice-icon">👤</div>
-        <div style="flex:1;min-width:0"><div class="choice-title">${p.nome}</div><div class="choice-sub">${p.especialidade || 'Profissional'}</div></div>
-      </div>`).join('') ||
-      '<div class="empty-state"><div class="es-icon">👤</div><p>Nenhum profissional disponível.</p></div>';
+  #publicView h1 {
+    font-size: 46px !important;
   }
 }
 
-function selectPubSvc(id, el) {
-  state.pubServico = (state.servicos || []).find(s => s.id === id);
-  document.querySelectorAll('#pubServicos .choice').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-}
-
-function selectPubProf(id, el) {
-  state.pubProfissional = (state.profissionais || []).find(p => p.id === id);
-  document.querySelectorAll('#pubProfissionais .choice').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-}
-
-async function confirmarAgendamentoPublico() {
-  const pubNome = $('pubClienteNome')?.value?.trim();
-  const pubTel = $('pubClienteTel')?.value?.trim();
-  const pubData = $('pubData')?.value;
-  const pubHora = $('pubHora')?.value;
-
-  if (!state.pubEmpresa || !state.pubServico || !state.pubProfissional || !pubNome || !pubTel || !pubData || !pubHora) {
-    return toast('Preencha tudo para confirmar.', 'err');
-  }
-
-  try {
-    let clienteId = null;
-    const { data: cli } = await db.from('agenda_clientes').insert({
-      empresa_id: state.pubEmpresa.id,
-      nome: pubNome,
-      telefone: pubTel,
-      status: 'ativo'
-    }).select('*').single();
-    if (cli) clienteId = cli.id;
-
-    const { error } = await db.from('agenda_agendamentos').insert({
-      empresa_id: state.pubEmpresa.id,
-      cliente_id: clienteId,
-      servico_id: state.pubServico.id,
-      profissional_id: state.pubProfissional.id,
-      cliente_nome: pubNome,
-      cliente_telefone: pubTel,
-      servico_nome: state.pubServico.nome,
-      profissional_nome: state.pubProfissional.nome,
-      data: pubData,
-      hora: pubHora,
-      status: 'Pendente',
-      valor: Number(state.pubServico.preco || 0),
-      observacoes: $('pubObs')?.value || ''
-    });
-
-    if (error) { console.error(error); return toast('Erro ao confirmar: ' + error.message, 'err'); }
-
-    const mb = $('pubMainBody');
-    const cs = $('pubConfirmScreen');
-    if (mb) mb.style.display = 'none';
-    if (cs) cs.style.display = 'block';
-  } catch (e) {
-    console.error('Erro ao confirmar agendamento público:', e);
-    toast('Erro inesperado. Tente novamente.', 'err');
-  }
-}
-
-function resetPublic() {
-  const mb = $('pubMainBody');
-  const cs = $('pubConfirmScreen');
-  if (mb) mb.style.display = 'flex';
-  if (cs) cs.style.display = 'none';
-  const campos = ['pubClienteNome', 'pubClienteTel', 'pubData', 'pubHora', 'pubObs'];
-  campos.forEach(id => { const el = $(id); if (el) el.value = ''; });
-  state.pubServico = null;
-  state.pubProfissional = null;
-  document.querySelectorAll('.choice').forEach(c => c.classList.remove('active'));
-}
-
-function voltarDaPublica() {
-  history.pushState(null, '', location.pathname);
-  const pv = $('publicView');
-  if (pv) pv.style.display = 'none';
-  if (state?.empresa) {
-    const dv = $('dashboardView');
-    if (dv) dv.style.display = 'block';
-    setView('dashboard');
-  } else {
-    const lv = $('landingView');
-    if (lv) lv.style.display = 'block';
-  }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ── EXPOSE GLOBALS ──
-Object.assign(window, {
-  openAuth, closeAuth, showLogin, showCadastro,
-  goStep1, goStep2, goStep3, autoSlug,
-  loginComSenha, finalizarCadastro, logout,
-  setView, setFilter,
-  salvarCliente, salvarServico, salvarProfissional, salvarAgendamento,
-  salvarConfig, salvarRedesSociais,
-  confirmarAg, concluirAg, abrirWA,
-  openModalRecusa, closeModalRecusa, selectMotivo, confirmarRecusa,
-  openModalReagendar, closeModalReagendar, confirmarReagendar,
-  editCliente, editServico, editProfissional, editAgendamento,
-  duplicarCliente, duplicarServico, duplicarProfissional, duplicarAgendamento,
-  toggleCliente, toggleServico, toggleProfissional,
-  excluirCliente, excluirServico, excluirProfissional, excluirAgendamento,
-  copyPublicLink, openPublic, voltarDaPublica,
-  selectPubSvc, selectPubProf, confirmarAgendamentoPublico, resetPublic,
-  closeEditModal, closeConfirmModal, closeModalRecusa, closeModalReagendar,
-  toast, clearNotifDot, loadPublic,
-  openMobileMenu, closeMobileMenu
-});
-
-
-
-/* PATCH FINAL — proteção da página pública */
-(function(){
-  function forcePublicIsolation(){
-    if(!location.hash || !location.hash.startsWith('#agendar/')) return;
-    const landing = document.getElementById('landingView');
-    const dashboard = document.getElementById('dashboardView');
-    const publicView = document.getElementById('publicView');
-    if(landing) landing.style.display = 'none';
-    if(dashboard) dashboard.style.display = 'none';
-    if(publicView) publicView.style.display = 'block';
-    document.body.classList.add('public-mode');
-  }
-  window.addEventListener('hashchange', forcePublicIsolation);
-  window.addEventListener('DOMContentLoaded', forcePublicIsolation);
-  setTimeout(forcePublicIsolation, 300);
-  setTimeout(forcePublicIsolation, 1000);
-})();
