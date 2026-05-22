@@ -13,10 +13,6 @@ const db = window.supabase.createClient(
   }
 );
 
-/* ═══════════════════════════════════════════════
-   AGENDAPRO — app.js CORRIGIDO COMPLETO
-═══════════════════════════════════════════════ */
-
 // ── STATE ──
 let state = {
   user: null, empresa: null, perfil: null,
@@ -58,8 +54,7 @@ function slugify(s) {
 
 function hojeISO() { return new Date().toISOString().slice(0, 10); }
 function mesPrefixo() { return new Date().toISOString().slice(0, 7); }
-function publicUrl(slug) { 
-return location.origin + location.pathname + 'agendar/' + slug + '/'; }
+function publicUrl(slug) { return location.origin + location.pathname + 'agendar/' + slug + '/'; }
 function initial(name) { return (name || '?').trim().substring(0, 1).toUpperCase(); }
 
 function formatDate(d) {
@@ -164,18 +159,14 @@ window.addEventListener('hashchange', () => {
 });
 
 // ── FECHAR MENUS AO CLICAR FORA ──
-// FIX: só fecha se o clique NÃO foi dentro do dropdown aberto
 document.addEventListener('click', function(e) {
   if (_openMenu) {
-    // Se clicou no próprio botão que abriu — o handler do btn já trata
     if (_openMenuBtn && _openMenuBtn.contains(e.target)) return;
-    // Se clicou dentro do dropdown — não fecha
     if (_openMenu.contains(e.target)) return;
     closeAllMenus();
   }
 });
 
-// Fecha menus ao rolar (evita dropdown desalinhado)
 document.addEventListener('scroll', closeAllMenus, { passive: true });
 
 // ── INIT ──
@@ -370,97 +361,77 @@ function openAuth(mode) {
 
 function closeAuth() {
   const overlay = $('authOverlay');
-
-  if (overlay) {
-    overlay.classList.remove('open');
-  }
-
+  if (overlay) overlay.classList.remove('open');
   document.body.style.overflow = '';
 }
 
+// ── FUNÇÃO CENTRAL: esconde todos os steps ──
 function resetCadastroSteps() {
-
-  const steps = ['step1', 'step2', 'step3'];
-
-  steps.forEach(id => {
-    const el = $(id);
-
+  ['step1', 'step2', 'step3'].forEach(function(id) {
+    var el = $(id);
     if (!el) return;
-
     el.style.display = 'none';
     el.classList.remove('active');
   });
 }
 
-function showLogin() {
-
-  const fl = $('formLogin');
-  const fc = $('formCadastro');
-
-  resetCadastroSteps();
-
-  if (fc) {
-    fc.style.display = 'none';
-  }
-
-  if (fl) {
-    fl.style.display = 'block';
-  }
-}
-
-function showCadastro() {
-
-  const fl = $('formLogin');
-  const fc = $('formCadastro');
-
-  if (fl) {
-    fl.style.display = 'none';
-  }
-
-  if (fc) {
-    fc.style.display = 'block';
-  }
-
-  resetCadastroSteps();
-
-  const s1 = $('step1');
-
-  if (s1) {
-    s1.style.display = 'block';
-    s1.classList.add('active');
-  }
-
-  setStep(1);
-
-  preencherSelectCategorias();
-}
-
+// ── ATUALIZA INDICADORES DE STEP ──
 function setStep(n) {
-
-  ['st1', 'st2', 'st3'].forEach((id, i) => {
-
-    const el = $(id);
-
+  ['st1', 'st2', 'st3'].forEach(function(id, i) {
+    var el = $(id);
     if (!el) return;
-
-    el.className =
-      'step-dot' +
-      (
-        i + 1 === n
-          ? ' active'
-          : i + 1 < n
-            ? ' done'
-            : ''
-      );
+    el.className = 'step-dot' + (i + 1 === n ? ' active' : i + 1 < n ? ' done' : '');
   });
 }
 
-function goStep1() {
+// ── MOSTRA FORMULÁRIO DE LOGIN ──
+function showLogin() {
+  var fl = $('formLogin');
+  var fc = $('formCadastro');
 
+  // Esconde cadastro e todos os steps primeiro
+  if (fc) fc.style.display = 'none';
   resetCadastroSteps();
 
-  const s1 = $('step1');
+  // Mostra login
+  if (fl) fl.style.display = 'block';
+}
 
+// ── MOSTRA FORMULÁRIO DE CADASTRO (sempre começa no step 1) ──
+function showCadastro() {
+  var fl = $('formLogin');
+  var fc = $('formCadastro');
+
+  // Esconde login
+  if (fl) fl.style.display = 'none';
+
+  // Garante que todos os steps estão ocultos antes de mostrar o 1
+  resetCadastroSteps();
+
+  // Mostra container do cadastro
+  if (fc) fc.style.display = 'block';
+
+  // Mostra apenas o step 1
+  var s1 = $('step1');
+  if (s1) {
+    s1.style.display = 'block';
+    s1.classList.add('active');
+  }
+
+  // Atualiza indicador
+  setStep(1);
+
+  // Preenche select de categorias
+  preencherSelectCategorias();
+}
+
+// ── NAVEGAÇÃO: voltar para step 1 ──
+function goStep1() {
+  // Esconde tudo
+  resetCadastroSteps();
+
+  // Mostra só step 1
+  var s1 = $('step1');
   if (s1) {
     s1.style.display = 'block';
     s1.classList.add('active');
@@ -469,94 +440,53 @@ function goStep1() {
   setStep(1);
 }
 
+// ── NAVEGAÇÃO: avançar para step 2 ──
 function goStep2() {
-
-  const nome = $('cadNome')?.value?.trim();
-  const email = $('cadEmail')?.value?.trim();
-  const senha = $('cadSenha')?.value?.trim();
+  var nome = $('cadNome') ? $('cadNome').value.trim() : '';
+  var email = $('cadEmail') ? $('cadEmail').value.trim() : '';
+  var senha = $('cadSenha') ? $('cadSenha').value.trim() : '';
 
   if (!nome || !email || !senha) {
     return toast('Preencha nome, e-mail e senha.', 'err');
   }
-
   if (senha.length < 6) {
     return toast('Senha mínimo 6 caracteres.', 'err');
   }
 
+  // Esconde tudo
   resetCadastroSteps();
 
-  const s2 = $('step2');
-
+  // Mostra só step 2
+  var s2 = $('step2');
   if (s2) {
     s2.style.display = 'block';
     s2.classList.add('active');
   }
 
   setStep(2);
-
   preencherSelectCategorias();
 }
 
+// ── NAVEGAÇÃO: avançar para step 3 ──
 function goStep3() {
-
-  const empNome = $('empNome')?.value?.trim();
-  const empSlug = $('empSlug')?.value?.trim();
-  const empWhatsapp = $('empWhatsapp')?.value?.trim();
+  var empNome = $('empNome') ? $('empNome').value.trim() : '';
+  var empSlug = $('empSlug') ? $('empSlug').value.trim() : '';
+  var empWhatsapp = $('empWhatsapp') ? $('empWhatsapp').value.trim() : '';
 
   if (!empNome || !empSlug || !empWhatsapp) {
     return toast('Preencha nome, link e WhatsApp.', 'err');
   }
 
+  // Esconde tudo
   resetCadastroSteps();
 
-  const s3 = $('step3');
-
+  // Mostra só step 3
+  var s3 = $('step3');
   if (s3) {
     s3.style.display = 'block';
     s3.classList.add('active');
   }
 
-  setStep(3);
-}
-
-function setStep(n) {
-  ['st1', 'st2', 'st3'].forEach((id, i) => {
-    const el = $(id);
-    if (!el) return;
-    el.className = 'step-dot' + (i + 1 === n ? ' active' : i + 1 < n ? ' done' : '');
-  });
-}
-
-function goStep2() {
-  const nome = $('cadNome')?.value?.trim();
-  const email = $('cadEmail')?.value?.trim();
-  const senha = $('cadSenha')?.value?.trim();
-  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
-  if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
-  const s1 = $('step1'), s2 = $('step2');
-  if (s1) s1.style.display = 'none';
-  if (s2) s2.style.display = 'block';
-  setStep(2);
-  preencherSelectCategorias();
-}
-
-function goStep1() {
-  const s1 = $('step1'), s2 = $('step2');
-  if (s2) s2.style.display = 'none';
-  if (s1) s1.style.display = 'block';
-  setStep(1);
-}
-
-function goStep3() {
-  const empNome = $('empNome')?.value?.trim();
-  const empSlug = $('empSlug')?.value?.trim();
-  const empWhatsapp = $('empWhatsapp')?.value?.trim();
-  if (!empNome || !empSlug || !empWhatsapp) {
-    return toast('Preencha nome, link e WhatsApp.', 'err');
-  }
-  const s2 = $('step2'), s3 = $('step3');
-  if (s2) s2.style.display = 'none';
-  if (s3) s3.style.display = 'block';
   setStep(3);
 }
 
@@ -1029,7 +959,6 @@ function renderTimeline() {
         </div>
       </div>`;
     const card = block.querySelector('.tl-card');
-    const cardTop = block.querySelector('.tl-card-top');
     const menu = buildActionMenu(a.id, [
       { icon: '✏️', label: 'Editar', action: () => editAgendamento(a.id) },
       { icon: '📋', label: 'Duplicar', action: () => duplicarAgendamento(a.id) },
@@ -1067,9 +996,7 @@ function renderAcoes(a) {
   </div>`;
 }
 
-// ── ACTION MENU — FIX COMPLETO ──
-// Usa position:fixed com coordenadas calculadas do getBoundingClientRect
-// para que o dropdown nunca seja cortado por qualquer overflow:hidden do pai
+// ── ACTION MENU ──
 function buildActionMenu(id, items) {
   const wrap = document.createElement('div');
   wrap.className = 'action-menu';
@@ -1097,7 +1024,6 @@ function buildActionMenu(id, items) {
       e.stopPropagation();
       e.preventDefault();
       closeAllMenus();
-      // Pequeno delay para garantir que o menu fechou antes da ação
       setTimeout(() => item.action(), 50);
     });
     drop.appendChild(el);
@@ -1114,28 +1040,22 @@ function buildActionMenu(id, items) {
 
     closeAllMenus();
 
-    // FIX CRÍTICO: posiciona o dropdown via fixed usando coordenadas reais do botão
     const rect = btn.getBoundingClientRect();
     const dropW = 200;
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
 
-    // Calcula posição: tenta abrir à direita do botão, alinhado pela direita
     let left = rect.right - dropW;
     let top = rect.bottom + 6;
 
-    // Se sair pela esquerda, abre pela esquerda do botão
     if (left < 8) left = rect.left;
-    // Se sair pela direita, recua
     if (left + dropW > viewportW - 8) left = viewportW - dropW - 8;
-    // Se sair por baixo, abre para cima
     if (top + 200 > viewportH - 8) top = rect.top - 210;
 
     drop.style.top = top + 'px';
     drop.style.left = left + 'px';
     drop.style.minWidth = dropW + 'px';
 
-    // Adiciona ao body para escapar de qualquer overflow:hidden
     document.body.appendChild(drop);
     drop.classList.add('open');
     _openMenu = drop;
@@ -1143,8 +1063,6 @@ function buildActionMenu(id, items) {
   });
 
   wrap.appendChild(btn);
-  // drop fica no body quando aberto, não dentro do wrap
-  // mas começa dentro para não poluir o DOM
   wrap.appendChild(drop);
   return wrap;
 }
@@ -1152,14 +1070,12 @@ function buildActionMenu(id, items) {
 function closeAllMenus() {
   if (_openMenu) {
     _openMenu.classList.remove('open');
-    // Remove do body se foi movido para lá
     if (_openMenu.parentElement === document.body) {
       document.body.removeChild(_openMenu);
     }
     _openMenu = null;
     _openMenuBtn = null;
   }
-  // Limpa qualquer dropdown órfão
   document.querySelectorAll('body > .action-dropdown').forEach(d => {
     d.classList.remove('open');
     if (d.parentElement === document.body) document.body.removeChild(d);
@@ -2125,18 +2041,16 @@ Object.assign(window, {
   openMobileMenu, closeMobileMenu
 });
 
-
-
-/* PATCH FINAL — proteção da página pública */
-(function(){
-  function forcePublicIsolation(){
-    if(!location.hash || !location.hash.startsWith('#agendar/')) return;
+// ── PATCH FINAL: proteção da página pública ──
+(function() {
+  function forcePublicIsolation() {
+    if (!location.hash || !location.hash.startsWith('#agendar/')) return;
     const landing = document.getElementById('landingView');
     const dashboard = document.getElementById('dashboardView');
     const publicView = document.getElementById('publicView');
-    if(landing) landing.style.display = 'none';
-    if(dashboard) dashboard.style.display = 'none';
-    if(publicView) publicView.style.display = 'block';
+    if (landing) landing.style.display = 'none';
+    if (dashboard) dashboard.style.display = 'none';
+    if (publicView) publicView.style.display = 'block';
     document.body.classList.add('public-mode');
   }
   window.addEventListener('hashchange', forcePublicIsolation);
