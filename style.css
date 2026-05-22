@@ -1419,375 +1419,136 @@ body.menu-open { overflow: hidden; touch-action: none; }
 }
 
 
-/* ═══════════════════════════════════════════════
-   PATCH FINAL SEGURO — SOMENTE AJUSTES PEDIDOS
-   - voltar do cadastro sem multiplicar telas
-   - agenda premium igual cards de clientes
-   - dropdown dos 3 pontinhos sem cortar
-   - datas/inputs mais premium sem quebrar lógica
-═══════════════════════════════════════════════ */
-
+/* PATCH FINAL — TELA DE AGENDAMENTO / PÁGINA PÚBLICA */
 html, body {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-}
-
-.auth-overlay,
-.auth-modal,
-.auth-form-area,
-#formCadastro,
-#formLogin,
-#step1,
-#step2,
-#step3 {
-  min-width: 0 !important;
-}
-
-#step1[style*="display: none"],
-#step2[style*="display: none"],
-#step3[style*="display: none"],
-#formLogin[style*="display: none"],
-#formCadastro[style*="display: none"] {
-  display: none !important;
-}
-
-/* Agenda em card cheio, sem quebrar em pedaços */
-#agendaTimeline {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)) !important;
-  gap: 16px !important;
-  align-items: start !important;
-  overflow: visible !important;
-}
-
-.tl-block.agenda-premium-block {
-  display: block !important;
-  position: relative !important;
-  min-width: 0 !important;
-  width: 100% !important;
-  overflow: visible !important;
-}
-
-.agenda-time-pill {
-  display: inline-flex !important;
-  width: auto !important;
-  min-width: 78px !important;
-  height: 34px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 0 8px 0 !important;
-  padding: 0 12px !important;
-  border-radius: 999px !important;
-  background: rgba(255,255,255,.045) !important;
-  border: 1px solid var(--border2) !important;
-  color: var(--text2) !important;
-  font-weight: 800 !important;
-  font-size: 12px !important;
-}
-
-.tl-line {
-  display: none !important;
-}
-
-.agenda-content,
-.tl-content {
-  width: 100% !important;
-  min-width: 0 !important;
-  overflow: visible !important;
-}
-
-.agenda-premium-card {
-  position: relative !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  padding: 18px 74px 18px 18px !important;
-  border-radius: 22px !important;
-  overflow: visible !important;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(99,102,241,.10), transparent 42%),
-    linear-gradient(145deg, rgba(255,255,255,.058), rgba(255,255,255,.023)) !important;
-  border: 1px solid var(--border2) !important;
-  box-shadow: 0 18px 55px rgba(0,0,0,.25) !important;
-}
-
-.agenda-main-row {
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 14px !important;
-  min-width: 0 !important;
-}
-
-.agenda-avatar,
-.apt-av.agenda-avatar {
-  width: 58px !important;
-  height: 58px !important;
-  min-width: 58px !important;
-  border-radius: 17px !important;
-  display: grid !important;
-  place-items: center !important;
-  background: var(--accent4) !important;
-  border: 1px solid var(--accent-border) !important;
-  color: var(--accent2) !important;
-  font-size: 22px !important;
-  font-weight: 900 !important;
-}
-
-.agenda-main-info {
-  flex: 1 !important;
-  min-width: 0 !important;
-}
-
-.agenda-title-line {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: space-between !important;
-  gap: 10px !important;
-  min-width: 0 !important;
-}
-
-.agenda-client-name {
-  min-width: 0 !important;
+  background: var(--bg) !important;
   color: var(--text) !important;
-  font-size: 20px !important;
-  line-height: 1.18 !important;
-  font-weight: 900 !important;
-  letter-spacing: -.01em !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-  word-break: normal !important;
 }
 
-.agenda-info-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-  margin-top: 14px !important;
-}
-
-.agenda-info-item {
-  min-width: 0 !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 14px !important;
-  background: rgba(255,255,255,.026) !important;
-  padding: 10px 11px !important;
-}
-
-.agenda-info-item span {
-  display: block !important;
-  margin-bottom: 3px !important;
-  color: var(--text3) !important;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-  text-transform: uppercase !important;
-  letter-spacing: .10em !important;
-}
-
-.agenda-info-item b {
-  display: block !important;
-  color: var(--text2) !important;
-  font-size: 13px !important;
-  line-height: 1.3 !important;
-  font-weight: 700 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-/* Ações da agenda */
-.apt-actions {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 9px !important;
-  margin-top: 16px !important;
+#publicView {
+  min-height: 100vh !important;
   width: 100% !important;
-}
-
-.act-btn {
-  width: 100% !important;
-  min-height: 40px !important;
-  border-radius: 13px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
-  font-weight: 800 !important;
-  overflow: hidden !important;
-}
-
-.act-btn.whatsapp {
-  grid-column: 1 / -1 !important;
-}
-
-/* Dropdown dos 3 pontinhos */
-.action-menu {
-  position: absolute !important;
-  top: 16px !important;
-  right: 16px !important;
-  z-index: 200 !important;
-}
-
-.action-menu-btn {
-  width: 46px !important;
-  height: 46px !important;
-  min-width: 46px !important;
-  min-height: 46px !important;
-  border-radius: 15px !important;
-  display: grid !important;
-  place-items: center !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-  border: 1px solid var(--border2) !important;
-  background: rgba(255,255,255,.06) !important;
-  color: var(--accent2) !important;
-  font-size: 24px !important;
-  font-weight: 900 !important;
-  box-shadow: 0 14px 34px rgba(0,0,0,.28) !important;
-}
-
-.action-dropdown {
-  display: none;
-  z-index: 999999 !important;
-  padding: 8px !important;
-  border-radius: 18px !important;
-  background: rgba(14,14,18,.985) !important;
-  border: 1px solid var(--border2) !important;
-  box-shadow: 0 28px 80px rgba(0,0,0,.78) !important;
-  backdrop-filter: blur(18px) !important;
-  -webkit-backdrop-filter: blur(18px) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-.action-dropdown.open {
-  display: block !important;
-}
-
-.action-item {
-  width: 100% !important;
-  min-height: 42px !important;
-  border: 0 !important;
-  border-radius: 12px !important;
+  padding: 90px 18px 60px !important;
   background: transparent !important;
   color: var(--text) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  padding: 10px 12px !important;
-  text-align: left !important;
-  font-weight: 800 !important;
 }
 
-.action-item:hover {
-  background: rgba(99,102,241,.14) !important;
+#publicView[style*="display: block"],
+#publicView.active {
+  display: block !important;
 }
 
-.action-item.danger {
-  color: #fb7185 !important;
+#publicView .public-shell,
+#publicView .public-wrap,
+#publicView .public-container {
+  width: min(980px, 100%) !important;
+  margin: 0 auto !important;
 }
 
-.action-sep {
-  height: 1px !important;
-  background: var(--border) !important;
-  margin: 7px 2px !important;
+.public-head,
+.public-header,
+.pub-header {
+  width: min(860px, 100%) !important;
+  margin: 0 auto 22px !important;
+  padding: 22px !important;
+  border-radius: var(--radius-2xl) !important;
+  border: 1px solid var(--border) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.02)) !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.28) !important;
 }
 
-/* Inputs de data e hora mais premium usando input nativo */
-input[type="date"],
-input[type="time"] {
-  color-scheme: dark !important;
-  min-height: 46px !important;
-  border-radius: var(--radius) !important;
-  background:
-    linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.025)),
-    var(--bg2) !important;
-  border: 1px solid var(--border2) !important;
-  color: var(--text) !important;
-  font-weight: 800 !important;
-  letter-spacing: .02em !important;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) opacity(.75) !important;
-  cursor: pointer !important;
-}
-
-/* Evita qualquer card cortar menu */
-.client-card,
-.svc-card,
-.prof-card,
-.tl-card,
-.tl-block,
-.dash-card,
-.card,
-.panel {
+.public-card,
+.pub-card,
+#publicView .card,
+#publicView .panel,
+#publicView form,
+#publicView .form-card {
+  width: min(860px, 100%) !important;
+  margin: 16px auto !important;
+  padding: 22px !important;
+  border-radius: var(--radius-2xl) !important;
+  border: 1px solid var(--border) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.052), rgba(255,255,255,.02)) !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,.24) !important;
   overflow: visible !important;
 }
 
-/* Mobile */
+#publicView h1,
+#publicView h2 {
+  font-family: 'Instrument Serif', serif !important;
+  color: var(--text) !important;
+  line-height: 1.02 !important;
+}
+
+#publicView h1 {
+  font-size: clamp(42px, 8vw, 76px) !important;
+}
+
+#publicView h3 {
+  color: var(--text) !important;
+}
+
+#publicView p,
+#publicView small,
+#publicView label {
+  color: var(--text2) !important;
+}
+
+#publicView input,
+#publicView select,
+#publicView textarea,
+#publicView .date-input {
+  width: 100% !important;
+  min-height: 52px !important;
+  background: var(--bg2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border2) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 11px 13px !important;
+}
+
+#publicView button,
+#publicView .btn {
+  min-height: 44px;
+}
+
+#publicView .choice,
+#publicView .service-card,
+#publicView .professional-card,
+#publicView .pub-choice {
+  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-radius: var(--radius-xl) !important;
+}
+
+#publicView .choice.active,
+#publicView .selected,
+#publicView .active {
+  border-color: var(--accent-border) !important;
+  background: var(--accent4) !important;
+}
+
 @media (max-width: 768px) {
-  #agendaTimeline {
-    grid-template-columns: 1fr !important;
+  #publicView {
+    padding: 76px 14px 100px !important;
   }
 
-  .agenda-premium-card {
-    padding: 16px 62px 16px 16px !important;
+  .public-head,
+  .public-header,
+  .pub-header,
+  .public-card,
+  .pub-card,
+  #publicView .card,
+  #publicView .panel,
+  #publicView form,
+  #publicView .form-card {
+    padding: 18px !important;
+    border-radius: 22px !important;
   }
 
-  .agenda-main-row {
-    gap: 11px !important;
-  }
-
-  .agenda-avatar,
-  .apt-av.agenda-avatar {
-    width: 48px !important;
-    height: 48px !important;
-    min-width: 48px !important;
-    border-radius: 14px !important;
-    font-size: 18px !important;
-  }
-
-  .agenda-title-line {
-    display: block !important;
-  }
-
-  .agenda-title-line .badge {
-    margin-top: 8px !important;
-  }
-
-  .agenda-client-name {
-    font-size: 16px !important;
-  }
-
-  .agenda-info-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-  }
-
-  .apt-actions {
-    grid-template-columns: 1fr !important;
-  }
-
-  .act-btn.whatsapp {
-    grid-column: auto !important;
-  }
-
-  .action-menu {
-    top: 14px !important;
-    right: 14px !important;
-  }
-
-  .action-menu-btn {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
-    min-height: 42px !important;
-  }
-
-  .auth-modal {
-    max-height: calc(100dvh - 24px) !important;
-    overflow-y: auto !important;
+  #publicView h1 {
+    font-size: 46px !important;
   }
 }
 
