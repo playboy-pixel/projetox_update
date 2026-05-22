@@ -1,824 +1,742 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgendaPro — Plataforma Premium de Agendamentos</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>AgendaPro — Sistema de Agendamento</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<!-- ============================
-     TOAST CONTAINER
-============================= -->
-<div id="toastContainer"></div>
+<div class="bg-noise"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow-tl"></div>
+<div class="bg-glow-br"></div>
 
-<!-- ============================
-     SIDEBAR OVERLAY (mobile)
-============================= -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-
-<!-- ============================
-     LOGIN PAGE
-============================= -->
-<div id="loginPage">
-  <div class="login-bg-grid"></div>
-  <div class="login-container">
-    <div class="login-logo">
-      <div class="login-logo-icon">📅</div>
-      <div class="login-brand-name">AgendaPro</div>
-      <div class="login-brand-tagline">Plataforma Premium de Agendamentos</div>
+<div id="landingView">
+  <nav class="land-nav" id="landNav">
+    <div class="nav-brand" onclick="window.scrollTo(0,0)">
+      <div class="nav-dot">✦</div>
+      AgendaPro
     </div>
-    <div class="login-card">
-      <div class="login-title">Bem-vindo de volta</div>
-      <div class="login-subtitle">Entre com suas credenciais para acessar o painel</div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="document.getElementById('sec-como').scrollIntoView({behavior:'smooth'})">Como funciona</button>
+      <button class="nav-link" onclick="document.getElementById('sec-features').scrollIntoView({behavior:'smooth'})">Funcionalidades</button>
+      <button class="nav-link" onclick="document.getElementById('sec-depo').scrollIntoView({behavior:'smooth'})">Depoimentos</button>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Entrar</button>
+      <button class="btn btn-primary btn-sm" onclick="openAuth('register')">Criar conta →</button>
+    </div>
+  </nav>
 
-      <div class="form-group">
-        <label class="form-label">E-mail</label>
-        <div class="input-icon-wrap">
-          <span class="input-icon">✉️</span>
-          <input id="loginEmail" type="email" class="form-input" placeholder="seu@email.com" />
+  <section class="land-hero">
+    <div class="hero-eyebrow"><span class="live-dot"></span> Plataforma de Agendamento Premium</div>
+    <h1 class="hero-title">
+      Sua agenda online,<br><em>organizada e elegante.</em>
+    </h1>
+    <p class="hero-sub">Receba agendamentos, gerencie equipe, clientes e faturamento — tudo em um painel profissional.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-lg" onclick="openAuth('register')">✦ Criar minha agenda grátis</button>
+      <button class="btn btn-ghost btn-lg" onclick="document.getElementById('sec-como').scrollIntoView({behavior:'smooth'})">Ver como funciona →</button>
+    </div>
+    <div class="hero-trust">
+      <span>★★★★★ 4.9/5</span>
+      <span class="trust-sep"></span>
+      <span>+2.400 profissionais</span>
+      <span class="trust-sep"></span>
+      <span>Pronto em 3 minutos</span>
+      <span class="trust-sep"></span>
+      <span>Grátis para começar</span>
+    </div>
+  </section>
+
+  <div class="hero-mockup">
+    <div class="mockup-glow"></div>
+    <div class="mockup-window">
+      <div class="mockup-bar">
+        <div class="mockup-dots">
+          <div class="mockup-dot r"></div>
+          <div class="mockup-dot y"></div>
+          <div class="mockup-dot g"></div>
+        </div>
+        <div class="mockup-bar-title">AgendaPro — Dashboard</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-sidebar">
+          <div class="ms-label">Gestão</div>
+          <div class="ms-item active"><div class="ms-icon">📊</div>Dashboard</div>
+          <div class="ms-item"><div class="ms-icon">📅</div>Agenda</div>
+          <div class="ms-item"><div class="ms-icon">👥</div>Clientes</div>
+          <div class="ms-item"><div class="ms-icon">✦</div>Serviços</div>
+          <div class="ms-label" style="margin-top:8px">Financeiro</div>
+          <div class="ms-item"><div class="ms-icon">💰</div>Financeiro</div>
+          <div class="ms-item"><div class="ms-icon">⚙</div>Config</div>
+        </div>
+        <div class="mockup-content">
+          <div class="mc-stats">
+            <div class="mc-stat"><div class="mc-sl">Hoje</div><div class="mc-sv">18</div><div class="mc-sg">↑ 12%</div></div>
+            <div class="mc-stat"><div class="mc-sl">Clientes</div><div class="mc-sv">248</div><div class="mc-sg">↑ 24 novos</div></div>
+            <div class="mc-stat"><div class="mc-sl">Receita</div><div class="mc-sv">R$4.2k</div><div class="mc-sg">↑ 18%</div></div>
+            <div class="mc-stat"><div class="mc-sl">Serviços</div><div class="mc-sv">7</div><div class="mc-sg">Ativos</div></div>
+          </div>
+          <div class="mc-list-title">Próximos agendamentos</div>
+          <div class="mc-rows">
+            <div class="mc-row"><div class="mc-av">A</div><div><div class="mc-name">Ana Caroline</div><div class="mc-meta">Gel · 09:00</div></div><span class="badge badge-green" style="margin-left:auto;font-size:9.5px">Confirmado</span></div>
+            <div class="mc-row"><div class="mc-av">J</div><div><div class="mc-name">Juliana Dias</div><div class="mc-meta">Sobrancelha · 10:30</div></div><span class="badge badge-yellow" style="margin-left:auto;font-size:9.5px">Pendente</span></div>
+            <div class="mc-row"><div class="mc-av">M</div><div><div class="mc-name">Mariana Lima</div><div class="mc-meta">Pedicure · 13:00</div></div><span class="badge badge-green" style="margin-left:auto;font-size:9.5px">Confirmado</span></div>
+          </div>
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Senha</label>
-        <div class="input-icon-wrap">
-          <span class="input-icon">🔒</span>
-          <input id="loginPassword" type="password" class="form-input" placeholder="••••••••" />
-        </div>
-      </div>
-
-      <div class="remember-row">
-        <label class="checkbox-wrap">
-          <input type="checkbox" id="rememberMe" />
-          <span class="checkbox-label">Lembrar de mim</span>
-        </label>
-        <a href="#" class="forgot-link">Esqueceu a senha?</a>
-      </div>
-
-      <button class="btn-primary" onclick="doLogin()">
-        <span id="loginBtnText">Entrar no Painel</span>
-      </button>
-
-      <div class="login-divider">ou</div>
-
-      <button class="btn-primary" style="background: linear-gradient(135deg, #1a1a2e, #0f0f1a); border: 1px solid rgba(139,92,246,0.3);" onclick="viewPublicPage()">
-        🌐 Ver Página de Agendamento
-      </button>
     </div>
   </div>
+
+  <section class="land-section" id="sec-como">
+    <div class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">✦ Como funciona</div>
+        <h2 class="section-title">Comece a receber agendamentos <em>em minutos.</em></h2>
+        <p class="section-sub">Sem complicação. Sem mensalidade obrigatória. Tudo online.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-icon">🏢</div>
+          <div class="step-title">Crie sua conta e configure seu negócio</div>
+          <p class="step-desc">Preencha nome, área e link personalizado. Em 3 minutos seu painel está pronto.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-icon">✦</div>
+          <div class="step-title">Cadastre serviços, profissionais e horários</div>
+          <p class="step-desc">Adicione catálogo com preços, duração e profissionais responsáveis.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-icon">🔗</div>
+          <div class="step-title">Compartilhe seu link e receba agendamentos</div>
+          <p class="step-desc">Link exclusivo no WhatsApp, stories e bio. Clientes agendam sozinhos, 24h.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-section" id="sec-features" style="padding-top:40px">
+    <div class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">✦ Funcionalidades</div>
+        <h2 class="section-title">Tudo que você precisa para <em>crescer.</em></h2>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card"><div class="feat-icon">📅</div><div class="feat-title">Agenda online</div><p class="feat-desc">Painel completo por data e profissional.</p></div>
+        <div class="feat-card"><div class="feat-icon">🔗</div><div class="feat-title">Link exclusivo</div><p class="feat-desc">Compartilhe onde quiser, sem app.</p></div>
+        <div class="feat-card"><div class="feat-icon">👥</div><div class="feat-title">Gestão de clientes</div><p class="feat-desc">Histórico, total gasto e contatos.</p></div>
+        <div class="feat-card"><div class="feat-icon">✦</div><div class="feat-title">Catálogo de serviços</div><p class="feat-desc">Preços, duração e profissionais.</p></div>
+        <div class="feat-card"><div class="feat-icon">📊</div><div class="feat-title">Dashboard em tempo real</div><p class="feat-desc">Métricas completas e precisas.</p></div>
+        <div class="feat-card"><div class="feat-icon">💰</div><div class="feat-title">Controle financeiro</div><p class="feat-desc">Receita, ticket médio e histórico.</p></div>
+        <div class="feat-card"><div class="feat-icon">📱</div><div class="feat-title">WhatsApp integrado</div><p class="feat-desc">Confirme agendamentos em segundos.</p></div>
+        <div class="feat-card"><div class="feat-icon">🌐</div><div class="feat-title">Página pública</div><p class="feat-desc">Página elegante de auto-agendamento.</p></div>
+        <div class="feat-card"><div class="feat-icon">🔔</div><div class="feat-title">Notificações em tempo real</div><p class="feat-desc">Alertas instantâneos de novos pedidos.</p></div>
+        <div class="feat-card"><div class="feat-icon">📲</div><div class="feat-title">100% mobile</div><p class="feat-desc">Funciona perfeitamente no celular.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-section" style="padding-top:40px">
+    <div class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">✦ Para quem é</div>
+        <h2 class="section-title">Para todo profissional que <em>trabalha com hora marcada.</em></h2>
+      </div>
+      <div class="segs-wrap">
+        <div class="seg-pill">💅 Nail Designer</div>
+        <div class="seg-pill">✂️ Barbearia</div>
+        <div class="seg-pill">💇 Salão de Beleza</div>
+        <div class="seg-pill">🧖 Estética</div>
+        <div class="seg-pill">🏥 Clínica de Saúde</div>
+        <div class="seg-pill">🏋️ Personal Trainer</div>
+        <div class="seg-pill">🎨 Tatuador</div>
+        <div class="seg-pill">💆 Massoterapia</div>
+        <div class="seg-pill">🦷 Odontologia</div>
+        <div class="seg-pill">👁️ Sobrancelha &amp; Cílios</div>
+        <div class="seg-pill">🧘 Yoga &amp; Pilates</div>
+        <div class="seg-pill">💼 Consultor</div>
+        <div class="seg-pill">📸 Fotógrafo</div>
+        <div class="seg-pill">🐾 Pet Shop</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-section" id="sec-depo" style="padding-top:40px">
+    <div class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">✦ Depoimentos</div>
+        <h2 class="section-title">O que nossos clientes <em>dizem.</em></h2>
+      </div>
+      <div class="test-grid">
+        <div class="test-card">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Antes anotava tudo no WhatsApp e me perdia toda semana. Agora minhas clientes agendam sozinhas e minha agenda fica organizada.</p>
+          <div class="test-author"><div class="test-av">C</div><div><div class="test-name">Camila Ferreira</div><div class="test-role">Nail Designer · Manaus, AM</div></div></div>
+        </div>
+        <div class="test-card">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">O sistema passa uma imagem muito mais profissional. Parece que minha barbearia ficou maior do dia para a noite. Recomendo demais.</p>
+          <div class="test-author"><div class="test-av">R</div><div><div class="test-name">Rafael Costa</div><div class="test-role">Barbearia Black · Fortaleza, CE</div></div></div>
+        </div>
+        <div class="test-card">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">A página de agendamento ficou linda. Minhas clientes elogiaram muito a facilidade. Deixei de perder horários por falta de confirmação.</p>
+          <div class="test-author"><div class="test-av">J</div><div><div class="test-name">Juliana Lima</div><div class="test-role">Estética Premium · São Paulo, SP</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-cta">
+    <div class="cta-inner">
+      <div class="section-tag" style="display:inline-flex;margin:0 auto 20px">✦ Comece agora</div>
+      <h2 class="cta-title">Sua agenda profissional<br>começa <em>agora.</em></h2>
+      <p class="cta-sub">Crie sua conta em menos de 3 minutos e receba seu link exclusivo na hora.</p>
+      <div class="cta-actions">
+        <button class="btn btn-primary btn-lg" onclick="openAuth('register')">✦ Criar minha agenda grátis</button>
+        <button class="btn btn-ghost btn-lg" onclick="openAuth('login')">Já tenho uma conta</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="land-footer">
+    <div class="nav-brand"><div class="nav-dot" style="width:24px;height:24px;font-size:10px">✦</div>AgendaPro</div>
+    <div>© 2025 AgendaPro · Plataforma de Agendamento</div>
+    <div style="color:var(--text4)">Feito com ❤️ para profissionais brasileiros</div>
+  </footer>
 </div>
 
-<!-- ============================
-     PUBLIC BOOKING PAGE
-============================= -->
-<div id="publicPage" class="hidden">
-  <div class="pub-hero">
-    <div class="pub-logo">
-      <div class="pub-logo-icon">📅</div>
-      <div class="pub-logo-name">AgendaPro</div>
-    </div>
-    <h1 class="pub-title">Agende seu <span>horário</span></h1>
-    <p class="pub-desc">Escolha o serviço, profissional e horário de sua preferência de forma simples e rápida.</p>
-  </div>
-
-  <div class="pub-body">
-
-    <!-- Step 1: Service -->
-    <div class="pub-section">
-      <div class="pub-section-title">
-        <div class="pub-section-num">1</div>
-        Escolha o Serviço
-      </div>
-      <div id="pubServicos" class="pub-services-grid">
-        <div class="flex-center" style="grid-column: 1/-1; padding: 40px;">
-          <div class="loading-spinner"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 2: Professional -->
-    <div class="pub-section" id="pubStepProfissional" style="display:none;">
-      <div class="pub-section-title">
-        <div class="pub-section-num">2</div>
-        Escolha o Profissional
-      </div>
-      <div id="pubProfissionais" class="pub-services-grid"></div>
-    </div>
-
-    <!-- Step 3: Date & Time -->
-    <div class="pub-section" id="pubStepData" style="display:none;">
-      <div class="pub-section-title">
-        <div class="pub-section-num">3</div>
-        Data e Horário
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-        <div class="calendar-wrap">
-          <div class="calendar-header-row">
-            <button class="cal-nav-btn" onclick="pubCalPrev()">‹</button>
-            <span class="calendar-month-title" id="pubCalTitle"></span>
-            <button class="cal-nav-btn" onclick="pubCalNext()">›</button>
-          </div>
-          <div class="calendar-grid" id="pubCalendarGrid"></div>
-        </div>
-        <div>
-          <div style="margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted);">Horários Disponíveis</div>
-          <div id="pubTimeSlots" class="pub-time-grid"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 4: Client Info -->
-    <div class="pub-section" id="pubStepCliente" style="display:none;">
-      <div class="pub-section-title">
-        <div class="pub-section-num">4</div>
-        Seus Dados
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="input-row mb-16">
-            <div class="form-group">
-              <label class="form-label">Nome completo</label>
-              <input id="agCliente" type="text" class="form-input" placeholder="Seu nome" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Telefone / WhatsApp</label>
-              <input id="agTelefone" type="tel" class="form-input" placeholder="(00) 00000-0000" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">E-mail (opcional)</label>
-            <input id="agEmail" type="email" class="form-input" placeholder="seu@email.com" />
-          </div>
-          <div class="form-group mt-16">
-            <label class="form-label">Observações</label>
-            <textarea id="agObs" class="form-textarea" placeholder="Alguma observação para o profissional..."></textarea>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- Summary -->
-          <div id="agendaSummary" style="margin-bottom:20px;"></div>
-
-          <button class="btn btn-purple w-full" style="justify-content:center; padding:16px;" onclick="confirmarAgendamento()">
-            ✅ Confirmar Agendamento
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div style="text-align:center; padding: 24px; border-top: 1px solid var(--border); margin-top: 40px;">
-    <button class="btn btn-outline" onclick="backToLogin()">← Área do Profissional</button>
-  </div>
-</div>
-
-<!-- ============================
-     APP LAYOUT (Dashboard)
-============================= -->
-<div id="appLayout" class="hidden">
-
-  <!-- SIDEBAR -->
-  <aside id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo-icon">📅</div>
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-panel-left">
       <div>
-        <div class="sidebar-brand">AgendaPro</div>
-        <div class="sidebar-brand-sub">Premium</div>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-section-title">Principal</div>
-
-      <button class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
-        <span class="nav-icon">🏠</span> Dashboard
-      </button>
-      <button class="nav-item" id="nav-agenda" onclick="navigate('agenda')">
-        <span class="nav-icon">📅</span> Agenda
-        <span class="nav-badge" id="agendaBadge">0</span>
-      </button>
-      <button class="nav-item" id="nav-calendario" onclick="navigate('calendario')">
-        <span class="nav-icon">🗓️</span> Calendário
-      </button>
-
-      <div class="nav-section-title">Cadastros</div>
-
-      <button class="nav-item" id="nav-clientes" onclick="navigate('clientes')">
-        <span class="nav-icon">👥</span> Clientes
-      </button>
-      <button class="nav-item" id="nav-servicos" onclick="navigate('servicos')">
-        <span class="nav-icon">⚡</span> Serviços
-      </button>
-      <button class="nav-item" id="nav-profissionais" onclick="navigate('profissionais')">
-        <span class="nav-icon">👤</span> Profissionais
-      </button>
-
-      <div class="nav-section-title">Financeiro</div>
-
-      <button class="nav-item" id="nav-financeiro" onclick="navigate('financeiro')">
-        <span class="nav-icon">💰</span> Financeiro
-      </button>
-
-      <div class="nav-section-title">Comunicação</div>
-
-      <button class="nav-item" id="nav-mensagens" onclick="navigate('mensagens')">
-        <span class="nav-icon">💬</span> Mensagens
-        <span class="nav-badge" id="msgBadge" style="background:#25d366;">0</span>
-      </button>
-      <button class="nav-item" id="nav-publico" onclick="viewPublicPage()">
-        <span class="nav-icon">🌐</span> Pág. Pública
-      </button>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="sidebar-user" onclick="navigate('configuracoes')">
-        <div class="sidebar-avatar" id="sidebarAvatarInitial">A</div>
-        <div>
-          <div class="sidebar-user-name" id="sidebarUserName">Admin</div>
-          <div class="sidebar-user-role">Administrador</div>
+        <div class="auth-left-brand"><div class="nav-dot">✦</div>AgendaPro</div>
+        <h2 class="auth-left-title">Seu painel<br><em>premium</em><br>em minutos.</h2>
+        <p class="auth-left-desc">Login real com e-mail e senha. Dados protegidos por empresa com RLS.</p>
+        <div class="auth-left-perks">
+          <div class="auth-perk"><div class="auth-perk-icon">✓</div>Login com e-mail e senha</div>
+          <div class="auth-perk"><div class="auth-perk-icon">✓</div>Mesmo login no site e app</div>
+          <div class="auth-perk"><div class="auth-perk-icon">✓</div>Sessão salva no dispositivo</div>
+          <div class="auth-perk"><div class="auth-perk-icon">✓</div>Dados isolados por empresa</div>
+          <div class="auth-perk"><div class="auth-perk-icon">✓</div>Protegido por Supabase Auth</div>
         </div>
       </div>
-      <button class="btn btn-ghost w-full mt-16" style="justify-content:center;" onclick="doLogout()">
-        🚪 Sair
-      </button>
+      <p class="auth-left-footer">🔒 Supabase Auth · RLS · Dispositivo confiável</p>
+    </div>
+    <div class="auth-form-area">
+      <!-- LOGIN -->
+      <div id="formLogin" style="display:none">
+        <div class="auth-form-title">Entrar no painel</div>
+        <p class="auth-form-sub">Use o mesmo e-mail e senha criados no cadastro.</p>
+        <div class="form-gap">
+          <div class="field"><label>E-mail</label><input id="loginEmail" type="email" placeholder="seu@email.com" autocomplete="email"></div>
+          <div class="field"><label>Senha</label><input id="loginSenha" type="password" placeholder="Sua senha" autocomplete="current-password"></div>
+          <button class="btn btn-primary btn-full" onclick="loginComSenha()">Entrar →</button>
+        </div>
+        <div class="auth-switch">Não tenho conta. <button onclick="showCadastro()">Criar cadastro</button></div>
+      </div>
+      <!-- CADASTRO -->
+      <div id="formCadastro" style="display:none">
+        <div class="auth-form-title">Criar sua conta</div>
+        <p class="auth-form-sub">Configure em 3 etapas simples.</p>
+        <div class="stepper">
+          <div class="step-dot active" id="st1"></div>
+          <div class="step-dot" id="st2"></div>
+          <div class="step-dot" id="st3"></div>
+        </div>
+        <!-- Step 1 -->
+        <div id="step1">
+          <div class="form-gap">
+            <div class="field"><label>Seu nome</label><input id="cadNome" placeholder="Ex: Ana Caroline" autocomplete="name"></div>
+            <div class="field"><label>E-mail</label><input id="cadEmail" type="email" placeholder="seu@email.com" autocomplete="email"></div>
+            <div class="field"><label>Senha</label><input id="cadSenha" type="password" placeholder="mínimo 6 caracteres" autocomplete="new-password"></div>
+            <button class="btn btn-primary btn-full" onclick="goStep2()">Continuar →</button>
+          </div>
+          <div class="auth-switch">Já tenho conta. <button onclick="showLogin()">Entrar</button></div>
+        </div>
+        <!-- Step 2 -->
+        <div id="step2" style="display:none">
+          <div class="form-gap">
+            <div class="field"><label>Nome do negócio</label><input id="empNome" placeholder="Ex: Nails da Ana" oninput="autoSlug()"></div>
+            <div class="field-row">
+              <div class="field">
+                <label>Área de atuação</label>
+                <select id="empCategoria">
+                  <option value="">Carregando...</option>
+                </select>
+              </div>
+              <div class="field"><label>WhatsApp</label><input id="empWhatsapp" placeholder="(92) 99999-9999"></div>
+            </div>
+            <div class="field"><label>Link personalizado</label><input id="empSlug" placeholder="nails-da-ana"></div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" onclick="goStep1()">← Voltar</button>
+              <button class="btn btn-primary" style="flex:1" onclick="goStep3()">Continuar →</button>
+            </div>
+          </div>
+        </div>
+        <!-- Step 3 -->
+        <div id="step3" style="display:none">
+          <div class="form-gap">
+            <div class="field"><label>Primeiro serviço</label><input id="servNome" placeholder="Ex: Alongamento em Gel"></div>
+            <div class="field-row">
+              <div class="field"><label>Preço (R$)</label><input id="servPreco" type="number" placeholder="80"></div>
+              <div class="field"><label>Duração (min)</label><input id="servDuracao" type="number" placeholder="90"></div>
+            </div>
+            <div class="field"><label>Primeiro profissional</label><input id="profNome" placeholder="Ex: Ana Caroline"></div>
+            <div class="field"><label>Especialidade</label><input id="profEsp" placeholder="Ex: Manicure"></div>
+            <div class="form-actions">
+              <button class="btn btn-ghost" onclick="goStep2()">← Voltar</button>
+              <button class="btn btn-primary" style="flex:1" id="btnFinalizar" onclick="finalizarCadastro()">Criar painel →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<section id="dashboardView" style="display:none">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><div class="nav-dot">✦</div>AgendaPro</div>
+    <div class="side-nav-section">
+      <div class="side-nav-label">Gestão</div>
+      <button class="nav-btn" onclick="setView('dashboard')"><span class="ni">📊</span>Dashboard</button>
+      <button class="nav-btn" onclick="setView('agenda')"><span class="ni">📅</span>Agenda</button>
+      <button class="nav-btn" onclick="setView('clientes')"><span class="ni">👥</span>Clientes</button>
+      <button class="nav-btn" onclick="setView('servicos')"><span class="ni">✦</span>Serviços</button>
+      <button class="nav-btn" onclick="setView('profissionais')"><span class="ni">👤</span>Profissionais</button>
+    </div>
+    <div class="side-nav-sep"></div>
+    <div class="side-nav-section">
+      <div class="side-nav-label">Financeiro</div>
+      <button class="nav-btn" onclick="setView('financeiro')"><span class="ni">💰</span>Financeiro</button>
+      <button class="nav-btn" onclick="setView('relatorios')"><span class="ni">📈</span>Relatórios</button>
+    </div>
+    <div class="side-nav-sep"></div>
+    <div class="side-nav-section">
+      <div class="side-nav-label">Empresa</div>
+      <button class="nav-btn" onclick="openPublic()"><span class="ni">🌐</span>Página Pública</button>
+      <button class="nav-btn" onclick="setView('config')"><span class="ni">⚙</span>Configurações</button>
+    </div>
+    <div class="side-bottom">
+      <div class="side-user-card">
+        <div class="side-user-row">
+          <div class="side-avatar" id="sideAvatar">A</div>
+          <div>
+            <div class="side-name" id="sideNome">Empresa</div>
+            <div class="side-plan" id="sidePlan">Grátis</div>
+          </div>
+        </div>
+        <div class="side-link-box" id="sideLinkBox" onclick="copyPublicLink()">Link público...</div>
+      </div>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="logout()">Sair da conta</button>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
-  <div id="mainContent">
-
-    <!-- TOPBAR -->
-    <header id="topbar">
-      <div class="topbar-left">
-        <div class="topbar-title" id="topbarTitle">Dashboard</div>
-        <div class="topbar-subtitle" id="topbarSubtitle">Visão geral do sistema</div>
+  <main class="dash-main">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSub">Controle completo do seu negócio.</p>
       </div>
-      <div class="topbar-right">
-        <!-- Mobile menu -->
-        <button class="topbar-btn" id="mobileMenuBtn" style="display:none;" onclick="openMobileSidebar()">☰</button>
-
-        <div class="topbar-search">
-          <span class="topbar-search-icon">🔍</span>
-          <input type="text" placeholder="Buscar..." id="topbarSearch" oninput="globalSearch(this.value)" />
-        </div>
-        <button class="topbar-btn" onclick="navigate('mensagens')" title="Mensagens">
-          💬
-          <span class="notif-dot" id="msgDot" style="display:none;"></span>
-        </button>
-        <button class="topbar-btn" onclick="showToast('Sem novas notificações', 'info')" title="Notificações">🔔</button>
-        <button class="topbar-btn" onclick="navigate('publico')" title="Ver página pública">🌐</button>
-      </div>
-    </header>
-
-    <!-- PAGE CONTENT -->
-    <div class="page-content">
-
-      <!-- DASHBOARD PAGE -->
-      <div id="page-dashboard" class="page active">
-        <div class="stats-grid">
-          <div class="stat-card purple">
-            <div class="stat-header">
-              <div class="stat-icon purple">📅</div>
-              <span class="stat-trend up" id="statTrendAgendamentos">+0%</span>
-            </div>
-            <div class="stat-value" id="statAgendamentos">0</div>
-            <div class="stat-label">Agendamentos Hoje</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-header">
-              <div class="stat-icon green">👥</div>
-              <span class="stat-trend up" id="statTrendClientes">+0%</span>
-            </div>
-            <div class="stat-value" id="statClientes">0</div>
-            <div class="stat-label">Total de Clientes</div>
-          </div>
-          <div class="stat-card yellow">
-            <div class="stat-header">
-              <div class="stat-icon yellow">⏳</div>
-              <span class="stat-trend up">Hoje</span>
-            </div>
-            <div class="stat-value" id="statPendentes">0</div>
-            <div class="stat-label">Pendentes</div>
-          </div>
-          <div class="stat-card red">
-            <div class="stat-header">
-              <div class="stat-icon red">💰</div>
-              <span class="stat-trend up" id="statTrendReceita">Mês</span>
-            </div>
-            <div class="stat-value" id="statReceita">R$0</div>
-            <div class="stat-label">Receita do Mês</div>
-          </div>
-        </div>
-
-        <div class="dashboard-grid">
-          <div class="dashboard-col">
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Agendamentos de Hoje</div>
-                  <div class="card-subtitle" id="dashTodayDate"></div>
-                </div>
-                <button class="btn btn-outline btn-sm" onclick="navigate('agenda')">Ver todos →</button>
-              </div>
-              <div class="card-body">
-                <div id="agendaTimeline">
-                  <div class="flex-center" style="padding:40px;">
-                    <div class="loading-spinner"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="dashboard-col">
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Atividades Recentes</div>
-                  <div class="card-subtitle">Últimas ações no sistema</div>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="activity-list" id="activityList">
-                  <div class="flex-center" style="padding:30px;">
-                    <div class="loading-spinner"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Próximos Agendamentos</div>
-              </div>
-              <div class="card-body">
-                <div id="proximosAgendamentos">
-                  <div class="flex-center" style="padding:30px;">
-                    <div class="loading-spinner"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="topbar-actions topbar-actions-clean">
+        <div class="top-notify-slot">
+          <span class="top-notify-dot"></span>
+          <span>Notificações aparecem aqui em tempo real</span>
         </div>
       </div>
+    </div>
 
-      <!-- AGENDA PAGE -->
-      <div id="page-agenda" class="page">
-        <div class="page-header">
+    <!-- MOBILE NAV -->
+    <nav class="mobile-nav-bar" id="mobileNavBar">
+      <button class="mob-nav-btn" onclick="setView('dashboard')"><span class="mni">📊</span>Início</button>
+      <button class="mob-nav-btn" onclick="setView('agenda')"><span class="mni">📅</span>Agenda</button>
+      <button class="mob-nav-btn mob-nav-fab" onclick="setView('agenda');setTimeout(()=>{var el=document.getElementById('agCliente');if(el)el.focus()},200)"><span class="mni">+</span>Novo</button>
+      <button class="mob-nav-btn" onclick="setView('clientes')"><span class="mni">👥</span>Clientes</button>
+      <button class="mob-nav-btn" onclick="openMobileMenu()"><span class="mni">☰</span>Menu</button>
+    </nav>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+    <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+      <div class="mobile-menu-header">
+        <div class="nav-brand" style="font-size:17px"><div class="nav-dot" style="width:24px;height:24px;font-size:10px">✦</div>AgendaPro</div>
+        <button class="modal-close" onclick="closeMobileMenu()" style="position:static">✕</button>
+      </div>
+      <div class="mobile-menu-body">
+        <div class="side-nav-label">Gestão</div>
+        <button class="nav-btn" onclick="setView('dashboard');closeMobileMenu()"><span class="ni">📊</span>Dashboard</button>
+        <button class="nav-btn" onclick="setView('agenda');closeMobileMenu()"><span class="ni">📅</span>Agenda</button>
+        <button class="nav-btn" onclick="setView('clientes');closeMobileMenu()"><span class="ni">👥</span>Clientes</button>
+        <button class="nav-btn" onclick="setView('servicos');closeMobileMenu()"><span class="ni">✦</span>Serviços</button>
+        <button class="nav-btn" onclick="setView('profissionais');closeMobileMenu()"><span class="ni">👤</span>Profissionais</button>
+        <div class="side-nav-sep"></div>
+        <div class="side-nav-label">Financeiro</div>
+        <button class="nav-btn" onclick="setView('financeiro');closeMobileMenu()"><span class="ni">💰</span>Financeiro</button>
+        <button class="nav-btn" onclick="setView('relatorios');closeMobileMenu()"><span class="ni">📈</span>Relatórios</button>
+        <div class="side-nav-sep"></div>
+        <div class="side-nav-label">Empresa</div>
+        <button class="nav-btn" onclick="openPublic();closeMobileMenu()"><span class="ni">🌐</span>Página Pública</button>
+        <button class="nav-btn" onclick="setView('config');closeMobileMenu()"><span class="ni">⚙</span>Configurações</button>
+        <div class="side-nav-sep"></div>
+        <button class="btn btn-ghost btn-full btn-sm" onclick="logout()" style="margin-top:8px">Sair da conta</button>
+      </div>
+    </div>
+
+    <!-- VIEW: DASHBOARD -->
+    <section class="view active" id="view-dashboard">
+      <div class="dash-hero">
+        <div class="dash-hero-inner">
           <div>
-            <div class="page-header-title">Agenda</div>
-            <div class="page-header-sub">Gerencie todos os agendamentos</div>
+            <h1>Centro de <em>comando.</em></h1>
+            <p>Visão completa do seu negócio em tempo real.</p>
           </div>
-          <button class="btn btn-purple" onclick="openModalNovoAgendamento()">+ Novo Agendamento</button>
+          <button class="btn btn-primary" onclick="copyPublicLink()">🔗 Copiar link</button>
         </div>
-
-        <div class="filter-row">
-          <select class="filter-select" id="agendaFilterStatus" onchange="loadAgenda()">
-            <option value="">Todos os status</option>
-            <option value="pendente">Pendente</option>
-            <option value="confirmado">Confirmado</option>
-            <option value="concluido">Concluído</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-          <input type="date" class="filter-input" id="agendaFilterData" onchange="loadAgenda()" />
-          <select class="filter-select" id="agendaFilterProfissional" onchange="loadAgenda()">
-            <option value="">Todos os profissionais</option>
-          </select>
-          <button class="btn btn-outline btn-sm" onclick="clearAgendaFilters()">Limpar filtros</button>
+      </div>
+      <div class="section-label">Agendamentos</div>
+      <div class="stats-grid stats-grid-4" style="margin-bottom:10px">
+        <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-label">Hoje</div><div class="stat-value" id="statHoje">0</div><div class="stat-note up">Tempo real</div></div>
+        <div class="stat-card"><span class="stat-icon">⏳</span><div class="stat-label">Pendentes</div><div class="stat-value yellow" id="statPendentes">0</div><div class="stat-note">Aguardando</div></div>
+        <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">Confirmados</div><div class="stat-value green" id="statConfirmados">0</div><div class="stat-note up">Prontos</div></div>
+        <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-label">Reagendados</div><div class="stat-value purple" id="statReagendados">0</div><div class="stat-note">Nova data</div></div>
+      </div>
+      <div class="stats-grid stats-grid-4" style="margin-bottom:10px">
+        <div class="stat-card"><span class="stat-icon">🎯</span><div class="stat-label">Concluídos</div><div class="stat-value blue" id="statConcluidos">0</div></div>
+        <div class="stat-card"><span class="stat-icon">✕</span><div class="stat-label">Recusados</div><div class="stat-value red" id="statRecusados">0</div></div>
+        <div class="stat-card"><span class="stat-icon">🗑</span><div class="stat-label">Excluídos</div><div class="stat-value" id="statExcluidos">0</div></div>
+        <div class="stat-card"><span class="stat-icon">📊</span><div class="stat-label">Taxa confirmação</div><div class="stat-value green" id="statTaxa">0%</div></div>
+      </div>
+      <div class="section-label">Financeiro e base</div>
+      <div class="stats-grid stats-grid-6" style="margin-bottom:20px">
+        <div class="stat-card"><span class="stat-icon">💵</span><div class="stat-label">Fat. hoje</div><div class="stat-value" id="statFatHoje">R$0</div></div>
+        <div class="stat-card"><span class="stat-icon">💰</span><div class="stat-label">Fat. mês</div><div class="stat-value" id="statFatMes">R$0</div></div>
+        <div class="stat-card"><span class="stat-icon">👥</span><div class="stat-label">Clientes</div><div class="stat-value" id="statClientes">0</div></div>
+        <div class="stat-card"><span class="stat-icon">✦</span><div class="stat-label">Serviços</div><div class="stat-value" id="statServicos">0</div></div>
+        <div class="stat-card"><span class="stat-icon">👤</span><div class="stat-label">Profissionais</div><div class="stat-value" id="statProfissionais">0</div></div>
+        <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-label">Total ags.</div><div class="stat-value" id="statTotal">0</div></div>
+      </div>
+      <div class="content-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div><div class="panel-title">Próximos agendamentos</div><div class="panel-sub">Pendentes e confirmados</div></div>
+            <button class="panel-action" onclick="setView('agenda')">Ver todos →</button>
+          </div>
+          <div class="panel-body"><div class="apt-list" id="dashAptList"></div></div>
         </div>
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Calendário</div><div class="panel-sub">Dias com agendamentos</div></div></div>
+          <div class="panel-body"><div class="cal-grid" id="calGrid"></div></div>
+        </div>
+      </div>
+    </section>
 
-        <div class="card">
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Serviço</th>
-                  <th>Profissional</th>
-                  <th>Data</th>
-                  <th>Hora</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="agendaTableBody">
-                <tr><td colspan="7" style="text-align:center; padding:40px;">
-                  <div class="loading-spinner"></div>
-                </td></tr>
-              </tbody>
-            </table>
+    <!-- VIEW: AGENDA -->
+    <section class="view" id="view-agenda">
+      <div class="form-panel">
+        <div class="form-panel-title">Criar agendamento</div>
+        <div class="form-grid">
+          <div class="field"><label>Cliente</label><input id="agCliente" placeholder="Nome do cliente"></div>
+          <div class="field"><label>Telefone</label><input id="agTelefone" placeholder="WhatsApp"></div>
+          <div class="field"><label>Serviço</label><select id="agServico"></select></div>
+          <div class="field"><label>Profissional</label><select id="agProfissional"></select></div>
+          <div class="field"><label>Data</label><input id="agData" type="date"></div>
+          <div class="field"><label>Hora</label><input id="agHora" type="time"></div>
+          <div class="field"><label>Status</label><select id="agStatus"><option>Confirmado</option><option>Pendente</option></select></div>
+          <div class="field" style="display:grid;align-items:end"><button class="btn btn-primary btn-full" onclick="salvarAgendamento()">Salvar</button></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="panel-title">Agenda</div><div class="panel-sub">Todos os agendamentos</div></div>
+        </div>
+        <div class="panel-body">
+          <div class="filter-bar" id="filterBar">
+            <button class="filter-btn active" onclick="setFilter('todos',this)">Todos <span class="filter-count" id="fc-todos">0</span></button>
+            <button class="filter-btn" onclick="setFilter('pendente',this)">⏳ Pendentes <span class="filter-count" id="fc-pendente">0</span></button>
+            <button class="filter-btn" onclick="setFilter('confirmado',this)">✅ Confirmados <span class="filter-count" id="fc-confirmado">0</span></button>
+            <button class="filter-btn" onclick="setFilter('reagendado',this)">📅 Reagendados <span class="filter-count" id="fc-reagendado">0</span></button>
+            <button class="filter-btn" onclick="setFilter('concluido',this)">🎯 Concluídos <span class="filter-count" id="fc-concluido">0</span></button>
+            <button class="filter-btn" onclick="setFilter('recusado',this)">✕ Recusados <span class="filter-count" id="fc-recusado">0</span></button>
+            <button class="filter-btn" onclick="setFilter('excluido',this)">🗑 Excluídos <span class="filter-count" id="fc-excluido">0</span></button>
+          </div>
+          <div class="timeline" id="agendaTimeline"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: CLIENTES -->
+    <section class="view" id="view-clientes">
+      <div class="form-panel">
+        <div class="form-panel-title">Adicionar cliente</div>
+        <div class="form-grid">
+          <div class="field"><label>Nome</label><input id="cliNome" placeholder="Nome completo"></div>
+          <div class="field"><label>Telefone</label><input id="cliTel" placeholder="WhatsApp"></div>
+          <div class="field"><label>E-mail</label><input id="cliEmail" placeholder="E-mail"></div>
+          <div class="field" style="display:grid;align-items:end"><button class="btn btn-primary btn-full" onclick="salvarCliente()">Adicionar</button></div>
+        </div>
+      </div>
+      <div class="cards-grid" id="clientesGrid"></div>
+    </section>
+
+    <!-- VIEW: SERVIÇOS -->
+    <section class="view" id="view-servicos">
+      <div class="form-panel">
+        <div class="form-panel-title">Adicionar serviço</div>
+        <div class="form-grid">
+          <div class="field"><label>Nome</label><input id="srvNome" placeholder="Nome do serviço"></div>
+          <div class="field"><label>Preço (R$)</label><input id="srvPreco" type="number" placeholder="80"></div>
+          <div class="field"><label>Duração (min)</label><input id="srvDur" type="number" placeholder="60"></div>
+          <div class="field" style="display:grid;align-items:end"><button class="btn btn-primary btn-full" onclick="salvarServico()">Adicionar</button></div>
+        </div>
+      </div>
+      <div class="cards-grid" id="servicosGrid"></div>
+    </section>
+
+    <!-- VIEW: PROFISSIONAIS -->
+    <section class="view" id="view-profissionais">
+      <div class="form-panel">
+        <div class="form-panel-title">Adicionar profissional</div>
+        <div class="form-grid">
+          <div class="field"><label>Nome</label><input id="proNome" placeholder="Nome"></div>
+          <div class="field"><label>Especialidade</label><input id="proEsp" placeholder="Ex: Manicure"></div>
+          <div class="field"><label>Telefone</label><input id="proTel" placeholder="Telefone"></div>
+          <div class="field" style="display:grid;align-items:end"><button class="btn btn-primary btn-full" onclick="salvarProfissional()">Adicionar</button></div>
+        </div>
+      </div>
+      <div class="cards-grid" id="profGrid"></div>
+    </section>
+
+    <!-- VIEW: FINANCEIRO -->
+    <section class="view" id="view-financeiro">
+      <div class="dash-hero" style="margin-bottom:20px">
+        <div class="dash-hero-inner"><div><h1>Resultados <em>financeiros.</em></h1><p>Receita, ticket médio e histórico.</p></div></div>
+      </div>
+      <div class="fin-grid">
+        <div class="fin-card"><div class="fin-label">Receita total</div><div class="fin-value" id="finReceita">R$0</div><div class="fin-sub">Todos os concluídos</div></div>
+        <div class="fin-card"><div class="fin-label">Ticket médio</div><div class="fin-value" id="finTicket">R$0</div><div class="fin-sub">Média por atendimento</div></div>
+        <div class="fin-card"><div class="fin-label">Total de pagamentos</div><div class="fin-value" id="finPagos">0</div><div class="fin-sub">Registros concluídos</div></div>
+        <div class="fin-card"><div class="fin-label">Plano atual</div><div class="fin-value" style="font-size:28px" id="finPlano">Grátis</div><div class="fin-sub">Status ativo</div></div>
+      </div>
+    </section>
+
+    <!-- VIEW: RELATÓRIOS -->
+    <section class="view" id="view-relatorios">
+      <div class="dash-hero" style="margin-bottom:20px">
+        <div class="dash-hero-inner"><div><h1>Relatórios <em>e métricas.</em></h1><p>Acompanhe o desempenho detalhado.</p></div></div>
+      </div>
+      <div class="empty-state"><div class="es-icon">📈</div><p>Relatórios avançados em breve.</p></div>
+    </section>
+
+    <!-- VIEW: CONFIG -->
+    <section class="view" id="view-config">
+      <div class="dash-hero" style="margin-bottom:20px">
+        <div class="dash-hero-inner"><div><h1>Configurações <em>da empresa.</em></h1><p>Dados, identidade e preferências.</p></div></div>
+      </div>
+      <div class="config-grid">
+        <div class="config-section">
+          <div class="config-title"><div class="config-icon">🏢</div>Dados da empresa</div>
+          <div class="form-gap">
+            <div class="field"><label>Nome da empresa</label><input id="cfgNome"></div>
+            <div class="field"><label>WhatsApp</label><input id="cfgWhatsapp"></div>
+            <div class="field"><label>Slug / link</label><input id="cfgSlug"></div>
+            <div class="field"><label>Endereço</label><input id="cfgEndereco" placeholder="Rua, número, bairro"></div>
+            <div class="field"><label>Cidade / Estado</label><input id="cfgCidade" placeholder="Ex: Manaus, AM"></div>
+            <button class="btn btn-primary btn-full" onclick="salvarConfig()">Salvar alterações</button>
+            <div id="cfgLinkBox" style="font-size:10.5px;color:var(--text4);padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);word-break:break-all"></div>
+          </div>
+        </div>
+        <div class="config-section">
+          <div class="config-title"><div class="config-icon">📱</div>Redes sociais</div>
+          <div class="form-gap">
+            <div class="field"><label>Instagram</label><input id="cfgInstagram" placeholder="@seuinstagram"></div>
+            <div class="field"><label>Facebook</label><input id="cfgFacebook" placeholder="facebook.com/sua-pagina"></div>
+            <div class="field"><label>TikTok</label><input id="cfgTiktok" placeholder="@seutiktok"></div>
+            <div class="field"><label>Site / Link bio</label><input id="cfgSite" placeholder="https://seusite.com"></div>
+            <button class="btn btn-ghost btn-full" onclick="salvarRedesSociais()">Salvar redes sociais</button>
+          </div>
+        </div>
+        <div class="config-section">
+          <div class="config-title"><div class="config-icon">🕐</div>Horários de funcionamento</div>
+          <div class="schedule-grid">
+            <div class="sch-day"><div class="sch-day-name">Seg</div><input type="checkbox" checked></div>
+            <div class="sch-day"><div class="sch-day-name">Ter</div><input type="checkbox" checked></div>
+            <div class="sch-day"><div class="sch-day-name">Qua</div><input type="checkbox" checked></div>
+            <div class="sch-day"><div class="sch-day-name">Qui</div><input type="checkbox" checked></div>
+            <div class="sch-day"><div class="sch-day-name">Sex</div><input type="checkbox" checked></div>
+            <div class="sch-day"><div class="sch-day-name">Sáb</div><input type="checkbox" checked></div>
+            <div class="sch-day"><div class="sch-day-name">Dom</div><input type="checkbox"></div>
+          </div>
+          <button class="btn btn-ghost btn-full" style="margin-top:12px" onclick="toast('Horários salvos!','ok')">Salvar horários</button>
+        </div>
+        <div class="config-section">
+          <div class="config-title"><div class="config-icon">💬</div>Mensagens automáticas</div>
+          <div class="form-gap">
+            <div class="field"><label>Confirmação</label><textarea id="msgConfirmacao">Olá, {nome}! Seu agendamento foi confirmado ✅
+Serviço: {servico} · Data: {data} às {hora}
+Aguardamos você!</textarea></div>
+            <div class="field"><label>Lembrete</label><textarea id="msgLembrete">Olá, {nome}! Lembrando do seu agendamento amanhã 📅
+{servico} às {hora}. Qualquer dúvida estamos aqui!</textarea></div>
+            <button class="btn btn-ghost btn-full" onclick="toast('Mensagens salvas!','ok')">Salvar mensagens</button>
           </div>
         </div>
       </div>
+    </section>
+  </main>
+</section>
 
-      <!-- CALENDARIO PAGE -->
-      <div id="page-calendario" class="page">
-        <div class="page-header">
-          <div>
-            <div class="page-header-title">Calendário</div>
-            <div class="page-header-sub">Visualização mensal de agendamentos</div>
+<!-- PÁGINA PÚBLICA -->
+<section id="publicView" style="display:none">
+  <div class="pub-wrap">
+    <button class="pub-back" onclick="voltarDaPublica()">← Voltar</button>
+    <div class="pub-hero">
+      <div class="pub-hero-brand"><div class="nav-dot" style="width:20px;height:20px;font-size:9px">✦</div>AgendaPro</div>
+      <h1 id="pubNomeEmpresa">Agendamento Online</h1>
+      <p id="pubDescEmpresa">Escolha seu serviço, profissional, data e horário.</p>
+      <div id="pubSociais" class="pub-socials" style="display:none"></div>
+    </div>
+    <div id="pubConfirmScreen" class="pub-confirm-screen" style="display:none">
+      <div class="pub-tick">✓</div>
+      <h2>Agendamento enviado!</h2>
+      <p>Entraremos em contato pelo WhatsApp para confirmar seu horário.</p>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="resetPublic()">Fazer novo agendamento</button>
+    </div>
+    <div class="pub-body" id="pubMainBody">
+      <div class="pub-panel">
+        <div class="pub-panel-title">Escolha o serviço</div>
+        <div class="choices" id="pubServicos"></div>
+        <div style="height:16px"></div>
+        <div class="pub-panel-title" style="font-size:15px;margin-bottom:10px">Escolha o profissional</div>
+        <div class="choices" id="pubProfissionais"></div>
+      </div>
+      <div class="pub-panel">
+        <div class="pub-panel-title">Seus dados</div>
+        <div class="form-gap">
+          <div class="field"><label>Nome completo</label><input id="pubClienteNome" placeholder="Seu nome"></div>
+          <div class="field"><label>WhatsApp</label><input id="pubClienteTel" placeholder="(92) 99999-9999"></div>
+          <div class="field-row">
+            <div class="field"><label>Data</label><input id="pubData" type="date"></div>
+            <div class="field"><label>Hora</label><input id="pubHora" type="time"></div>
           </div>
-          <div class="flex gap-8">
-            <button class="btn btn-outline" onclick="calPrev()">‹ Anterior</button>
-            <button class="btn btn-outline" onclick="calToday()">Hoje</button>
-            <button class="btn btn-outline" onclick="calNext()">Próximo ›</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title" id="calTitle"></div>
-          </div>
-          <div class="card-body">
-            <div class="calendar-wrap" style="background: transparent; padding: 0;">
-              <div class="calendar-grid" id="calendarGrid"></div>
-            </div>
-          </div>
-        </div>
-        <div class="card mt-24">
-          <div class="card-header">
-            <div class="card-title">Agendamentos do Dia Selecionado</div>
-          </div>
-          <div class="card-body">
-            <div id="calDayDetail">
-              <div class="empty-state">
-                <div class="empty-icon">📅</div>
-                <div class="empty-title">Selecione um dia</div>
-                <div class="empty-desc">Clique em um dia do calendário para ver os agendamentos</div>
-              </div>
-            </div>
-          </div>
+          <div class="field"><label>Observação</label><textarea id="pubObs" placeholder="Alguma observação?"></textarea></div>
+          <button class="btn btn-primary btn-full btn-lg" onclick="confirmarAgendamentoPublico()">Confirmar agendamento ✓</button>
         </div>
       </div>
+    </div>
+  </div>
+  <a id="pubWaFab" class="pub-wa-fab" href="#" target="_blank" rel="noopener" style="display:none">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span>Tirar dúvida</span>
+  </a>
+</section>
 
-      <!-- CLIENTES PAGE -->
-      <div id="page-clientes" class="page">
-        <div class="page-header">
-          <div>
-            <div class="page-header-title">Clientes</div>
-            <div class="page-header-sub" id="clientesCount">Carregando...</div>
-          </div>
-          <button class="btn btn-purple" onclick="openModalNovoCliente()">+ Novo Cliente</button>
-        </div>
-        <div class="filter-row">
-          <input type="text" class="filter-input" placeholder="Buscar cliente..." id="clienteSearch" oninput="filterClientes(this.value)" style="flex:1; max-width:300px;" />
-        </div>
-        <div id="clientesCards"></div>
-      </div>
-
-      <!-- SERVIÇOS PAGE -->
-      <div id="page-servicos" class="page">
-        <div class="page-header">
-          <div>
-            <div class="page-header-title">Serviços</div>
-            <div class="page-header-sub">Gerencie os serviços oferecidos</div>
-          </div>
-          <button class="btn btn-purple" onclick="openModalNovoServico()">+ Novo Serviço</button>
-        </div>
-        <div class="card">
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Serviço</th>
-                  <th>Duração</th>
-                  <th>Categoria</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="servicosTableBody">
-                <tr><td colspan="4" style="text-align:center; padding:40px;">
-                  <div class="loading-spinner"></div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROFISSIONAIS PAGE -->
-      <div id="page-profissionais" class="page">
-        <div class="page-header">
-          <div>
-            <div class="page-header-title">Profissionais</div>
-            <div class="page-header-sub">Gerencie sua equipe</div>
-          </div>
-          <button class="btn btn-purple" onclick="openModalNovoProfissional()">+ Novo Profissional</button>
-        </div>
-        <div id="profissionaisCards"></div>
-      </div>
-
-      <!-- FINANCEIRO PAGE -->
-      <div id="page-financeiro" class="page">
-        <div class="page-header">
-          <div>
-            <div class="page-header-title">Financeiro</div>
-            <div class="page-header-sub">Controle de receitas e despesas</div>
-          </div>
-          <div class="flex gap-8">
-            <select class="filter-select" id="finMes" onchange="loadFinanceiro()">
-              <option value="1">Janeiro</option><option value="2">Fevereiro</option>
-              <option value="3">Março</option><option value="4">Abril</option>
-              <option value="5">Maio</option><option value="6">Junho</option>
-              <option value="7">Julho</option><option value="8">Agosto</option>
-              <option value="9">Setembro</option><option value="10">Outubro</option>
-              <option value="11">Novembro</option><option value="12">Dezembro</option>
-            </select>
-            <select class="filter-select" id="finAno" onchange="loadFinanceiro()">
-              <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="finance-header">
-          <div class="finance-card">
-            <div class="finance-value receita" id="finReceita">R$ 0,00</div>
-            <div class="finance-label">💰 Receita Total</div>
-          </div>
-          <div class="finance-card">
-            <div class="finance-value despesa" id="finDespesa">R$ 0,00</div>
-            <div class="finance-label">📉 Despesas</div>
-          </div>
-          <div class="finance-card">
-            <div class="finance-value lucro" id="finLucro">R$ 0,00</div>
-            <div class="finance-label">✨ Lucro Líquido</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Transações</div>
-            <button class="btn btn-purple btn-sm" onclick="openModalTransacao()">+ Lançamento</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Descrição</th>
-                  <th>Tipo</th>
-                  <th>Valor</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="finTableBody">
-                <tr><td colspan="5" style="text-align:center; padding:40px;">
-                  <div class="loading-spinner"></div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- MENSAGENS PAGE -->
-      <div id="page-mensagens" class="page">
-        <div class="page-header">
-          <div>
-            <div class="page-header-title">Mensagens</div>
-            <div class="page-header-sub">Comunicação com clientes</div>
-          </div>
-          <button class="btn btn-whatsapp btn-sm" onclick="openWhatsApp()">
-            <span>📱</span> WhatsApp Business
-          </button>
-        </div>
-        <div class="card">
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Mensagem</th>
-                  <th>Data</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="mensagensTableBody">
-                <tr><td colspan="5" style="text-align:center; padding:40px;">
-                  <div class="loading-spinner"></div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- end page-content -->
-  </div><!-- end mainContent -->
-</div><!-- end appLayout -->
-
-<!-- ============================
-     MODALS
-============================= -->
-
-<!-- MODAL: Novo Agendamento -->
-<div class="modal-overlay" id="modalNovoAgendamento">
+<!-- Modal Recusa -->
+<div class="modal-overlay" id="modalRecusaOverlay">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Novo Agendamento</div>
-      <button class="modal-close" onclick="closeModal('modalNovoAgendamento')">✕</button>
+    <button class="modal-close" onclick="closeModalRecusa()">✕</button>
+    <div class="modal-title">Recusar agendamento</div>
+    <div class="modal-sub" id="recusaInfo">Cliente · data · hora</div>
+    <div class="motivo-list">
+      <div class="motivo-item" onclick="selectMotivo(this,'Horário indisponível')"><div class="motivo-radio"></div>Horário indisponível</div>
+      <div class="motivo-item" onclick="selectMotivo(this,'Profissional indisponível')"><div class="motivo-radio"></div>Profissional indisponível</div>
+      <div class="motivo-item" onclick="selectMotivo(this,'Serviço indisponível')"><div class="motivo-radio"></div>Serviço indisponível</div>
+      <div class="motivo-item" onclick="selectMotivo(this,'Outro motivo')"><div class="motivo-radio"></div>Outro motivo</div>
     </div>
-    <div class="modal-body">
-      <div class="input-row">
-        <div class="form-group">
-          <label class="form-label">Cliente</label>
-          <select id="agCliente" class="form-input">
-            <option value="">Selecione...</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Serviço</label>
-          <select id="agServico" class="form-input">
-            <option value="">Selecione...</option>
-          </select>
-        </div>
-      </div>
-      <div class="input-row mt-16">
-        <div class="form-group">
-          <label class="form-label">Profissional</label>
-          <select id="agProfissional" class="form-input">
-            <option value="">Selecione...</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select id="agStatus" class="form-input">
-            <option value="pendente">Pendente</option>
-            <option value="confirmado">Confirmado</option>
-            <option value="concluido">Concluído</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-        </div>
-      </div>
-      <div class="input-row mt-16">
-        <div class="form-group">
-          <label class="form-label">Data</label>
-          <input id="agData" type="date" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Hora</label>
-          <input id="agHora" type="time" class="form-input" />
-        </div>
-      </div>
-      <div class="form-group mt-16">
-        <label class="form-label">Observações</label>
-        <textarea id="agObservacoes" class="form-textarea" placeholder="Observações do agendamento..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalNovoAgendamento')">Cancelar</button>
-      <button class="btn btn-purple" onclick="salvarAgendamento()">Salvar Agendamento</button>
+    <div class="field"><label>Motivo personalizado (opcional)</label><textarea id="recusaMotivoCustom" placeholder="Descreva o motivo..." style="min-height:68px"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalRecusa()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarRecusa()">✕ Recusar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Novo Cliente -->
-<div class="modal-overlay" id="modalNovoCliente">
+<!-- Modal Reagendar -->
+<div class="modal-overlay" id="modalReagendarOverlay">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalClienteTitle">Novo Cliente</div>
-      <button class="modal-close" onclick="closeModal('modalNovoCliente')">✕</button>
+    <button class="modal-close" onclick="closeModalReagendar()">✕</button>
+    <div class="modal-title">Reagendar horário</div>
+    <div class="modal-sub" id="reagendarInfo">Cliente · data · hora</div>
+    <div class="field-row">
+      <div class="field"><label>Nova data</label><input id="reagendarData" type="date"></div>
+      <div class="field"><label>Novo horário</label><input id="reagendarHora" type="time"></div>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="clienteId" />
-      <div class="input-row">
-        <div class="form-group">
-          <label class="form-label">Nome completo</label>
-          <input id="clienteNome" type="text" class="form-input" placeholder="Nome do cliente" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Telefone</label>
-          <input id="clienteTelefone" type="tel" class="form-input" placeholder="(00) 00000-0000" />
-        </div>
-      </div>
-      <div class="form-group mt-16">
-        <label class="form-label">E-mail</label>
-        <input id="clienteEmail" type="email" class="form-input" placeholder="email@cliente.com" />
-      </div>
-      <div class="form-group mt-16">
-        <label class="form-label">Observações</label>
-        <textarea id="clienteObs" class="form-textarea" placeholder="Observações sobre o cliente..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalNovoCliente')">Cancelar</button>
-      <button class="btn btn-purple" onclick="salvarCliente()">Salvar Cliente</button>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalReagendar()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarReagendar()">📅 Reagendar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Novo Serviço -->
-<div class="modal-overlay" id="modalNovoServico">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalServicoTitle">Novo Serviço</div>
-      <button class="modal-close" onclick="closeModal('modalNovoServico')">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="servicoId" />
-      <div class="form-group">
-        <label class="form-label">Nome do serviço</label>
-        <input id="servicoNome" type="text" class="form-input" placeholder="Ex: Corte de cabelo" />
-      </div>
-      <div class="input-row mt-16">
-        <div class="form-group">
-          <label class="form-label">Duração (minutos)</label>
-          <input id="servicoDuracao" type="number" class="form-input" placeholder="60" min="5" step="5" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Categoria</label>
-          <input id="servicoCategoria" type="text" class="form-input" placeholder="Ex: Cabelo" />
-        </div>
-      </div>
-      <div class="form-group mt-16">
-        <label class="form-label">Descrição</label>
-        <textarea id="servicoDesc" class="form-textarea" placeholder="Descreva o serviço..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalNovoServico')">Cancelar</button>
-      <button class="btn btn-purple" onclick="salvarServico()">Salvar Serviço</button>
+<!-- Modal Editar -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-modal">
+    <button class="modal-close" onclick="closeEditModal()">✕</button>
+    <div class="edit-title" id="editModalTitle">Editar</div>
+    <div id="editModalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeEditModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" id="editSaveBtn">Salvar alterações</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Novo Profissional -->
-<div class="modal-overlay" id="modalNovoProfissional">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalProfissionalTitle">Novo Profissional</div>
-      <button class="modal-close" onclick="closeModal('modalNovoProfissional')">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="profissionalId" />
-      <div class="input-row">
-        <div class="form-group">
-          <label class="form-label">Nome</label>
-          <input id="profissionalNome" type="text" class="form-input" placeholder="Nome" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Especialidade</label>
-          <input id="profissionalEspecialidade" type="text" class="form-input" placeholder="Ex: Cabeleireiro" />
-        </div>
-      </div>
-      <div class="form-group mt-16">
-        <label class="form-label">Telefone</label>
-        <input id="profissionalTelefone" type="tel" class="form-input" placeholder="(00) 00000-0000" />
-      </div>
-      <div class="form-group mt-16">
-        <label class="form-label">E-mail</label>
-        <input id="profissionalEmail" type="email" class="form-input" placeholder="email@profissional.com" />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalNovoProfissional')">Cancelar</button>
-      <button class="btn btn-purple" onclick="salvarProfissional()">Salvar</button>
+<!-- Modal Confirm -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal confirm-modal">
+    <div class="confirm-icon-wrap danger" id="confirmIconWrap">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Tem certeza?</div>
+    <p class="confirm-body" id="confirmBody">Esta ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeConfirmModal()">Cancelar</button>
+      <button class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Transação Financeira -->
-<div class="modal-overlay" id="modalTransacao">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Novo Lançamento</div>
-      <button class="modal-close" onclick="closeModal('modalTransacao')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Descrição</label>
-        <input id="transDesc" type="text" class="form-input" placeholder="Descrição do lançamento" />
-      </div>
-      <div class="input-row mt-16">
-        <div class="form-group">
-          <label class="form-label">Tipo</label>
-          <select id="transTipo" class="form-input">
-            <option value="receita">Receita</option>
-            <option value="despesa">Despesa</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Valor (R$)</label>
-          <input id="transValor" type="number" class="form-input" placeholder="0,00" step="0.01" min="0" />
-        </div>
-      </div>
-      <div class="form-group mt-16">
-        <label class="form-label">Data</label>
-        <input id="transData" type="date" class="form-input" />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalTransacao')">Cancelar</button>
-      <button class="btn btn-purple" onclick="salvarTransacao()">Salvar Lançamento</button>
-    </div>
-  </div>
-</div>
+<!-- Notif Stack -->
+<div class="notif-stack" id="notifStack"></div>
 
+<script src="supabase.js"></script>
 <script src="app.js"></script>
+<script>
+function openMobileMenu(){
+  const overlay = document.getElementById('mobileMenuOverlay');
+  const drawer = document.getElementById('mobileMenuDrawer');
+  if(overlay) overlay.classList.add('open');
+  if(drawer) drawer.classList.add('open');
+}
+function closeMobileMenu(){
+  const overlay = document.getElementById('mobileMenuOverlay');
+  const drawer = document.getElementById('mobileMenuDrawer');
+  if(overlay) overlay.classList.remove('open');
+  if(drawer) drawer.classList.remove('open');
+}
+</script>
+
+<div id="datePickerOverlay" class="date-overlay" onclick="if(event.target===this) closeDatePicker()">
+  <div class="date-card">
+    <div class="date-head">
+      <button type="button" onclick="changeMonth(-1)">‹</button>
+      <strong id="dateMonthLabel">Mês</strong>
+      <button type="button" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="weekdays"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+    <div id="dateDays" class="date-days"></div>
+    <button type="button" class="btn btn-ghost btn-full" onclick="closeDatePicker()">Cancelar</button>
+  </div>
+</div>
+
 </body>
 </html>
