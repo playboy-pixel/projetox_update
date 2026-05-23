@@ -1858,9 +1858,13 @@ async function loadPublic(slug) {
   const lv = $('landingView');
   const dv = $('dashboardView');
   const pv = $('publicView');
-  if (lv) lv.style.display = 'none';
-  if (dv) dv.style.display = 'none';
-  if (pv) pv.style.display = 'block';
+  if (lv) lv.classList.remove('active');
+if (dv) dv.classList.remove('active');
+
+if (pv) {
+  pv.style.display = 'block';
+  pv.classList.add('active');
+}
 
   const { data: empresa, error } = await db.from('agenda_empresas')
     .select('*').eq('slug', slug).single();
