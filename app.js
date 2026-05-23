@@ -1,17 +1,6 @@
-const SUPABASE_URL = "https://wyjrjioipqfltdyupfna.supabase.co";
-const SUPABASE_KEY = "sb_publishable_PkDkt5S-_rdrT0HhANoPAw_ZWluV2_H";
-
-const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: false
-    }
-  }
-);
+/* ═══════════════════════════════════════════════
+   AGENDAPRO — app.js CORRIGIDO COMPLETO
+═══════════════════════════════════════════════ */
 
 // ── STATE ──
 let state = {
@@ -348,15 +337,10 @@ function setView(view) {
 function openAuth(mode) {
   const overlay = $('authOverlay');
   if (!overlay) return;
-
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-
-  if (mode === 'login') {
-    showLogin();
-  } else {
-    showCadastro();
-  }
+  if (mode === 'login') showLogin();
+  else showCadastro();
 }
 
 function closeAuth() {
@@ -365,129 +349,135 @@ function closeAuth() {
   document.body.style.overflow = '';
 }
 
-// ── FUNÇÃO CENTRAL: esconde todos os steps ──
-function resetCadastroSteps() {
-  ['step1', 'step2', 'step3'].forEach(function(id) {
-    var el = $(id);
-    if (!el) return;
-    el.style.display = 'none';
-    el.classList.remove('active');
-  });
-}
-
-// ── ATUALIZA INDICADORES DE STEP ──
-function setStep(n) {
-  ['st1', 'st2', 'st3'].forEach(function(id, i) {
-    var el = $(id);
-    if (!el) return;
-    el.className = 'step-dot' + (i + 1 === n ? ' active' : i + 1 < n ? ' done' : '');
-  });
-}
-
-// ── MOSTRA FORMULÁRIO DE LOGIN ──
 function showLogin() {
-  var fl = $('formLogin');
-  var fc = $('formCadastro');
-
-  // Esconde cadastro e todos os steps primeiro
-  if (fc) fc.style.display = 'none';
-  resetCadastroSteps();
-
-  // Mostra login
+  const fl = $('formLogin');
+  const fc = $('formCadastro');
   if (fl) fl.style.display = 'block';
+  if (fc) fc.style.display = 'none';
 }
 
-// ── MOSTRA FORMULÁRIO DE CADASTRO (sempre começa no step 1) ──
+// ── CORREÇÃO DEFINITIVA DOS STEPS ──
+// Função central que controla qual step está visível.
+// Esconde TODOS os steps antes de mostrar o escolhido.
+// Nunca deixa mais de 1 step visível ao mesmo tempo.
+function _goToStep(n) {
+  const steps = [
+    $('step1'),
+    $('step2'),
+    $('step3')
+  ];
+
+  // Esconde TODOS primeiro, sem exceção
+  steps.forEach(function(el) {
+    if (el) {
+      el.style.display = 'none';
+      el.style.visibility = 'hidden';
+      el.style.opacity = '0';
+      el.style.pointerEvents = 'none';
+      el.removeAttribute('class');
+      el.className = 'step-block';
+    }
+  });
+
+  // Mostra apenas o step correto
+  const target = steps[n - 1];
+  if (target) {
+    target.style.display = 'block';
+    target.style.visibility = 'visible';
+    target.style.opacity = '1';
+    target.style.pointerEvents = 'auto';
+    target.className = 'step-block active';
+  }
+
+  // Atualiza indicadores de progresso
+  ['st1', 'st2', 'st3'].forEach(function(id, i) {
+    const dot = $(id);
+    if (!dot) return;
+    dot.className = 'step-dot' + (i + 1 === n ? ' active' : i + 1 < n ? ' done' : '');
+  });
+}
+
+function resetCadastroSteps() {
+  // Limpa TODOS os steps e campos do formulário de cadastro
+  const steps = [$('step1'), $('step2'), $('step3')];
+  steps.forEach(function(el) {
+    if (el) {
+      el.style.display = 'none';
+      el.style.visibility = 'hidden';
+      el.style.opacity = '0';
+      el.style.pointerEvents = 'none';
+      el.removeAttribute('class');
+      el.className = 'step-block';
+    }
+  });
+
+  // Reseta indicadores
+  ['st1', 'st2', 'st3'].forEach(function(id) {
+    const dot = $(id);
+    if (dot) dot.className = 'step-dot';
+  });
+
+  // Limpa campos
+  const campos = [
+    'cadNome', 'cadEmail', 'cadSenha',
+    'empNome', 'empSlug', 'empWhatsapp',
+    'servNome', 'servPreco', 'servDuracao',
+    'profNome', 'profEsp'
+  ];
+  campos.forEach(function(id) {
+    const el = $(id);
+    if (el) {
+      el.value = '';
+      if (el.dataset) el.dataset.manual = '';
+    }
+  });
+}
+
 function showCadastro() {
-  var fl = $('formLogin');
-  var fc = $('formCadastro');
+  const fl = $('formLogin');
+  const fc = $('formCadastro');
 
-  // Esconde login
+  // Esconde login, mostra cadastro
   if (fl) fl.style.display = 'none';
-
-  // Garante que todos os steps estão ocultos antes de mostrar o 1
-  resetCadastroSteps();
-
-  // Mostra container do cadastro
-  if (fc) fc.style.display = 'block';
-
-  // Mostra apenas o step 1
-  var s1 = $('step1');
-  if (s1) {
-    s1.style.display = 'block';
-    s1.classList.add('active');
+  if (fc) {
+    fc.style.display = 'block';
+    fc.style.visibility = 'visible';
+    fc.style.opacity = '1';
   }
 
-  // Atualiza indicador
-  setStep(1);
-
-  // Preenche select de categorias
+  // Reseta e vai para step 1
+  resetCadastroSteps();
   preencherSelectCategorias();
+  _goToStep(1);
 }
 
-// ── NAVEGAÇÃO: voltar para step 1 ──
 function goStep1() {
-  // Esconde tudo
-  resetCadastroSteps();
-
-  // Mostra só step 1
-  var s1 = $('step1');
-  if (s1) {
-    s1.style.display = 'block';
-    s1.classList.add('active');
-  }
-
-  setStep(1);
+  _goToStep(1);
 }
 
-// ── NAVEGAÇÃO: avançar para step 2 ──
 function goStep2() {
-  var nome = $('cadNome') ? $('cadNome').value.trim() : '';
-  var email = $('cadEmail') ? $('cadEmail').value.trim() : '';
-  var senha = $('cadSenha') ? $('cadSenha').value.trim() : '';
-
-  if (!nome || !email || !senha) {
-    return toast('Preencha nome, e-mail e senha.', 'err');
-  }
-  if (senha.length < 6) {
-    return toast('Senha mínimo 6 caracteres.', 'err');
-  }
-
-  // Esconde tudo
-  resetCadastroSteps();
-
-  // Mostra só step 2
-  var s2 = $('step2');
-  if (s2) {
-    s2.style.display = 'block';
-    s2.classList.add('active');
-  }
-
-  setStep(2);
+  const nome = ($('cadNome')?.value || '').trim();
+  const email = ($('cadEmail')?.value || '').trim();
+  const senha = ($('cadSenha')?.value || '').trim();
+  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
+  if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
   preencherSelectCategorias();
+  _goToStep(2);
 }
 
-// ── NAVEGAÇÃO: avançar para step 3 ──
 function goStep3() {
-  var empNome = $('empNome') ? $('empNome').value.trim() : '';
-  var empSlug = $('empSlug') ? $('empSlug').value.trim() : '';
-  var empWhatsapp = $('empWhatsapp') ? $('empWhatsapp').value.trim() : '';
-
+  const empNome = ($('empNome')?.value || '').trim();
+  const empSlug = ($('empSlug')?.value || '').trim();
+  const empWhatsapp = ($('empWhatsapp')?.value || '').trim();
   if (!empNome || !empSlug || !empWhatsapp) {
     return toast('Preencha nome, link e WhatsApp.', 'err');
   }
+  _goToStep(3);
+}
 
-  // Esconde tudo
-  resetCadastroSteps();
-
-  // Mostra só step 3
-  var s3 = $('step3');
-  if (s3) {
-    s3.style.display = 'block';
-    s3.classList.add('active');
-  }
-
-  setStep(3);
+function setStep(n) {
+  // Mantido por compatibilidade, delega para _goToStep
+  _goToStep(n);
 }
 
 function autoSlug() {
@@ -737,7 +727,7 @@ function preserveAgendaFormValues(callback) {
   if ($('agProfissional') && values.profissional && [...$('agProfissional').options].some(o => o.value === values.profissional)) $('agProfissional').value = values.profissional;
   if ($('agData') && values.data) $('agData').value = values.data;
   if ($('agHora') && values.hora) $('agHora').value = values.hora;
-  if ($('agStatus') && values.status) $('agStatus').value = values.status;
+  if ($('agStatus') && values.status) $('agStatus')?.value && ($('agStatus').value = values.status);
 }
 
 // ── LOAD ALL ──
@@ -762,12 +752,6 @@ async function loadAll() {
   } catch (e) {
     console.error('Erro ao carregar dados:', e);
   }
-}
-
-function isEditingConfig() {
-  const active = document.activeElement;
-  if (!active) return false;
-  return !!active.closest('#view-config');
 }
 
 function renderAll() {
@@ -1518,6 +1502,25 @@ function closeConfirmModal() {
   _confirmCb = null;
 }
 
+// ── EDIT MODAL ──
+function openEditModal(title, bodyHtml, saveCb) {
+  setText('editModalTitle', title);
+  const body = $('editModalBody');
+  if (body) body.innerHTML = bodyHtml;
+  _editSaveCb = saveCb;
+  const saveBtn = $('editSaveBtn');
+  if (saveBtn) saveBtn.onclick = () => { if (_editSaveCb) _editSaveCb(); };
+  const overlay = $('editOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeEditModal() {
+  const overlay = $('editOverlay');
+  if (overlay) overlay.classList.remove('open');
+  _editSaveCb = null;
+}
+
+// ── EVENT LISTENERS DOS MODAIS ──
 document.addEventListener('DOMContentLoaded', function() {
   const confirmBtn = $('confirmActionBtn');
   if (confirmBtn) {
@@ -1554,25 +1557,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (e.target === modalReagendarOverlay) closeModalReagendar();
     });
   }
+
+  // Fecha auth ao clicar fora do painel
+  const authOverlay = $('authOverlay');
+  if (authOverlay) {
+    authOverlay.addEventListener('click', e => {
+      if (e.target === authOverlay) closeAuth();
+    });
+  }
 });
-
-// ── EDIT MODAL ──
-function openEditModal(title, bodyHtml, saveCb) {
-  setText('editModalTitle', title);
-  const body = $('editModalBody');
-  if (body) body.innerHTML = bodyHtml;
-  _editSaveCb = saveCb;
-  const saveBtn = $('editSaveBtn');
-  if (saveBtn) saveBtn.onclick = () => { if (_editSaveCb) _editSaveCb(); };
-  const overlay = $('editOverlay');
-  if (overlay) overlay.classList.add('open');
-}
-
-function closeEditModal() {
-  const overlay = $('editOverlay');
-  if (overlay) overlay.classList.remove('open');
-  _editSaveCb = null;
-}
 
 // ── EDITAR ──
 function editServico(id) {
@@ -1858,13 +1851,9 @@ async function loadPublic(slug) {
   const lv = $('landingView');
   const dv = $('dashboardView');
   const pv = $('publicView');
-  if (lv) lv.classList.remove('active');
-if (dv) dv.classList.remove('active');
-
-if (pv) {
-  pv.style.display = 'block';
-  pv.classList.add('active');
-}
+  if (lv) lv.style.display = 'none';
+  if (dv) dv.style.display = 'none';
+  if (pv) pv.style.display = 'block';
 
   const { data: empresa, error } = await db.from('agenda_empresas')
     .select('*').eq('slug', slug).single();
@@ -2027,6 +2016,7 @@ function voltarDaPublica() {
 Object.assign(window, {
   openAuth, closeAuth, showLogin, showCadastro,
   goStep1, goStep2, goStep3, autoSlug,
+  resetCadastroSteps,
   loginComSenha, finalizarCadastro, logout,
   setView, setFilter,
   salvarCliente, salvarServico, salvarProfissional, salvarAgendamento,
@@ -2044,21 +2034,3 @@ Object.assign(window, {
   toast, clearNotifDot, loadPublic,
   openMobileMenu, closeMobileMenu
 });
-
-// ── PATCH FINAL: proteção da página pública ──
-(function() {
-  function forcePublicIsolation() {
-    if (!location.hash || !location.hash.startsWith('#agendar/')) return;
-    const landing = document.getElementById('landingView');
-    const dashboard = document.getElementById('dashboardView');
-    const publicView = document.getElementById('publicView');
-    if (landing) landing.style.display = 'none';
-    if (dashboard) dashboard.style.display = 'none';
-    if (publicView) publicView.style.display = 'block';
-    document.body.classList.add('public-mode');
-  }
-  window.addEventListener('hashchange', forcePublicIsolation);
-  window.addEventListener('DOMContentLoaded', forcePublicIsolation);
-  setTimeout(forcePublicIsolation, 300);
-  setTimeout(forcePublicIsolation, 1000);
-})();
