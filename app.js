@@ -43,8 +43,9 @@ function slugify(s) {
 
 function hojeISO() { return new Date().toISOString().slice(0, 10); }
 function mesPrefixo() { return new Date().toISOString().slice(0, 7); }
-function publicUrl(slug) { 
-return location.origin + location.pathname + 'agendar/' + slug + '/'; }
+function publicUrl(slug) {
+  return location.origin + location.pathname + 'agendar/' + slug + '/';
+}
 function initial(name) { return (name || '?').trim().substring(0, 1).toUpperCase(); }
 
 function formatDate(d) {
@@ -149,18 +150,14 @@ window.addEventListener('hashchange', () => {
 });
 
 // ── FECHAR MENUS AO CLICAR FORA ──
-// FIX: só fecha se o clique NÃO foi dentro do dropdown aberto
 document.addEventListener('click', function(e) {
   if (_openMenu) {
-    // Se clicou no próprio botão que abriu — o handler do btn já trata
     if (_openMenuBtn && _openMenuBtn.contains(e.target)) return;
-    // Se clicou dentro do dropdown — não fecha
     if (_openMenu.contains(e.target)) return;
     closeAllMenus();
   }
 });
 
-// Fecha menus ao rolar (evita dropdown desalinhado)
 document.addEventListener('scroll', closeAllMenus, { passive: true });
 
 // ── INIT ──
@@ -237,7 +234,6 @@ async function loadCategorias() {
 function preencherSelectCategorias() {
   const sel = $('empCategoria');
   if (!sel) return;
-
   if (!state.categorias || state.categorias.length === 0) {
     const fallback = [
       { id: 'beleza', nome: 'Beleza & Estética', icone: '💅' },
@@ -361,58 +357,93 @@ function showLogin() {
   if (fc) fc.style.display = 'none';
 }
 
+// ═══════════════════════════════════════════════
+// CORREÇÃO DEFINITIVA DOS STEPS
+// Esta é a ÚNICA função que controla visibilidade dos steps.
+// Esconde TUDO antes de mostrar o step correto.
+// Nunca chame display diretamente em outro lugar.
+// ═══════════════════════════════════════════════
+function _mostrarStep(n) {
+  var ids = ['step1', 'step2', 'step3'];
+  // Esconde TODOS sem exceção
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) {
+      el.style.cssText = 'display:none !important; visibility:hidden !important;';
+    }
+  }
+  // Mostra apenas o correto
+  var alvo = document.getElementById('step' + n);
+  if (alvo) {
+    alvo.style.cssText = 'display:block !important; visibility:visible !important;';
+  }
+  // Atualiza indicadores de progresso
+  var dots = ['st1', 'st2', 'st3'];
+  for (var j = 0; j < dots.length; j++) {
+    var dot = document.getElementById(dots[j]);
+    if (!dot) continue;
+    if (j + 1 === n) dot.className = 'step-dot active';
+    else if (j + 1 < n) dot.className = 'step-dot done';
+    else dot.className = 'step-dot';
+  }
+}
+
 function showCadastro() {
-  const fl = $('formLogin');
-  const fc = $('formCadastro');
+  var fl = $('formLogin');
+  var fc = $('formCadastro');
+
+  // Esconde login
   if (fl) fl.style.display = 'none';
-  if (fc) fc.style.display = 'block';
-  const s1 = $('step1'), s2 = $('step2'), s3 = $('step3');
-  if (s1) s1.style.display = 'block';
-  if (s2) s2.style.display = 'none';
-  if (s3) s3.style.display = 'none';
-  setStep(1);
+
+  // Mostra formulário de cadastro
+  if (fc) {
+    fc.style.cssText = 'display:block !important; visibility:visible !important;';
+  }
+
+  // Limpa campos
+  var campos = ['cadNome','cadEmail','cadSenha','empNome','empSlug','empWhatsapp',
+                'servNome','servPreco','servDuracao','profNome','profEsp'];
+  for (var i = 0; i < campos.length; i++) {
+    var el = document.getElementById(campos[i]);
+    if (el) {
+      el.value = '';
+      if (el.dataset) el.dataset.manual = '';
+    }
+  }
+
+  // Mostra step 1 e esconde todos os outros
+  _mostrarStep(1);
+
+  // Carrega categorias
   preencherSelectCategorias();
 }
 
 function setStep(n) {
-  ['st1', 'st2', 'st3'].forEach((id, i) => {
-    const el = $(id);
-    if (!el) return;
-    el.className = 'step-dot' + (i + 1 === n ? ' active' : i + 1 < n ? ' done' : '');
-  });
-}
-
-function goStep2() {
-  const nome = $('cadNome')?.value?.trim();
-  const email = $('cadEmail')?.value?.trim();
-  const senha = $('cadSenha')?.value?.trim();
-  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
-  if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
-  const s1 = $('step1'), s2 = $('step2');
-  if (s1) s1.style.display = 'none';
-  if (s2) s2.style.display = 'block';
-  setStep(2);
-  preencherSelectCategorias();
+  _mostrarStep(n);
 }
 
 function goStep1() {
-  const s1 = $('step1'), s2 = $('step2');
-  if (s2) s2.style.display = 'none';
-  if (s1) s1.style.display = 'block';
-  setStep(1);
+  _mostrarStep(1);
+}
+
+function goStep2() {
+  var nome = ($('cadNome') ? $('cadNome').value : '').trim();
+  var email = ($('cadEmail') ? $('cadEmail').value : '').trim();
+  var senha = ($('cadSenha') ? $('cadSenha').value : '').trim();
+  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
+  if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
+  preencherSelectCategorias();
+  _mostrarStep(2);
 }
 
 function goStep3() {
-  const empNome = $('empNome')?.value?.trim();
-  const empSlug = $('empSlug')?.value?.trim();
-  const empWhatsapp = $('empWhatsapp')?.value?.trim();
+  var empNome = ($('empNome') ? $('empNome').value : '').trim();
+  var empSlug = ($('empSlug') ? $('empSlug').value : '').trim();
+  var empWhatsapp = ($('empWhatsapp') ? $('empWhatsapp').value : '').trim();
   if (!empNome || !empSlug || !empWhatsapp) {
     return toast('Preencha nome, link e WhatsApp.', 'err');
   }
-  const s2 = $('step2'), s3 = $('step3');
-  if (s2) s2.style.display = 'none';
-  if (s3) s3.style.display = 'block';
-  setStep(3);
+  _mostrarStep(3);
 }
 
 function autoSlug() {
@@ -689,12 +720,6 @@ async function loadAll() {
   }
 }
 
-function isEditingConfig() {
-  const active = document.activeElement;
-  if (!active) return false;
-  return !!active.closest('#view-config');
-}
-
 function renderAll() {
   preserveAgendaFormValues(() => {
     renderStats();
@@ -808,7 +833,6 @@ function renderSelects() {
         .filter(s => (s.status || 'ativo') === 'ativo')
         .map(s => `<option value="${s.id}">${s.nome} — ${money(s.preco).replace(',00','')}</option>`)
         .join('');
-
     if (selectedServico && [...agS.options].some(o => o.value === selectedServico)) {
       agS.value = selectedServico;
     }
@@ -821,7 +845,6 @@ function renderSelects() {
         .filter(p => (p.status || 'ativo') === 'ativo')
         .map(p => `<option value="${p.id}">${p.nome}</option>`)
         .join('');
-
     if (selectedProfissional && [...agP.options].some(o => o.value === selectedProfissional)) {
       agP.value = selectedProfissional;
     }
@@ -884,7 +907,6 @@ function renderTimeline() {
         </div>
       </div>`;
     const card = block.querySelector('.tl-card');
-    const cardTop = block.querySelector('.tl-card-top');
     const menu = buildActionMenu(a.id, [
       { icon: '✏️', label: 'Editar', action: () => editAgendamento(a.id) },
       { icon: '📋', label: 'Duplicar', action: () => duplicarAgendamento(a.id) },
@@ -922,9 +944,7 @@ function renderAcoes(a) {
   </div>`;
 }
 
-// ── ACTION MENU — FIX COMPLETO ──
-// Usa position:fixed com coordenadas calculadas do getBoundingClientRect
-// para que o dropdown nunca seja cortado por qualquer overflow:hidden do pai
+// ── ACTION MENU ──
 function buildActionMenu(id, items) {
   const wrap = document.createElement('div');
   wrap.className = 'action-menu';
@@ -952,7 +972,6 @@ function buildActionMenu(id, items) {
       e.stopPropagation();
       e.preventDefault();
       closeAllMenus();
-      // Pequeno delay para garantir que o menu fechou antes da ação
       setTimeout(() => item.action(), 50);
     });
     drop.appendChild(el);
@@ -969,28 +988,22 @@ function buildActionMenu(id, items) {
 
     closeAllMenus();
 
-    // FIX CRÍTICO: posiciona o dropdown via fixed usando coordenadas reais do botão
     const rect = btn.getBoundingClientRect();
     const dropW = 200;
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
 
-    // Calcula posição: tenta abrir à direita do botão, alinhado pela direita
     let left = rect.right - dropW;
     let top = rect.bottom + 6;
 
-    // Se sair pela esquerda, abre pela esquerda do botão
     if (left < 8) left = rect.left;
-    // Se sair pela direita, recua
     if (left + dropW > viewportW - 8) left = viewportW - dropW - 8;
-    // Se sair por baixo, abre para cima
     if (top + 200 > viewportH - 8) top = rect.top - 210;
 
     drop.style.top = top + 'px';
     drop.style.left = left + 'px';
     drop.style.minWidth = dropW + 'px';
 
-    // Adiciona ao body para escapar de qualquer overflow:hidden
     document.body.appendChild(drop);
     drop.classList.add('open');
     _openMenu = drop;
@@ -998,8 +1011,6 @@ function buildActionMenu(id, items) {
   });
 
   wrap.appendChild(btn);
-  // drop fica no body quando aberto, não dentro do wrap
-  // mas começa dentro para não poluir o DOM
   wrap.appendChild(drop);
   return wrap;
 }
@@ -1007,14 +1018,12 @@ function buildActionMenu(id, items) {
 function closeAllMenus() {
   if (_openMenu) {
     _openMenu.classList.remove('open');
-    // Remove do body se foi movido para lá
     if (_openMenu.parentElement === document.body) {
       document.body.removeChild(_openMenu);
     }
     _openMenu = null;
     _openMenuBtn = null;
   }
-  // Limpa qualquer dropdown órfão
   document.querySelectorAll('body > .action-dropdown').forEach(d => {
     d.classList.remove('open');
     if (d.parentElement === document.body) document.body.removeChild(d);
@@ -1457,6 +1466,25 @@ function closeConfirmModal() {
   _confirmCb = null;
 }
 
+// ── EDIT MODAL ──
+function openEditModal(title, bodyHtml, saveCb) {
+  setText('editModalTitle', title);
+  const body = $('editModalBody');
+  if (body) body.innerHTML = bodyHtml;
+  _editSaveCb = saveCb;
+  const saveBtn = $('editSaveBtn');
+  if (saveBtn) saveBtn.onclick = () => { if (_editSaveCb) _editSaveCb(); };
+  const overlay = $('editOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeEditModal() {
+  const overlay = $('editOverlay');
+  if (overlay) overlay.classList.remove('open');
+  _editSaveCb = null;
+}
+
+// ── EVENT LISTENERS ──
 document.addEventListener('DOMContentLoaded', function() {
   const confirmBtn = $('confirmActionBtn');
   if (confirmBtn) {
@@ -1493,25 +1521,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (e.target === modalReagendarOverlay) closeModalReagendar();
     });
   }
+
+  // Fecha auth ao clicar fora
+  const authOverlay = $('authOverlay');
+  if (authOverlay) {
+    authOverlay.addEventListener('click', e => {
+      if (e.target === authOverlay) closeAuth();
+    });
+  }
 });
-
-// ── EDIT MODAL ──
-function openEditModal(title, bodyHtml, saveCb) {
-  setText('editModalTitle', title);
-  const body = $('editModalBody');
-  if (body) body.innerHTML = bodyHtml;
-  _editSaveCb = saveCb;
-  const saveBtn = $('editSaveBtn');
-  if (saveBtn) saveBtn.onclick = () => { if (_editSaveCb) _editSaveCb(); };
-  const overlay = $('editOverlay');
-  if (overlay) overlay.classList.add('open');
-}
-
-function closeEditModal() {
-  const overlay = $('editOverlay');
-  if (overlay) overlay.classList.remove('open');
-  _editSaveCb = null;
-}
 
 // ── EDITAR ──
 function editServico(id) {
@@ -1961,7 +1979,7 @@ function voltarDaPublica() {
 // ── EXPOSE GLOBALS ──
 Object.assign(window, {
   openAuth, closeAuth, showLogin, showCadastro,
-  goStep1, goStep2, goStep3, autoSlug,
+  goStep1, goStep2, goStep3, setStep, autoSlug,
   loginComSenha, finalizarCadastro, logout,
   setView, setFilter,
   salvarCliente, salvarServico, salvarProfissional, salvarAgendamento,
