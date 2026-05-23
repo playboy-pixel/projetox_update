@@ -153,7 +153,6 @@ a { text-decoration: none; color: inherit; }
   outline: none; transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%; min-width: 0;
 }
-/* FIX: select não corta texto — aparência nativa para permitir scroll */
 .field select {
   appearance: auto;
   -webkit-appearance: auto;
@@ -770,44 +769,58 @@ a { text-decoration: none; color: inherit; }
 }
 .tl-content { flex: 1; min-width: 0; }
 
-/* FIX: card com overflow visible para o dropdown não ser cortado */
 .tl-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-lg); padding: 12px 14px;
   display: flex; flex-direction: column; gap: 0;
   transition: border-color 0.15s;
   position: relative;
-  overflow: visible; /* ESSENCIAL: permite dropdown sair do card */
+  overflow: visible;
 }
 .tl-card:hover { border-color: var(--border2); }
 
-/* FIX: top-row com padding-right maior para não sobrepor o botão ⋮ */
 .tl-card-top {
   display: flex; align-items: flex-start; gap: 10px;
-  padding-right: 44px; /* espaço para o botão ⋮ */
+  padding-right: 44px;
 }
 .tl-card-info { flex: 1; min-width: 0; }
 .tl-card-name {
   font-weight: 600; font-size: 13px;
-  /* FIX: permite quebra de linha em vez de cortar */
   word-break: break-word;
   overflow-wrap: anywhere;
   white-space: normal;
 }
 .tl-card-meta {
   font-size: 11.5px; color: var(--text3); margin-top: 2px;
-  /* FIX: permite quebra de linha em mobile */
   word-break: break-word;
   white-space: normal;
 }
 .tl-card-status { flex-shrink: 0; }
 .tl-card .action-menu { position: absolute; top: 10px; right: 10px; }
 
-/* FIX: ações com flex-wrap e tamanho mínimo garantido */
+/* ── BOTÕES DE AÇÃO ── */
 .apt-actions {
   display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
   border-top: 1px solid var(--border); padding-top: 10px;
 }
+
+/* ── BOTÕES EM GRADE 2x2 ── */
+.apt-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.apt-actions-grid .act-btn {
+  justify-content: center;
+  width: 100%;
+  padding: 8px 6px;
+  font-size: 12px;
+}
+
 .act-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   padding: 7px 11px; border-radius: 8px; border: none; cursor: pointer;
@@ -827,7 +840,6 @@ a { text-decoration: none; color: inherit; }
 /* ══════════════════════════════════════════
    CLIENTES / SERVIÇOS / PROFISSIONAIS
 ══════════════════════════════════════════ */
-/* FIX: cards com overflow visible para dropdown não ser cortado */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
@@ -837,10 +849,10 @@ a { text-decoration: none; color: inherit; }
 .client-card {
   background: var(--bg1); border: 1px solid var(--border);
   border-radius: var(--radius-xl); padding: 16px;
-  padding-right: 54px; /* espaço para o ⋮ */
+  padding-right: 54px;
   transition: border-color 0.2s, transform 0.2s;
   position: relative;
-  overflow: visible; /* FIX: dropdown não é cortado */
+  overflow: visible;
 }
 .client-card:hover { border-color: var(--border2); transform: translateY(-2px); }
 .client-card.inactive { opacity: 0.5; }
@@ -873,7 +885,6 @@ a { text-decoration: none; color: inherit; }
 }
 .svc-card:hover { border-color: var(--border2); transform: translateY(-2px); }
 .svc-card.inactive { opacity: 0.5; }
-/* FIX: preço não corta — sem text-overflow aqui */
 .svc-price {
   font-family: 'Instrument Serif', serif; font-size: 24px; color: var(--text);
   word-break: break-word;
@@ -948,7 +959,7 @@ a { text-decoration: none; color: inherit; }
 .sch-day-name { font-size: 10px; font-weight: 700; color: var(--text4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 7px; }
 
 /* ══════════════════════════════════════════
-   ACTION MENU (⋮) — FIX COMPLETO
+   ACTION MENU (⋮)
 ══════════════════════════════════════════ */
 .action-menu {
   position: absolute;
@@ -963,7 +974,6 @@ a { text-decoration: none; color: inherit; }
   background: var(--surface2); color: var(--text3); cursor: pointer;
   display: grid; place-items: center; font-size: 18px; font-weight: 800;
   transition: all 0.15s; line-height: 1; padding: 0;
-  /* FIX: botão não some em mobile — touch events */
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   user-select: none;
@@ -971,11 +981,10 @@ a { text-decoration: none; color: inherit; }
 }
 .action-menu-btn:hover { background: var(--accent4); border-color: var(--accent-border); color: var(--accent2); }
 
-/* FIX PRINCIPAL: dropdown não some — pointer-events persistente durante transição */
 .action-dropdown {
-  position: fixed; /* FIX: fixed em vez de absolute evita ser cortado por overflow:hidden do pai */
+  position: fixed;
   min-width: 190px;
-  z-index: 99999; /* altíssimo para ficar acima de tudo */
+  z-index: 99999;
   background: rgba(15,15,18,0.99);
   border: 1px solid var(--border2);
   border-radius: var(--radius-lg); padding: 5px;
@@ -998,7 +1007,7 @@ a { text-decoration: none; color: inherit; }
   border-radius: 8px; font-size: 13.5px; font-weight: 500; color: var(--text2);
   cursor: pointer; background: none; border: none; width: 100%; text-align: left;
   font-family: 'Geist', sans-serif; transition: background 0.12s, color 0.12s;
-  min-height: 42px; /* FIX: área de toque maior */
+  min-height: 42px;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -1301,7 +1310,6 @@ body.menu-open { overflow: hidden; touch-action: none; }
   .land-cta { padding: 56px 16px; }
   .land-footer { flex-direction: column; gap: 8px; text-align: center; padding: 20px 16px; }
 
-  /* Auth mobile */
   .auth-overlay { align-items: flex-start; padding: 10px; }
   .auth-modal { grid-template-columns: 1fr; max-width: 420px; max-height: calc(100dvh - 20px); border-radius: 22px; }
   .auth-panel-left { display: none; }
@@ -1310,7 +1318,6 @@ body.menu-open { overflow: hidden; touch-action: none; }
   .form-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .form-actions .btn { width: 100%; }
 
-  /* Dashboard mobile */
   .sidebar { display: none; }
   .dash-main { margin-left: 0; padding: 10px 12px 96px; width: 100%; max-width: 100%; }
 
@@ -1361,18 +1368,15 @@ body.menu-open { overflow: hidden; touch-action: none; }
 
   .content-grid { grid-template-columns: 1fr; }
 
-  /* FIX mobile: cards em coluna única, dropdown livre */
   .cards-grid { grid-template-columns: 1fr; }
   .config-grid { grid-template-columns: 1fr; }
   .fin-grid { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr !important; }
 
-  /* FIX mobile: padding para não sobrepor botão ⋮ */
   .client-card { padding: 14px; padding-right: 52px; }
   .svc-card { padding: 14px; padding-right: 52px; }
   .prof-card { padding: 48px 14px 14px; }
 
-  /* FIX timeline mobile */
   .tl-block { gap: 6px; }
   .tl-time { min-width: 32px; font-size: 10px; }
   .tl-line { display: none; }
@@ -1380,16 +1384,22 @@ body.menu-open { overflow: hidden; touch-action: none; }
   .tl-card-name { white-space: normal; word-break: break-word; }
   .tl-card-meta { white-space: normal; word-break: break-word; }
 
-  /* FIX ações mobile: grid 2 colunas */
   .apt-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
   }
   .apt-actions .act-btn { justify-content: center; width: 100%; }
+  .apt-actions-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .apt-actions-grid .act-btn {
+    font-size: 11.5px;
+    padding: 8px 4px;
+  }
   .muted-actions { display: flex; flex-wrap: wrap; }
 
-  /* FIX: botão ⋮ maior em mobile */
   .action-menu-btn {
     width: 38px !important; height: 38px !important;
     font-size: 20px !important;
@@ -1402,7 +1412,6 @@ body.menu-open { overflow: hidden; touch-action: none; }
 
   .schedule-grid { grid-template-columns: repeat(4,1fr); }
 
-  /* FIX: select mostra texto completo em mobile */
   .field select { padding-right: 8px; }
 }
 
@@ -1412,14 +1421,15 @@ body.menu-open { overflow: hidden; touch-action: none; }
   .stats-grid-3,
   .stats-grid-6,
   .stats-grid-2 { grid-template-columns: 1fr 1fr !important; }
-  /* Em telas muito pequenas, ações em coluna */
   .apt-actions { grid-template-columns: 1fr; }
+  .apt-actions-grid { grid-template-columns: 1fr 1fr; }
   .form-actions { grid-template-columns: 1fr; }
   .hero-title { font-size: clamp(36px, 10vw, 48px); }
 }
 
-
-/* PATCH FINAL — TELA DE AGENDAMENTO / PÁGINA PÚBLICA */
+/* ══════════════════════════════════════════
+   PATCH FINAL — PÁGINA PÚBLICA
+══════════════════════════════════════════ */
 html, body {
   background: var(--bg) !important;
   color: var(--text) !important;
@@ -1551,4 +1561,3 @@ html, body {
     font-size: 46px !important;
   }
 }
-
