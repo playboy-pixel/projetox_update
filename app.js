@@ -365,7 +365,6 @@ function closeAuth() {
   document.body.style.overflow = '';
 }
 
-// ── FUNÇÃO CENTRAL: esconde todos os steps ──
 function resetCadastroSteps() {
   ['step1', 'step2', 'step3'].forEach(function(id) {
     var el = $(id);
@@ -375,7 +374,6 @@ function resetCadastroSteps() {
   });
 }
 
-// ── ATUALIZA INDICADORES DE STEP ──
 function setStep(n) {
   ['st1', 'st2', 'st3'].forEach(function(id, i) {
     var el = $(id);
@@ -384,109 +382,66 @@ function setStep(n) {
   });
 }
 
-// ── MOSTRA FORMULÁRIO DE LOGIN ──
 function showLogin() {
   var fl = $('formLogin');
   var fc = $('formCadastro');
-
-  // Esconde cadastro e todos os steps primeiro
   if (fc) fc.style.display = 'none';
   resetCadastroSteps();
-
-  // Mostra login
   if (fl) fl.style.display = 'block';
 }
 
-// ── MOSTRA FORMULÁRIO DE CADASTRO (sempre começa no step 1) ──
 function showCadastro() {
   var fl = $('formLogin');
   var fc = $('formCadastro');
-
-  // Esconde login
   if (fl) fl.style.display = 'none';
-
-  // Garante que todos os steps estão ocultos antes de mostrar o 1
   resetCadastroSteps();
-
-  // Mostra container do cadastro
   if (fc) fc.style.display = 'block';
-
-  // Mostra apenas o step 1
   var s1 = $('step1');
   if (s1) {
     s1.style.display = 'block';
     s1.classList.add('active');
   }
-
-  // Atualiza indicador
   setStep(1);
-
-  // Preenche select de categorias
   preencherSelectCategorias();
 }
 
-// ── NAVEGAÇÃO: voltar para step 1 ──
 function goStep1() {
-  // Esconde tudo
   resetCadastroSteps();
-
-  // Mostra só step 1
   var s1 = $('step1');
   if (s1) {
     s1.style.display = 'block';
     s1.classList.add('active');
   }
-
   setStep(1);
 }
 
-// ── NAVEGAÇÃO: avançar para step 2 ──
 function goStep2() {
   var nome = $('cadNome') ? $('cadNome').value.trim() : '';
   var email = $('cadEmail') ? $('cadEmail').value.trim() : '';
   var senha = $('cadSenha') ? $('cadSenha').value.trim() : '';
-
-  if (!nome || !email || !senha) {
-    return toast('Preencha nome, e-mail e senha.', 'err');
-  }
-  if (senha.length < 6) {
-    return toast('Senha mínimo 6 caracteres.', 'err');
-  }
-
-  // Esconde tudo
+  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'err');
+  if (senha.length < 6) return toast('Senha mínimo 6 caracteres.', 'err');
   resetCadastroSteps();
-
-  // Mostra só step 2
   var s2 = $('step2');
   if (s2) {
     s2.style.display = 'block';
     s2.classList.add('active');
   }
-
   setStep(2);
   preencherSelectCategorias();
 }
 
-// ── NAVEGAÇÃO: avançar para step 3 ──
 function goStep3() {
   var empNome = $('empNome') ? $('empNome').value.trim() : '';
   var empSlug = $('empSlug') ? $('empSlug').value.trim() : '';
   var empWhatsapp = $('empWhatsapp') ? $('empWhatsapp').value.trim() : '';
-
-  if (!empNome || !empSlug || !empWhatsapp) {
-    return toast('Preencha nome, link e WhatsApp.', 'err');
-  }
-
-  // Esconde tudo
+  if (!empNome || !empSlug || !empWhatsapp) return toast('Preencha nome, link e WhatsApp.', 'err');
   resetCadastroSteps();
-
-  // Mostra só step 3
   var s3 = $('step3');
   if (s3) {
     s3.style.display = 'block';
     s3.classList.add('active');
   }
-
   setStep(3);
 }
 
@@ -508,11 +463,9 @@ async function loginComSenha() {
   const email = ($('loginEmail')?.value || '').trim();
   const senha = ($('loginSenha')?.value || '').trim();
   if (!email || !senha) return toast('Digite e-mail e senha.', 'err');
-
   try {
     const { data, error } = await db.auth.signInWithPassword({ email, password: senha });
     if (error || !data.user) return toast(error?.message || 'E-mail ou senha incorretos.', 'err');
-
     const ok = await carregarConta(data.user);
     if (!ok) {
       await db.auth.signOut();
@@ -531,103 +484,46 @@ async function finalizarCadastro() {
   const servPreco = $('servPreco')?.value;
   const servDuracao = $('servDuracao')?.value;
   const profNomeVal = $('profNome')?.value?.trim();
-
-  if (!servNome || !servPreco || !servDuracao || !profNomeVal) {
-    return toast('Preencha serviço, preço, duração e profissional.', 'err');
-  }
-
+  if (!servNome || !servPreco || !servDuracao || !profNomeVal) return toast('Preencha serviço, preço, duração e profissional.', 'err');
   const email = ($('cadEmail')?.value || '').trim();
   const senha = ($('cadSenha')?.value || '').trim();
   const nomeUser = ($('cadNome')?.value || '').trim();
   const empNomeVal = ($('empNome')?.value || '').trim();
   const empSlugVal = slugify($('empSlug')?.value || empNomeVal);
   const empWhatsappVal = ($('empWhatsapp')?.value || '').trim();
-
   const catSelect = $('empCategoria');
-  const areaAtuacao = catSelect
-    ? (catSelect.options[catSelect.selectedIndex]?.textContent?.trim() || 'Outro')
-    : 'Outro';
-
+  const areaAtuacao = catSelect ? (catSelect.options[catSelect.selectedIndex]?.textContent?.trim() || 'Outro') : 'Outro';
   const btnFin = $('btnFinalizar');
   if (btnFin) { btnFin.disabled = true; btnFin.textContent = 'Criando...'; }
-
   try {
-    const { data: authData, error: authErr } = await db.auth.signUp({
-      email,
-      password: senha,
-      options: { data: { nome: nomeUser } }
-    });
-
+    const { data: authData, error: authErr } = await db.auth.signUp({ email, password: senha, options: { data: { nome: nomeUser } } });
     if (authErr) {
       if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
-      if (authErr.message && authErr.message.toLowerCase().includes('already registered')) {
-        return toast('Este e-mail já está cadastrado. Faça login.', 'err');
-      }
+      if (authErr.message && authErr.message.toLowerCase().includes('already registered')) return toast('Este e-mail já está cadastrado. Faça login.', 'err');
       return toast('Erro ao criar conta: ' + authErr.message, 'err');
     }
-
     if (!authData?.user) {
       if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
       return toast('Erro ao criar conta. Tente novamente.', 'err');
     }
-
     const user = authData.user;
-
-    const { data: slugExiste } = await db.from('agenda_empresas')
-      .select('id').eq('slug', empSlugVal).maybeSingle();
+    const { data: slugExiste } = await db.from('agenda_empresas').select('id').eq('slug', empSlugVal).maybeSingle();
     const slugFinal = slugExiste ? empSlugVal + '-' + Date.now().toString().slice(-4) : empSlugVal;
-
     const { data: empresa, error: errEmp } = await db.from('agenda_empresas').insert({
-      nome: empNomeVal,
-      slug: slugFinal,
-      area_atuacao: areaAtuacao,
-      whatsapp: empWhatsappVal,
-      email: email,
-      plano: 'Grátis',
-      onboarding_finalizado: true
+      nome: empNomeVal, slug: slugFinal, area_atuacao: areaAtuacao, whatsapp: empWhatsappVal,
+      email: email, plano: 'Grátis', onboarding_finalizado: true
     }).select('*').single();
-
     if (errEmp || !empresa) {
-      console.error('Erro ao criar empresa:', errEmp);
       if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
       return toast('Erro ao criar empresa: ' + (errEmp?.message || 'tente novamente.'), 'err');
     }
-
     const { error: perfilErr } = await db.from('agenda_perfis').insert({
-      auth_user_id: user.id,
-      empresa_id: empresa.id,
-      nome: nomeUser,
-      email: email,
-      whatsapp: empWhatsappVal,
-      cargo: 'Administrador'
+      auth_user_id: user.id, empresa_id: empresa.id, nome: nomeUser, email: email, whatsapp: empWhatsappVal, cargo: 'Administrador'
     });
-
-    if (perfilErr) {
-      console.error('Erro ao criar perfil:', perfilErr);
-    }
-
-    await db.from('agenda_servicos').insert({
-      empresa_id: empresa.id,
-      nome: servNome,
-      preco: Number(servPreco || 0),
-      duracao_minutos: Number(servDuracao || 60),
-      status: 'ativo',
-      descricao: 'Serviço inicial.'
-    });
-
-    await db.from('agenda_profissionais').insert({
-      empresa_id: empresa.id,
-      nome: profNomeVal,
-      especialidade: ($('profEsp')?.value || 'Profissional').trim(),
-      telefone: empWhatsappVal,
-      status: 'ativo'
-    });
-
-    const { data: loginData, error: loginErr } = await db.auth.signInWithPassword({
-      email,
-      password: senha
-    });
-
+    if (perfilErr) console.error('Erro ao criar perfil:', perfilErr);
+    await db.from('agenda_servicos').insert({ empresa_id: empresa.id, nome: servNome, preco: Number(servPreco || 0), duracao_minutos: Number(servDuracao || 60), status: 'ativo', descricao: 'Serviço inicial.' });
+    await db.from('agenda_profissionais').insert({ empresa_id: empresa.id, nome: profNomeVal, especialidade: ($('profEsp')?.value || 'Profissional').trim(), telefone: empWhatsappVal, status: 'ativo' });
+    const { data: loginData, error: loginErr } = await db.auth.signInWithPassword({ email, password: senha });
     if (loginErr || !loginData?.user) {
       if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
       closeAuth();
@@ -635,14 +531,12 @@ async function finalizarCadastro() {
       setTimeout(() => openAuth('login'), 1500);
       return;
     }
-
     state.user = loginData.user;
     state.perfil = { auth_user_id: loginData.user.id, empresa_id: empresa.id, nome: nomeUser, email };
     state.empresa = empresa;
     showDashboard();
     await loadAll();
     showNotif('Bem-vindo ao AgendaPro!', empresa.nome + ' — painel criado com sucesso.', 'ok', 7000);
-
   } catch (e) {
     console.error('Erro em finalizarCadastro:', e);
     if (btnFin) { btnFin.disabled = false; btnFin.textContent = 'Criar painel →'; }
@@ -676,10 +570,7 @@ function setupRealtime() {
   const tables = ['agenda_agendamentos', 'agenda_clientes', 'agenda_servicos', 'agenda_profissionais'];
   let ch = db.channel('ap-realtime-' + id);
   tables.forEach(table => {
-    ch = ch.on('postgres_changes', {
-      event: '*', schema: 'public', table,
-      filter: `empresa_id=eq.${id}`
-    }, payload => {
+    ch = ch.on('postgres_changes', { event: '*', schema: 'public', table, filter: `empresa_id=eq.${id}` }, payload => {
       if (table === 'agenda_agendamentos' && payload.eventType === 'INSERT') {
         showNotif('Novo agendamento!', `${payload.new?.cliente_nome || 'Cliente'} acabou de agendar.`, 'new', 6000);
       }
@@ -728,9 +619,7 @@ function preserveAgendaFormValues(callback) {
     hora: $('agHora')?.value || '',
     status: $('agStatus')?.value || ''
   };
-
   if (typeof callback === 'function') callback();
-
   if ($('agCliente') && values.cliente) $('agCliente').value = values.cliente;
   if ($('agTelefone') && values.telefone) $('agTelefone').value = values.telefone;
   if ($('agServico') && values.servico && [...$('agServico').options].some(o => o.value === values.servico)) $('agServico').value = values.servico;
@@ -781,7 +670,6 @@ function renderAll() {
     renderServicos();
     renderProfissionais();
     renderFinanceiro();
-
     const active = document.activeElement;
     const editingConfig = active && active.closest && active.closest('#view-config');
     if (!editingConfig) renderConfig();
@@ -800,7 +688,6 @@ function renderStats() {
   const fin = ags.filter(isFinanceiro);
   const fatHoje = fin.filter(a => a.data === hoje).reduce((s, a) => s + Number(a.valor || 0), 0);
   const fatMes = fin.filter(a => (a.data || '').startsWith(mes)).reduce((s, a) => s + Number(a.valor || 0), 0);
-
   setText('statHoje', ativos.filter(a => a.data === hoje).length);
   setText('statPendentes', st('Pendente'));
   setText('statConfirmados', st('Confirmado'));
@@ -872,34 +759,19 @@ function renderCalendar() {
 function renderSelects() {
   const agS = $('agServico');
   const agP = $('agProfissional');
-
   const selectedServico = agS ? agS.value : '';
   const selectedProfissional = agP ? agP.value : '';
-
   if (agS) {
-    agS.innerHTML =
-      '<option value="">Escolha serviço</option>' +
-      (state.servicos || [])
-        .filter(s => (s.status || 'ativo') === 'ativo')
-        .map(s => `<option value="${s.id}">${s.nome} — ${money(s.preco).replace(',00','')}</option>`)
-        .join('');
-
-    if (selectedServico && [...agS.options].some(o => o.value === selectedServico)) {
-      agS.value = selectedServico;
-    }
+    agS.innerHTML = '<option value="">Escolha serviço</option>' +
+      (state.servicos || []).filter(s => (s.status || 'ativo') === 'ativo')
+        .map(s => `<option value="${s.id}">${s.nome} — ${money(s.preco).replace(',00','')}</option>`).join('');
+    if (selectedServico && [...agS.options].some(o => o.value === selectedServico)) agS.value = selectedServico;
   }
-
   if (agP) {
-    agP.innerHTML =
-      '<option value="">Escolha profissional</option>' +
-      (state.profissionais || [])
-        .filter(p => (p.status || 'ativo') === 'ativo')
-        .map(p => `<option value="${p.id}">${p.nome}</option>`)
-        .join('');
-
-    if (selectedProfissional && [...agP.options].some(o => o.value === selectedProfissional)) {
-      agP.value = selectedProfissional;
-    }
+    agP.innerHTML = '<option value="">Escolha profissional</option>' +
+      (state.profissionais || []).filter(p => (p.status || 'ativo') === 'ativo')
+        .map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+    if (selectedProfissional && [...agP.options].some(o => o.value === selectedProfissional)) agP.value = selectedProfissional;
   }
 }
 
@@ -970,10 +842,11 @@ function renderTimeline() {
   });
 }
 
-// ── RENDER ACOES ──
+// ── RENDER ACOES ── (ALTERADO: botões em grade 2x2)
 function renderAcoes(a) {
   const tel = (a.cliente_telefone || a.telefone || '').replace(/\D/g, '');
   const s = normStatus(a.status);
+
   if (s === 'Excluído') {
     return `<div class="apt-actions muted-actions"><span class="badge badge-gray">🗑 Excluído</span></div>`;
   }
@@ -987,12 +860,21 @@ function renderAcoes(a) {
       <button class="act-btn refuse" onclick="excluirAgendamento('${a.id}')">🗑 Arquivar</button>
     </div>`;
   }
-  return `<div class="apt-actions">
-    ${s !== 'Confirmado' ? `<button class="act-btn confirm" onclick="confirmarAg('${a.id}')">✅ Confirmar</button>` : ''}
-    <button class="act-btn refuse" onclick="openModalRecusa('${a.id}')">✕ Recusar</button>
+
+  const confirmar = s !== 'Confirmado'
+    ? `<button class="act-btn confirm" onclick="confirmarAg('${a.id}')">✅ Confirmar</button>`
+    : '';
+
+  const whatsapp = tel
+    ? `<button class="act-btn whatsapp" onclick="abrirWA('${a.id}')">💬 WhatsApp</button>`
+    : '';
+
+  return `<div class="apt-actions apt-actions-grid">
+    ${confirmar}
     <button class="act-btn reschedule" onclick="openModalReagendar('${a.id}')">📅 Reagendar</button>
     <button class="act-btn conclude" onclick="concluirAg('${a.id}')">✓ Concluir</button>
-    ${tel ? `<button class="act-btn whatsapp" onclick="abrirWA('${a.id}')">💬 WA</button>` : ''}
+    <button class="act-btn refuse" onclick="openModalRecusa('${a.id}')">✕ Recusar</button>
+    ${whatsapp}
   </div>`;
 }
 
@@ -1000,15 +882,12 @@ function renderAcoes(a) {
 function buildActionMenu(id, items) {
   const wrap = document.createElement('div');
   wrap.className = 'action-menu';
-
   const btn = document.createElement('button');
   btn.className = 'action-menu-btn';
   btn.innerHTML = '⋮';
   btn.type = 'button';
-
   const drop = document.createElement('div');
   drop.className = 'action-dropdown';
-
   items.forEach(item => {
     if (item === 'sep') {
       const s = document.createElement('div');
@@ -1028,40 +907,28 @@ function buildActionMenu(id, items) {
     });
     drop.appendChild(el);
   });
-
   btn.addEventListener('click', e => {
     e.stopPropagation();
     e.preventDefault();
-
-    if (_openMenu === drop) {
-      closeAllMenus();
-      return;
-    }
-
+    if (_openMenu === drop) { closeAllMenus(); return; }
     closeAllMenus();
-
     const rect = btn.getBoundingClientRect();
     const dropW = 200;
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
-
     let left = rect.right - dropW;
     let top = rect.bottom + 6;
-
     if (left < 8) left = rect.left;
     if (left + dropW > viewportW - 8) left = viewportW - dropW - 8;
     if (top + 200 > viewportH - 8) top = rect.top - 210;
-
     drop.style.top = top + 'px';
     drop.style.left = left + 'px';
     drop.style.minWidth = dropW + 'px';
-
     document.body.appendChild(drop);
     drop.classList.add('open');
     _openMenu = drop;
     _openMenuBtn = btn;
   });
-
   wrap.appendChild(btn);
   wrap.appendChild(drop);
   return wrap;
@@ -1070,9 +937,7 @@ function buildActionMenu(id, items) {
 function closeAllMenus() {
   if (_openMenu) {
     _openMenu.classList.remove('open');
-    if (_openMenu.parentElement === document.body) {
-      document.body.removeChild(_openMenu);
-    }
+    if (_openMenu.parentElement === document.body) document.body.removeChild(_openMenu);
     _openMenu = null;
     _openMenuBtn = null;
   }
@@ -1276,23 +1141,17 @@ async function salvarAgendamento() {
   const agProf = $('agProfissional')?.value;
   const agData = $('agData')?.value;
   const agHora = $('agHora')?.value;
-  if (!agCli || !agSvc || !agProf || !agData || !agHora) {
-    return toast('Preencha todos os campos.', 'err');
-  }
+  if (!agCli || !agSvc || !agProf || !agData || !agHora) return toast('Preencha todos os campos.', 'err');
   const serv = (state.servicos || []).find(s => s.id === agSvc);
   const prof = (state.profissionais || []).find(p => p.id === agProf);
-
   let clienteId = null;
   try {
     const { data: cli } = await db.from('agenda_clientes').insert({
-      empresa_id: state.empresa.id,
-      nome: agCli,
-      telefone: ($('agTelefone')?.value || '').trim(),
-      status: 'ativo'
+      empresa_id: state.empresa.id, nome: agCli,
+      telefone: ($('agTelefone')?.value || '').trim(), status: 'ativo'
     }).select('*').single();
     if (cli) clienteId = cli.id;
   } catch(e) {}
-
   const { error } = await db.from('agenda_agendamentos').insert({
     empresa_id: state.empresa.id,
     cliente_id: clienteId,
@@ -1302,8 +1161,7 @@ async function salvarAgendamento() {
     cliente_telefone: ($('agTelefone')?.value || '').trim(),
     servico_nome: serv?.nome || '',
     profissional_nome: prof?.nome || '',
-    data: agData,
-    hora: agHora,
+    data: agData, hora: agHora,
     status: $('agStatus')?.value || 'Pendente',
     valor: Number(serv?.preco || 0)
   });
@@ -1329,13 +1187,11 @@ async function salvarConfig() {
     cidade: ($('cfgCidade')?.value || '').trim()
   };
   if (slugNovo !== slugAtual) {
-    const { data: slugExiste } = await db.from('agenda_empresas')
-      .select('id').eq('slug', slugNovo).neq('id', state.empresa.id).maybeSingle();
+    const { data: slugExiste } = await db.from('agenda_empresas').select('id').eq('slug', slugNovo).neq('id', state.empresa.id).maybeSingle();
     if (slugExiste) return toast('Esse link já está em uso.', 'err');
     updates.slug = slugNovo;
   }
-  const { data, error } = await db.from('agenda_empresas')
-    .update(updates).eq('id', state.empresa.id).select('*').single();
+  const { data, error } = await db.from('agenda_empresas').update(updates).eq('id', state.empresa.id).select('*').single();
   if (error) return toast('Erro ao salvar: ' + error.message, 'err');
   state.empresa = data || { ...state.empresa, ...updates };
   setText('sideNome', state.empresa.nome);
@@ -1354,8 +1210,7 @@ async function salvarRedesSociais() {
     tiktok: ($('cfgTiktok')?.value || '').trim(),
     site: ($('cfgSite')?.value || '').trim()
   };
-  const { data, error } = await db.from('agenda_empresas')
-    .update(updates).eq('id', state.empresa.id).select('*').single();
+  const { data, error } = await db.from('agenda_empresas').update(updates).eq('id', state.empresa.id).select('*').single();
   if (error) return toast('Erro ao salvar redes: ' + error.message, 'err');
   state.empresa = data || { ...state.empresa, ...updates };
   showNotif('Redes sociais salvas', '', 'ok');
@@ -1381,8 +1236,7 @@ async function confirmarAg(id) {
 async function concluirAg(id) {
   const ag = (state.agendamentos || []).find(a => a.id === id);
   if (!ag) return;
-  const { error } = await db.from('agenda_agendamentos')
-    .update({ status: 'Concluído', financeiro_status: 'Concluído' }).eq('id', id);
+  const { error } = await db.from('agenda_agendamentos').update({ status: 'Concluído', financeiro_status: 'Concluído' }).eq('id', id);
   if (error) return toast('Erro ao concluir.', 'err');
   ag.status = 'Concluído'; ag.financeiro_status = 'Concluído';
   renderAll();
@@ -1439,8 +1293,7 @@ async function confirmarRecusa() {
   if (!motivo) return toast('Escolha um motivo.', 'err');
   const ag = (state.agendamentos || []).find(a => a.id === _recusaId);
   if (!ag) return;
-  const { error } = await db.from('agenda_agendamentos')
-    .update({ status: 'Recusado', observacoes: motivo }).eq('id', _recusaId);
+  const { error } = await db.from('agenda_agendamentos').update({ status: 'Recusado', observacoes: motivo }).eq('id', _recusaId);
   if (error) return toast('Erro ao recusar.', 'err');
   ag.status = 'Recusado';
   closeModalRecusa();
@@ -1481,8 +1334,7 @@ async function confirmarReagendar() {
   if (!data || !hora) return toast('Escolha nova data e hora.', 'err');
   const ag = (state.agendamentos || []).find(a => a.id === _reagendarId);
   if (!ag) return;
-  const { error } = await db.from('agenda_agendamentos')
-    .update({ data, hora, status: 'Reagendado' }).eq('id', _reagendarId);
+  const { error } = await db.from('agenda_agendamentos').update({ data, hora, status: 'Reagendado' }).eq('id', _reagendarId);
   if (error) return toast('Erro ao reagendar.', 'err');
   ag.data = data; ag.hora = hora; ag.status = 'Reagendado';
   closeModalReagendar();
@@ -1526,34 +1378,14 @@ document.addEventListener('DOMContentLoaded', function() {
       closeConfirmModal();
     });
   }
-
   const confirmOverlay = $('confirmOverlay');
-  if (confirmOverlay) {
-    confirmOverlay.addEventListener('click', e => {
-      if (e.target === confirmOverlay) closeConfirmModal();
-    });
-  }
-
+  if (confirmOverlay) confirmOverlay.addEventListener('click', e => { if (e.target === confirmOverlay) closeConfirmModal(); });
   const editOverlay = $('editOverlay');
-  if (editOverlay) {
-    editOverlay.addEventListener('click', e => {
-      if (e.target === editOverlay) closeEditModal();
-    });
-  }
-
+  if (editOverlay) editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
   const modalRecusaOverlay = $('modalRecusaOverlay');
-  if (modalRecusaOverlay) {
-    modalRecusaOverlay.addEventListener('click', e => {
-      if (e.target === modalRecusaOverlay) closeModalRecusa();
-    });
-  }
-
+  if (modalRecusaOverlay) modalRecusaOverlay.addEventListener('click', e => { if (e.target === modalRecusaOverlay) closeModalRecusa(); });
   const modalReagendarOverlay = $('modalReagendarOverlay');
-  if (modalReagendarOverlay) {
-    modalReagendarOverlay.addEventListener('click', e => {
-      if (e.target === modalReagendarOverlay) closeModalReagendar();
-    });
-  }
+  if (modalReagendarOverlay) modalReagendarOverlay.addEventListener('click', e => { if (e.target === modalReagendarOverlay) closeModalReagendar(); });
 });
 
 // ── EDIT MODAL ──
@@ -1588,11 +1420,7 @@ function editServico(id) {
     </div>`, async () => {
     const nome = ($('ed_sn')?.value || '').trim();
     if (!nome) return toast('Preencha o nome.', 'err');
-    const { error } = await db.from('agenda_servicos').update({
-      nome,
-      preco: Number($('ed_sp')?.value || 0),
-      duracao_minutos: Number($('ed_sd')?.value || 60)
-    }).eq('id', id);
+    const { error } = await db.from('agenda_servicos').update({ nome, preco: Number($('ed_sp')?.value || 0), duracao_minutos: Number($('ed_sd')?.value || 60) }).eq('id', id);
     if (error) return toast('Erro ao salvar.', 'err');
     closeEditModal(); await loadAll();
     showNotif('Serviço atualizado', '', 'ok');
@@ -1610,11 +1438,7 @@ function editProfissional(id) {
     </div>`, async () => {
     const nome = ($('ed_pn')?.value || '').trim();
     if (!nome) return toast('Preencha o nome.', 'err');
-    const { error } = await db.from('agenda_profissionais').update({
-      nome,
-      especialidade: ($('ed_pe')?.value || '').trim(),
-      telefone: ($('ed_pt')?.value || '').trim()
-    }).eq('id', id);
+    const { error } = await db.from('agenda_profissionais').update({ nome, especialidade: ($('ed_pe')?.value || '').trim(), telefone: ($('ed_pt')?.value || '').trim() }).eq('id', id);
     if (error) return toast('Erro ao salvar.', 'err');
     closeEditModal(); await loadAll();
     showNotif('Profissional atualizado', '', 'ok');
@@ -1632,11 +1456,7 @@ function editCliente(id) {
     </div>`, async () => {
     const nome = ($('ed_cn')?.value || '').trim();
     if (!nome) return toast('Preencha o nome.', 'err');
-    const { error } = await db.from('agenda_clientes').update({
-      nome,
-      telefone: ($('ed_ct')?.value || '').trim(),
-      email: ($('ed_ce')?.value || '').trim()
-    }).eq('id', id);
+    const { error } = await db.from('agenda_clientes').update({ nome, telefone: ($('ed_ct')?.value || '').trim(), email: ($('ed_ce')?.value || '').trim() }).eq('id', id);
     if (error) return toast('Erro ao salvar.', 'err');
     closeEditModal(); await loadAll();
     showNotif('Cliente atualizado', '', 'ok');
@@ -1646,10 +1466,8 @@ function editCliente(id) {
 function editAgendamento(id) {
   const a = (state.agendamentos || []).find(x => x.id === id);
   if (!a) return;
-  const svcopts = (state.servicos || []).filter(s => s.status === 'ativo')
-    .map(s => `<option value="${s.id}"${s.id === a.servico_id ? ' selected' : ''}>${s.nome}</option>`).join('');
-  const profopts = (state.profissionais || []).filter(p => p.status === 'ativo')
-    .map(p => `<option value="${p.id}"${p.id === a.profissional_id ? ' selected' : ''}>${p.nome}</option>`).join('');
+  const svcopts = (state.servicos || []).filter(s => s.status === 'ativo').map(s => `<option value="${s.id}"${s.id === a.servico_id ? ' selected' : ''}>${s.nome}</option>`).join('');
+  const profopts = (state.profissionais || []).filter(p => p.status === 'ativo').map(p => `<option value="${p.id}"${p.id === a.profissional_id ? ' selected' : ''}>${p.nome}</option>`).join('');
   openEditModal('Editar Agendamento', `
     <div class="form-gap">
       <div class="field-row">
@@ -1680,14 +1498,10 @@ function editAgendamento(id) {
     const serv = (state.servicos || []).find(s => s.id === $('ed_as')?.value);
     const prof = (state.profissionais || []).find(p => p.id === $('ed_ap')?.value);
     const { error } = await db.from('agenda_agendamentos').update({
-      cliente_nome: cli,
-      cliente_telefone: ($('ed_atel')?.value || '').trim(),
-      servico_id: $('ed_as')?.value || null,
-      profissional_id: $('ed_ap')?.value || null,
-      servico_nome: serv?.nome || a.servico_nome,
-      profissional_nome: prof?.nome || a.profissional_nome,
-      data, hora,
-      status: $('ed_ast')?.value || 'Pendente',
+      cliente_nome: cli, cliente_telefone: ($('ed_atel')?.value || '').trim(),
+      servico_id: $('ed_as')?.value || null, profissional_id: $('ed_ap')?.value || null,
+      servico_nome: serv?.nome || a.servico_nome, profissional_nome: prof?.nome || a.profissional_nome,
+      data, hora, status: $('ed_ast')?.value || 'Pendente',
       valor: Number(serv?.preco || a.valor || 0)
     }).eq('id', id);
     if (error) return toast('Erro ao salvar.', 'err');
@@ -1698,43 +1512,28 @@ function editAgendamento(id) {
 
 // ── DUPLICAR ──
 async function duplicarServico(id) {
-  const s = (state.servicos || []).find(x => x.id === id);
-  if (!s) return;
-  await db.from('agenda_servicos').insert({
-    empresa_id: state.empresa.id, nome: s.nome + ' (cópia)',
-    preco: s.preco, duracao_minutos: s.duracao_minutos, status: 'ativo'
-  });
+  const s = (state.servicos || []).find(x => x.id === id); if (!s) return;
+  await db.from('agenda_servicos').insert({ empresa_id: state.empresa.id, nome: s.nome + ' (cópia)', preco: s.preco, duracao_minutos: s.duracao_minutos, status: 'ativo' });
   await loadAll(); showNotif('Serviço duplicado', '', 'info');
 }
 
 async function duplicarProfissional(id) {
-  const p = (state.profissionais || []).find(x => x.id === id);
-  if (!p) return;
-  await db.from('agenda_profissionais').insert({
-    empresa_id: state.empresa.id, nome: p.nome + ' (cópia)',
-    especialidade: p.especialidade, telefone: p.telefone, status: 'ativo'
-  });
+  const p = (state.profissionais || []).find(x => x.id === id); if (!p) return;
+  await db.from('agenda_profissionais').insert({ empresa_id: state.empresa.id, nome: p.nome + ' (cópia)', especialidade: p.especialidade, telefone: p.telefone, status: 'ativo' });
   await loadAll(); showNotif('Profissional duplicado', '', 'info');
 }
 
 async function duplicarCliente(id) {
-  const c = (state.clientes || []).find(x => x.id === id);
-  if (!c) return;
-  await db.from('agenda_clientes').insert({
-    empresa_id: state.empresa.id, nome: c.nome + ' (cópia)',
-    telefone: c.telefone, email: c.email, status: 'ativo'
-  });
+  const c = (state.clientes || []).find(x => x.id === id); if (!c) return;
+  await db.from('agenda_clientes').insert({ empresa_id: state.empresa.id, nome: c.nome + ' (cópia)', telefone: c.telefone, email: c.email, status: 'ativo' });
   await loadAll(); showNotif('Cliente duplicado', '', 'info');
 }
 
 async function duplicarAgendamento(id) {
-  const a = (state.agendamentos || []).find(x => x.id === id);
-  if (!a) return;
+  const a = (state.agendamentos || []).find(x => x.id === id); if (!a) return;
   await db.from('agenda_agendamentos').insert({
-    empresa_id: state.empresa.id,
-    cliente_id: a.cliente_id, servico_id: a.servico_id,
-    profissional_id: a.profissional_id,
-    cliente_nome: a.cliente_nome, cliente_telefone: a.cliente_telefone,
+    empresa_id: state.empresa.id, cliente_id: a.cliente_id, servico_id: a.servico_id,
+    profissional_id: a.profissional_id, cliente_nome: a.cliente_nome, cliente_telefone: a.cliente_telefone,
     servico_nome: a.servico_nome, profissional_nome: a.profissional_nome,
     data: a.data, hora: a.hora, status: 'Pendente', valor: a.valor
   });
@@ -1748,11 +1547,7 @@ function toggleServico(id, ns) {
     icon: ns === 'ativo' ? '▶️' : '⏸', type: ns === 'ativo' ? 'info' : 'danger',
     title: ns === 'ativo' ? 'Ativar serviço?' : 'Desativar serviço?',
     body: `"${s.nome}"`, btnLabel: ns === 'ativo' ? 'Ativar' : 'Desativar',
-    cb: async () => {
-      await db.from('agenda_servicos').update({ status: ns }).eq('id', id);
-      await loadAll();
-      showNotif(ns === 'ativo' ? 'Serviço ativado' : 'Serviço desativado', '', 'ok');
-    }
+    cb: async () => { await db.from('agenda_servicos').update({ status: ns }).eq('id', id); await loadAll(); showNotif(ns === 'ativo' ? 'Serviço ativado' : 'Serviço desativado', '', 'ok'); }
   });
 }
 
@@ -1762,11 +1557,7 @@ function toggleProfissional(id, ns) {
     icon: ns === 'ativo' ? '▶️' : '⏸', type: ns === 'ativo' ? 'info' : 'danger',
     title: ns === 'ativo' ? 'Ativar profissional?' : 'Desativar?',
     body: `"${p.nome}"`, btnLabel: ns === 'ativo' ? 'Ativar' : 'Desativar',
-    cb: async () => {
-      await db.from('agenda_profissionais').update({ status: ns }).eq('id', id);
-      await loadAll();
-      showNotif(ns === 'ativo' ? 'Profissional ativado' : 'Profissional desativado', '', 'ok');
-    }
+    cb: async () => { await db.from('agenda_profissionais').update({ status: ns }).eq('id', id); await loadAll(); showNotif(ns === 'ativo' ? 'Profissional ativado' : 'Profissional desativado', '', 'ok'); }
   });
 }
 
@@ -1776,45 +1567,29 @@ function toggleCliente(id, ativar) {
     icon: ativar ? '▶️' : '⏸', type: ativar ? 'info' : 'danger',
     title: ativar ? 'Ativar cliente?' : 'Desativar?',
     body: `"${c.nome}"`, btnLabel: ativar ? 'Ativar' : 'Desativar',
-    cb: async () => {
-      await db.from('agenda_clientes').update({ status: ativar ? 'ativo' : 'inativo' }).eq('id', id);
-      await loadAll();
-      showNotif(ativar ? 'Cliente ativado' : 'Cliente desativado', '', 'ok');
-    }
+    cb: async () => { await db.from('agenda_clientes').update({ status: ativar ? 'ativo' : 'inativo' }).eq('id', id); await loadAll(); showNotif(ativar ? 'Cliente ativado' : 'Cliente desativado', '', 'ok'); }
   });
 }
 
 // ── EXCLUIR ──
 function excluirServico(id) {
   const s = (state.servicos || []).find(x => x.id === id); if (!s) return;
-  openConfirmModal({
-    icon: '🗑', type: 'danger', title: 'Excluir serviço?', body: `"${s.nome}"`, btnLabel: 'Excluir',
-    cb: async () => {
-      await db.from('agenda_servicos').update({ status: 'excluido' }).eq('id', id);
-      await loadAll(); showNotif('Serviço excluído', '', 'info');
-    }
+  openConfirmModal({ icon: '🗑', type: 'danger', title: 'Excluir serviço?', body: `"${s.nome}"`, btnLabel: 'Excluir',
+    cb: async () => { await db.from('agenda_servicos').update({ status: 'excluido' }).eq('id', id); await loadAll(); showNotif('Serviço excluído', '', 'info'); }
   });
 }
 
 function excluirProfissional(id) {
   const p = (state.profissionais || []).find(x => x.id === id); if (!p) return;
-  openConfirmModal({
-    icon: '🗑', type: 'danger', title: 'Excluir profissional?', body: `"${p.nome}"`, btnLabel: 'Excluir',
-    cb: async () => {
-      await db.from('agenda_profissionais').update({ status: 'excluido' }).eq('id', id);
-      await loadAll(); showNotif('Profissional excluído', '', 'info');
-    }
+  openConfirmModal({ icon: '🗑', type: 'danger', title: 'Excluir profissional?', body: `"${p.nome}"`, btnLabel: 'Excluir',
+    cb: async () => { await db.from('agenda_profissionais').update({ status: 'excluido' }).eq('id', id); await loadAll(); showNotif('Profissional excluído', '', 'info'); }
   });
 }
 
 function excluirCliente(id) {
   const c = (state.clientes || []).find(x => x.id === id); if (!c) return;
-  openConfirmModal({
-    icon: '🗑', type: 'danger', title: 'Excluir cliente?', body: `"${c.nome}"`, btnLabel: 'Excluir',
-    cb: async () => {
-      await db.from('agenda_clientes').update({ status: 'inativo' }).eq('id', id);
-      await loadAll(); showNotif('Cliente removido', '', 'info');
-    }
+  openConfirmModal({ icon: '🗑', type: 'danger', title: 'Excluir cliente?', body: `"${c.nome}"`, btnLabel: 'Excluir',
+    cb: async () => { await db.from('agenda_clientes').update({ status: 'inativo' }).eq('id', id); await loadAll(); showNotif('Cliente removido', '', 'info'); }
   });
 }
 
@@ -1827,9 +1602,7 @@ function excluirAgendamento(id) {
     body: `"${a.cliente_nome}" em ${formatDate(a.data)}.${jaFoi ? ' O faturamento será preservado.' : ''}`,
     btnLabel: jaFoi ? 'Arquivar' : 'Excluir',
     cb: async () => {
-      const payload = jaFoi
-        ? { status: 'Excluído', financeiro_status: 'Concluído' }
-        : { status: 'Excluído' };
+      const payload = jaFoi ? { status: 'Excluído', financeiro_status: 'Concluído' } : { status: 'Excluído' };
       const { error } = await db.from('agenda_agendamentos').update(payload).eq('id', id);
       if (error) return toast('Erro ao excluir.', 'err');
       await loadAll();
@@ -1842,9 +1615,7 @@ function excluirAgendamento(id) {
 function copyPublicLink() {
   if (!state?.empresa?.slug) return;
   const link = publicUrl(state.empresa.slug);
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(link).catch(() => {});
-  }
+  if (navigator.clipboard) navigator.clipboard.writeText(link).catch(() => {});
   showNotif('Link copiado!', link, 'ok', 3000);
 }
 
@@ -1862,9 +1633,7 @@ async function loadPublic(slug) {
   if (dv) dv.style.display = 'none';
   if (pv) pv.style.display = 'block';
 
-  const { data: empresa, error } = await db.from('agenda_empresas')
-    .select('*').eq('slug', slug).single();
-
+  const { data: empresa, error } = await db.from('agenda_empresas').select('*').eq('slug', slug).single();
   if (error || !empresa) {
     setText('pubNomeEmpresa', 'Agenda não encontrada');
     setText('pubDescEmpresa', 'Verifique se o link está correto.');
@@ -1949,39 +1718,20 @@ async function confirmarAgendamentoPublico() {
   const pubTel = $('pubClienteTel')?.value?.trim();
   const pubData = $('pubData')?.value;
   const pubHora = $('pubHora')?.value;
-
-  if (!state.pubEmpresa || !state.pubServico || !state.pubProfissional || !pubNome || !pubTel || !pubData || !pubHora) {
-    return toast('Preencha tudo para confirmar.', 'err');
-  }
-
+  if (!state.pubEmpresa || !state.pubServico || !state.pubProfissional || !pubNome || !pubTel || !pubData || !pubHora) return toast('Preencha tudo para confirmar.', 'err');
   try {
     let clienteId = null;
-    const { data: cli } = await db.from('agenda_clientes').insert({
-      empresa_id: state.pubEmpresa.id,
-      nome: pubNome,
-      telefone: pubTel,
-      status: 'ativo'
-    }).select('*').single();
+    const { data: cli } = await db.from('agenda_clientes').insert({ empresa_id: state.pubEmpresa.id, nome: pubNome, telefone: pubTel, status: 'ativo' }).select('*').single();
     if (cli) clienteId = cli.id;
-
     const { error } = await db.from('agenda_agendamentos').insert({
-      empresa_id: state.pubEmpresa.id,
-      cliente_id: clienteId,
-      servico_id: state.pubServico.id,
-      profissional_id: state.pubProfissional.id,
-      cliente_nome: pubNome,
-      cliente_telefone: pubTel,
-      servico_nome: state.pubServico.nome,
-      profissional_nome: state.pubProfissional.nome,
-      data: pubData,
-      hora: pubHora,
-      status: 'Pendente',
-      valor: Number(state.pubServico.preco || 0),
-      observacoes: $('pubObs')?.value || ''
+      empresa_id: state.pubEmpresa.id, cliente_id: clienteId,
+      servico_id: state.pubServico.id, profissional_id: state.pubProfissional.id,
+      cliente_nome: pubNome, cliente_telefone: pubTel,
+      servico_nome: state.pubServico.nome, profissional_nome: state.pubProfissional.nome,
+      data: pubData, hora: pubHora, status: 'Pendente',
+      valor: Number(state.pubServico.preco || 0), observacoes: $('pubObs')?.value || ''
     });
-
     if (error) { console.error(error); return toast('Erro ao confirmar: ' + error.message, 'err'); }
-
     const mb = $('pubMainBody');
     const cs = $('pubConfirmScreen');
     if (mb) mb.style.display = 'none';
@@ -2041,7 +1791,6 @@ Object.assign(window, {
   openMobileMenu, closeMobileMenu
 });
 
-// ── PATCH FINAL: proteção da página pública ──
 (function() {
   function forcePublicIsolation() {
     if (!location.hash || !location.hash.startsWith('#agendar/')) return;
